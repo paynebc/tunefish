@@ -138,13 +138,9 @@
     <ClCompile Include="..\..\Source\synth\tf4.cpp"/>
     <ClCompile Include="..\..\Source\synth\tf4fx.cpp"/>
     <ClCompile Include="..\..\Source\runtime\array.cpp"/>
-    <ClCompile Include="..\..\Source\runtime\file.cpp"/>
-    <ClCompile Include="..\..\Source\runtime\point.cpp"/>
     <ClCompile Include="..\..\Source\runtime\random.cpp"/>
-    <ClCompile Include="..\..\Source\runtime\rect.cpp"/>
     <ClCompile Include="..\..\Source\runtime\runtime.cpp"/>
     <ClCompile Include="..\..\Source\runtime\simd.cpp"/>
-    <ClCompile Include="..\..\Source\runtime\string.cpp"/>
     <ClCompile Include="..\..\..\..\..\..\3rdparty\GrapefruitJUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1290,13 +1286,9 @@
     <ClInclude Include="..\..\Source\synth\tf4.hpp"/>
     <ClInclude Include="..\..\Source\synth\tf4fx.hpp"/>
     <ClInclude Include="..\..\Source\runtime\array.hpp"/>
-    <ClInclude Include="..\..\Source\runtime\file.hpp"/>
-    <ClInclude Include="..\..\Source\runtime\point.hpp"/>
     <ClInclude Include="..\..\Source\runtime\random.hpp"/>
-    <ClInclude Include="..\..\Source\runtime\rect.hpp"/>
     <ClInclude Include="..\..\Source\runtime\runtime.hpp"/>
     <ClInclude Include="..\..\Source\runtime\simd.hpp"/>
-    <ClInclude Include="..\..\Source\runtime\string.hpp"/>
     <ClInclude Include="..\..\Source\runtime\system.hpp"/>
     <ClInclude Include="..\..\Source\runtime\types.hpp"/>
     <ClInclude Include="..\..\..\..\..\..\3rdparty\GrapefruitJUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>

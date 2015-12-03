@@ -37,20 +37,12 @@
     <GROUP id="{960464A5-51F6-82CB-9F3E-210B1763250A}" name="runtime">
       <FILE id="k1TSUZ" name="array.cpp" compile="1" resource="0" file="Source/runtime/array.cpp"/>
       <FILE id="wtqNZH" name="array.hpp" compile="0" resource="0" file="Source/runtime/array.hpp"/>
-      <FILE id="jTM9nj" name="file.cpp" compile="1" resource="0" file="Source/runtime/file.cpp"/>
-      <FILE id="NdzZ5g" name="file.hpp" compile="0" resource="0" file="Source/runtime/file.hpp"/>
-      <FILE id="ADs5X3" name="point.cpp" compile="1" resource="0" file="Source/runtime/point.cpp"/>
-      <FILE id="XXt9Hd" name="point.hpp" compile="0" resource="0" file="Source/runtime/point.hpp"/>
       <FILE id="EoK9AM" name="random.cpp" compile="1" resource="0" file="Source/runtime/random.cpp"/>
       <FILE id="l0jw5j" name="random.hpp" compile="0" resource="0" file="Source/runtime/random.hpp"/>
-      <FILE id="gRRK4r" name="rect.cpp" compile="1" resource="0" file="Source/runtime/rect.cpp"/>
-      <FILE id="JABfkG" name="rect.hpp" compile="0" resource="0" file="Source/runtime/rect.hpp"/>
       <FILE id="ko9PzZ" name="runtime.cpp" compile="1" resource="0" file="Source/runtime/runtime.cpp"/>
       <FILE id="FB08nL" name="runtime.hpp" compile="0" resource="0" file="Source/runtime/runtime.hpp"/>
       <FILE id="UCPcuD" name="simd.cpp" compile="1" resource="0" file="Source/runtime/simd.cpp"/>
       <FILE id="xRcFCf" name="simd.hpp" compile="0" resource="0" file="Source/runtime/simd.hpp"/>
-      <FILE id="G5ESXB" name="string.cpp" compile="1" resource="0" file="Source/runtime/string.cpp"/>
-      <FILE id="XKxa0o" name="string.hpp" compile="0" resource="0" file="Source/runtime/string.hpp"/>
       <FILE id="o3UFJo" name="system.hpp" compile="0" resource="0" file="Source/runtime/system.hpp"/>
       <FILE id="K7fV63" name="types.hpp" compile="0" resource="0" file="Source/runtime/types.hpp"/>
     </GROUP>

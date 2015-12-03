@@ -56,13 +56,9 @@ OBJECTS := \
   $(OBJDIR)/tf4_c53dd0b0.o \
   $(OBJDIR)/tf4fx_cda591c2.o \
   $(OBJDIR)/array_c34163e3.o \
-  $(OBJDIR)/file_6142a83c.o \
-  $(OBJDIR)/point_7570d39a.o \
   $(OBJDIR)/random_f6bd4543.o \
-  $(OBJDIR)/rect_5daf98a4.o \
   $(OBJDIR)/runtime_3a4468a2.o \
   $(OBJDIR)/simd_a958b0ad.o \
-  $(OBJDIR)/string_92156991.o \
   $(OBJDIR)/juce_audio_basics_fd261753.o \
   $(OBJDIR)/juce_audio_devices_d1a8e351.o \
   $(OBJDIR)/juce_audio_formats_2a2cf1.o \
@@ -132,24 +128,9 @@ $(OBJDIR)/array_c34163e3.o: ../../Source/runtime/array.cpp
 	@echo "Compiling array.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/file_6142a83c.o: ../../Source/runtime/file.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling file.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/point_7570d39a.o: ../../Source/runtime/point.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling point.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/random_f6bd4543.o: ../../Source/runtime/random.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling random.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rect_5daf98a4.o: ../../Source/runtime/rect.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rect.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/runtime_3a4468a2.o: ../../Source/runtime/runtime.cpp
@@ -160,11 +141,6 @@ $(OBJDIR)/runtime_3a4468a2.o: ../../Source/runtime/runtime.cpp
 $(OBJDIR)/simd_a958b0ad.o: ../../Source/runtime/simd.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling simd.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/string_92156991.o: ../../Source/runtime/string.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling string.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_fd261753.o: ../../../../../../3rdparty/GrapefruitJUCE/modules/juce_audio_basics/juce_audio_basics.cpp

@@ -27,9 +27,5 @@
 #include "simd.hpp"
 #include "random.hpp"
 #include "array.hpp"
-#include "string.hpp"
-#include "point.hpp"
-#include "rect.hpp"
-#include "file.hpp"
 
 #endif

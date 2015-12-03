@@ -349,25 +349,13 @@
     <ClCompile Include="..\..\Source\runtime\array.cpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\runtime\file.cpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\runtime\point.cpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\runtime\random.cpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\runtime\rect.cpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\runtime\runtime.cpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\runtime\simd.cpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\runtime\string.cpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\3rdparty\GrapefruitJUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1650,25 +1638,13 @@
     <ClInclude Include="..\..\Source\runtime\array.hpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\runtime\file.hpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\runtime\point.hpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\runtime\random.hpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\runtime\rect.hpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\runtime\runtime.hpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\runtime\simd.hpp">
-      <Filter>Tunefish4\runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\runtime\string.hpp">
       <Filter>Tunefish4\runtime</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\runtime\system.hpp">
