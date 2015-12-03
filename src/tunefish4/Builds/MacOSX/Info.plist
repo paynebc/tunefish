@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist>
+  <dict>
+    <key>CFBundleExecutable</key>
+    <string>${EXECUTABLE_NAME}</string>
+    <key>CFBundleIconFile</key>
+    <string></string>
+    <key>CFBundleIdentifier</key>
+    <string>com.yourcompany.Tunefish4</string>
+    <key>CFBundleName</key>
+    <string>Tunefish4</string>
+    <key>CFBundlePackageType</key>
+    <string>TDMw</string>
+    <key>CFBundleSignature</key>
+    <string>PTul</string>
+    <key>CFBundleShortVersionString</key>
+    <string>4.1.0</string>
+    <key>CFBundleVersion</key>
+    <string>4.1.0</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Brain Control</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>AudioComponents</key>
+    <array>
+      <dict>
+        <key>name</key>
+        <string>braincontrol: Tunefish4</string>
+        <key>description</key>
+        <string>Tunefish4</string>
+        <key>factoryFunction</key>
+        <string>Tunefish4AUFactory</string>
+        <key>manufacturer</key>
+        <string>Bctr</string>
+        <key>type</key>
+        <string>aumu</string>
+        <key>subtype</key>
+        <string>Tfs4</string>
+        <key>version</key>
+        <integer>262400</integer>
+      </dict>
+    </array>
+  </dict>
+</plist>

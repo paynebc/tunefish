@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="hMeUe0" name="Tunefish4" projectType="audioplug" version="4.1.0"
+              bundleIdentifier="com.yourcompany.Tunefish4" includeBinaryInAppConfig="1"
+              buildVST="1" buildVST3="0" buildAU="1" buildRTAS="0" buildAAX="0"
+              pluginName="Tunefish4" pluginDesc="Tunefish4" pluginManufacturer="braincontrol"
+              pluginManufacturerCode="Bctr" pluginCode="Tfs4" pluginChannelConfigs="{1, 1}, {2, 2}"
+              pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
+              pluginSilenceInIsSilenceOut="0" pluginEditorRequiresKeys="0"
+              pluginAUExportPrefix="Tunefish4AU" pluginRTASCategory="" aaxIdentifier="org.braincontrol.Tunefish4"
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.0.2"
+              companyName="Brain Control" companyWebsite="http://www.tunefish-synth.com"
+              companyEmail="payne@braincontrol.org">
+  <MAINGROUP id="pOTaV2" name="Tunefish4">
+    <GROUP id="{34CC9C98-4AD5-64AD-05BD-45F5FD171129}" name="Plugin">
+      <FILE id="EcP6D9" name="tfsynthprogram.cpp" compile="1" resource="0"
+            file="Source/tfsynthprogram.cpp"/>
+      <FILE id="pCcA2u" name="tfsynthprogram.hpp" compile="0" resource="0"
+            file="Source/tfsynthprogram.hpp"/>
+      <FILE id="vrlQka" name="tflookandfeel.cpp" compile="1" resource="0"
+            file="Source/tflookandfeel.cpp"/>
+      <FILE id="c2vZ0Y" name="tflookandfeel.h" compile="0" resource="0" file="Source/tflookandfeel.h"/>
+      <FILE id="s0jbsF" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="D0GJV1" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="IHImWa" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="K0f55d" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+    <GROUP id="{C2EF6B1A-473C-FB34-6B17-B240ADB104BF}" name="synth">
+      <FILE id="QPHC5C" name="tf4.cpp" compile="1" resource="0" file="Source/synth/tf4.cpp"/>
+      <FILE id="tuT392" name="tf4.hpp" compile="0" resource="0" file="Source/synth/tf4.hpp"/>
+      <FILE id="z6sqVT" name="tf4fx.cpp" compile="1" resource="0" file="Source/synth/tf4fx.cpp"/>
+      <FILE id="StxsDi" name="tf4fx.hpp" compile="0" resource="0" file="Source/synth/tf4fx.hpp"/>
+    </GROUP>
+    <GROUP id="{960464A5-51F6-82CB-9F3E-210B1763250A}" name="runtime">
+      <FILE id="k1TSUZ" name="array.cpp" compile="1" resource="0" file="Source/runtime/array.cpp"/>
+      <FILE id="wtqNZH" name="array.hpp" compile="0" resource="0" file="Source/runtime/array.hpp"/>
+      <FILE id="jTM9nj" name="file.cpp" compile="1" resource="0" file="Source/runtime/file.cpp"/>
+      <FILE id="NdzZ5g" name="file.hpp" compile="0" resource="0" file="Source/runtime/file.hpp"/>
+      <FILE id="ADs5X3" name="point.cpp" compile="1" resource="0" file="Source/runtime/point.cpp"/>
+      <FILE id="XXt9Hd" name="point.hpp" compile="0" resource="0" file="Source/runtime/point.hpp"/>
+      <FILE id="EoK9AM" name="random.cpp" compile="1" resource="0" file="Source/runtime/random.cpp"/>
+      <FILE id="l0jw5j" name="random.hpp" compile="0" resource="0" file="Source/runtime/random.hpp"/>
+      <FILE id="gRRK4r" name="rect.cpp" compile="1" resource="0" file="Source/runtime/rect.cpp"/>
+      <FILE id="JABfkG" name="rect.hpp" compile="0" resource="0" file="Source/runtime/rect.hpp"/>
+      <FILE id="ko9PzZ" name="runtime.cpp" compile="1" resource="0" file="Source/runtime/runtime.cpp"/>
+      <FILE id="FB08nL" name="runtime.hpp" compile="0" resource="0" file="Source/runtime/runtime.hpp"/>
+      <FILE id="UCPcuD" name="simd.cpp" compile="1" resource="0" file="Source/runtime/simd.cpp"/>
+      <FILE id="xRcFCf" name="simd.hpp" compile="0" resource="0" file="Source/runtime/simd.hpp"/>
+      <FILE id="G5ESXB" name="string.cpp" compile="1" resource="0" file="Source/runtime/string.cpp"/>
+      <FILE id="XKxa0o" name="string.hpp" compile="0" resource="0" file="Source/runtime/string.hpp"/>
+      <FILE id="o3UFJo" name="system.hpp" compile="0" resource="0" file="Source/runtime/system.hpp"/>
+      <FILE id="K7fV63" name="types.hpp" compile="0" resource="0" file="Source/runtime/types.hpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" postbuildCommand="&#13;&#10;# This script takes the build product and copies it to the AU, VST, VST3, RTAS and AAX folders, depending on &#13;&#10;# which plugin types you've built&#13;&#10;&#13;&#10;original=$CONFIGURATION_BUILD_DIR/$FULL_PRODUCT_NAME&#13;&#10;&#13;&#10;# this looks inside the binary to detect which platforms are needed.. &#13;&#10;copyAU=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'AudioUnit' | wc -l&#96;&#13;&#10;copyVST=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'VSTPlugin' | wc -l&#96;&#13;&#10;copyVST3=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'GetPluginFactory' | wc -l&#96;&#13;&#10;copyRTAS=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'CProcess' | wc -l&#96;&#13;&#10;copyAAX=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'ACFStartup' | wc -l&#96;&#13;&#10;&#13;&#10;if [ $copyAU -gt 0 ]; then&#13;&#10;  echo &quot;Copying to AudioUnit folder...&quot;&#13;&#10;  AUDir=~/Library/Audio/Plug-Ins/Components&#13;&#10;  mkdir -p &quot;$AUDir&quot;&#13;&#10;  AU=$AUDir/$PRODUCT_NAME.component&#13;&#10;  if [ -d &quot;$AU&quot; ]; then &#13;&#10;    rm -r &quot;$AU&quot;&#13;&#10;  fi&#13;&#10;&#13;&#10;  cp -r &quot;$original&quot; &quot;$AU&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMwPTul/BNDLPTul/g' &quot;$AU/Contents/PkgInfo&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMw/BNDL/g' &quot;$AU/Contents/$INFOPLIST_FILE&quot;&#13;&#10;fi&#13;&#10;&#13;&#10;if [ $copyVST -gt 0 ]; then&#13;&#10;  echo &quot;Copying to VST folder...&quot;&#13;&#10;  VSTDir=~/Library/Audio/Plug-Ins/VST&#13;&#10;  mkdir -p &quot;$VSTDir&quot;&#13;&#10;  VST=$VSTDir/$PRODUCT_NAME.vst&#13;&#10;  if [ -d &quot;$VST&quot; ]; then &#13;&#10;    rm -r &quot;$VST&quot;&#13;&#10;  fi&#13;&#10;&#13;&#10;  cp -r &quot;$original&quot; &quot;$VST&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMwPTul/BNDLPTul/g' &quot;$VST/Contents/PkgInfo&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMw/BNDL/g' &quot;$VST/Contents/$INFOPLIST_FILE&quot;&#13;&#10;fi&#13;&#10;&#13;&#10;if [ $copyVST3 -gt 0 ]; then&#13;&#10;  echo &quot;Copying to VST3 folder...&quot;&#13;&#10;  VST3Dir=~/Library/Audio/Plug-Ins/VST3&#13;&#10;  mkdir -p &quot;$VST3Dir&quot;&#13;&#10;  VST3=$VST3Dir/$PRODUCT_NAME.vst3&#13;&#10;  if [ -d &quot;$VST3&quot; ]; then &#13;&#10;    rm -r &quot;$VST3&quot;&#13;&#10;  fi&#13;&#10;&#13;&#10;  cp -r &quot;$original&quot; &quot;$VST3&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMwPTul/BNDLPTul/g' &quot;$VST3/Contents/PkgInfo&quot;&#13;&#10;  sed -i &quot;&quot; -e 's/TDMw/BNDL/g' &quot;$VST3/Contents/$INFOPLIST_FILE&quot;&#13;&#10;fi&#13;&#10;&#13;&#10;if [ $copyRTAS -gt 0 ]; then&#13;&#10;  echo &quot;Copying to RTAS folder...&quot;&#13;&#10;  RTASDir=/Library/Application\ Support/Digidesign/Plug-Ins&#13;&#10;  if [ -d &quot;$RTASDir&quot; ]; then&#13;&#10;    RTAS=$RTASDir/$PRODUCT_NAME.dpm&#13;&#10;    if [ -d &quot;$RTAS&quot; ]; then&#13;&#10;      rm -r &quot;$RTAS&quot;&#13;&#10;    fi&#13;&#10;&#13;&#10;    cp -r &quot;$original&quot; &quot;$RTAS&quot;&#13;&#10;  fi&#13;&#10;fi&#13;&#10;&#13;&#10;if [ $copyAAX -gt 0 ]; then&#13;&#10;  echo &quot;Copying to AAX folder...&quot;&#13;&#10;&#13;&#10;  if [ -d &quot;/Applications/ProTools_3PDev/Plug-Ins&quot; ]; then&#13;&#10;    AAX1=&quot;/Applications/ProTools_3PDev/Plug-Ins/$PRODUCT_NAME.aaxplugin&quot;&#13;&#10;&#13;&#10;    if [ -d &quot;$AAX1&quot; ]; then&#13;&#10;      rm -r &quot;$AAX1&quot;&#13;&#10;    fi&#13;&#10;&#13;&#10;    cp -R -H &quot;$original&quot; &quot;$AAX1&quot;&#13;&#10;  fi&#13;&#10;&#13;&#10;  if [ -d &quot;/Library/Application Support/Avid/Audio/Plug-Ins&quot; ]; then&#13;&#10;    AAX2=&quot;/Library/Application Support/Avid/Audio/Plug-Ins/$PRODUCT_NAME.aaxplugin&quot;&#13;&#10;&#13;&#10;    if [ -d &quot;$AAX2&quot; ]; then&#13;&#10;      rm -r &quot;$AAX2&quot;&#13;&#10;    fi&#13;&#10;&#13;&#10;    cp -R -H &quot;$original&quot; &quot;$AAX2&quot;&#13;&#10;  fi&#13;&#10;fi&#13;&#10;"
+               vstFolder="~/src/3rdparty/vst" extraCompilerFlags="-msse4.1">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="1" optimisation="1" targetName="Tunefish4"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="0" optimisation="3" targetName="Tunefish4"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="c:/dev/3rdparty/vst">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="Tunefish4"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="Tunefish4"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+      </MODULEPATHS>
+    </VS2015>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="Tunefish4"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="Tunefish4"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0"/>
+  </MODULES>
+  <LIVE_SETTINGS>
+    <OSX enableCxx11="1"/>
+  </LIVE_SETTINGS>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+</JUCERPROJECT>
