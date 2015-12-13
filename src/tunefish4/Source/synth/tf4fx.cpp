@@ -359,9 +359,9 @@ void eTfEffectDistortionProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &i
         {
             eF32 val = *in;
             eF32 sign = eSign(val);
-            eF32 abs  = (eF32)eAbs(val);
-            if (abs > 1.0f) abs = 1.0;
-            eU32 offs = eFtoL(abs*32767);
+            eF32 abs  = eAbs(val);
+            if (abs > 1.0f) abs = 1.0f;
+            eU32 offs = eFtoL(abs * 32767.0f);
             *in++ = sign * dist->powTable[offs];
         }
     }

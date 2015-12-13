@@ -83,6 +83,8 @@ public:
     const String getProgramName (int index);
     void changeProgramName (int index, const String& newName);
     
+    CriticalSection & getSynthCriticalSection();
+    
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
@@ -109,6 +111,7 @@ private:
     eTfSynthProgram         copiedProgram;
     eU32                    currentProgramIndex;
     String                  pluginLocation;
+    CriticalSection         csSynth;
     
     eF32 *                  adapterBuffer[2];
     eU32                    adapterWriteOffset;

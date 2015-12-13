@@ -39,12 +39,13 @@ public:
     ~eTfFreqView();
     
     void paint (Graphics& g);
-    void setSynth(eTfSynth *synth, eTfInstrument *instr);
+    void setSynth(Tunefish4AudioProcessor *processor, eTfSynth *synth, eTfInstrument *instr);
     
 private:
-    eTfSynth *		m_synth;
-    eTfInstrument * m_instr;
-    eTfVoice *		m_voice;
+    eTfSynth *                  m_synth;
+    eTfInstrument *             m_instr;
+    eTfVoice *                  m_voice;
+    Tunefish4AudioProcessor *   m_processor;
 };
 
 class eTfSlider : public Slider

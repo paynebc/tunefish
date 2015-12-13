@@ -50,10 +50,12 @@ eTfFreqView::~eTfFreqView()
     eDelete(m_voice);
 }
 
-void eTfFreqView::setSynth(eTfSynth *synth, eTfInstrument *instr)
+void eTfFreqView::setSynth(Tunefish4AudioProcessor *processor, eTfSynth *synth, eTfInstrument *instr)
 {
+    m_processor = processor;
     m_synth = synth;
     m_instr = instr;
+    
 }
 
 void eTfFreqView::paint (Graphics& g)
@@ -71,19 +73,23 @@ void eTfFreqView::paint (Graphics& g)
     
     if (m_synth != nullptr && m_instr != nullptr)
     {
+        m_processor->getSynthCriticalSection().enter();
+        
         g.setColour(Colours::white);
         
         eTfVoice *voice = m_instr->latestTriggeredVoice;
-        if (!voice)
+        if (!voice) {
             voice = m_voice;
+        }
         
         m_voice->generator.modulation = voice->generator.modulation;
         
         eTfVoiceReset(*m_voice);
         eTfGeneratorUpdate(*m_synth, *m_instr, *voice, m_voice->generator, 1.0f);
         eF32 *freqTable = m_voice->generator.freqTable;
-        if (eTfGeneratorModulate(*m_synth, *m_instr, *voice, m_voice->generator))
+        if (eTfGeneratorModulate(*m_synth, *m_instr, *voice, m_voice->generator)) {
             freqTable = m_voice->generator.freqModTable;
+        }
         
         eF32 next_sep = 0.1f;
         for (eU32 x=0; x<viewWidth; x++)
@@ -140,6 +146,8 @@ void eTfFreqView::paint (Graphics& g)
             lastValue = value;
             lastValueDrv = valueDrv;
         }
+        
+        m_processor->getSynthCriticalSection().exit();
     }
     
     g.setColour(Colour::fromRGB(0, 0, 0));
@@ -268,7 +276,7 @@ m_btnLFO2ShapeNoise("lfo2shapenoise", DrawableButton::ImageOnButtonBackground)
     m_grpGenerator.addChildComponent(&m_freqView);
     m_freqView.setVisible(true);
     m_freqView.setBounds(10, 150, 570, 170);
-    m_freqView.setSynth(synth, synth->instr[0]);
+    m_freqView.setSynth(ownerFilter, synth, synth->instr[0]);
     
     // -------------------------------------
     //  FILTER GROUPS

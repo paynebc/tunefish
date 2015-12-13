@@ -248,12 +248,14 @@ void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffe
         {
             if (!adapterDataAvailable)
             {
+                csSynth.enter();
                 eMemSet(adapterBuffer[0], 0, TF_BUFFERSIZE * sizeof(eF32));
                 eMemSet(adapterBuffer[1], 0, TF_BUFFERSIZE * sizeof(eF32));
                 processEvents(midiMessages, messageOffset, TF_BUFFERSIZE);
                 eTfInstrumentProcess(*synth, *tf, adapterBuffer, TF_BUFFERSIZE);
                 messageOffset += TF_BUFFERSIZE;
                 adapterDataAvailable = TF_BUFFERSIZE;
+                csSynth.exit();
             }
             
             eF32 *srcL = &adapterBuffer[0][TF_BUFFERSIZE - adapterDataAvailable];
@@ -501,4 +503,9 @@ void Tunefish4AudioProcessor::setStateInformation (const void* data, int sizeInB
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new Tunefish4AudioProcessor();
+}
+
+CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
+{
+    return csSynth;
 }

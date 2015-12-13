@@ -545,7 +545,7 @@ eBool eIsDigit(eChar c)
 
 eF32 eAbs(eF32 x)
 {
-    return abs(x);
+    return fabsf(x);
 }
 
 eInt eAbs(eInt x)
@@ -555,7 +555,7 @@ eInt eAbs(eInt x)
 
 eF32 ePow(eF32 base, eF32 exp)
 {
-    return pow(base, exp);
+    return powf(base, exp);
 }
 
 eF32 eSinH(eF32 x)
@@ -762,7 +762,7 @@ eU32 eHashStr(const eChar *str)
     eU32 hash = 5381;
     eChar c;
     
-    while (c = *str++)
+    while ((c = *str++))
         hash = ((hash<<5)+hash)+c; // does a hash*33+c
 
     return hash;
