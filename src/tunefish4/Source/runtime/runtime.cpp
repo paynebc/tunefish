@@ -3,17 +3,17 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
@@ -30,102 +30,6 @@
 #include "runtime.hpp"
 
 #pragma intrinsic(abs, sin, cos, tan, atan, atan2, sqrt, acos, asin, exp, memset, memcpy, pow)
-
-#if defined(eRELEASE) && defined(ePLAYER)
-
-ePtr eCDECL operator new(eU32 size)
-{
-    return HeapAlloc(GetProcessHeap(), 0, size);
-}
-
-ePtr eCDECL operator new [] (eU32 size)
-{
-    return HeapAlloc(GetProcessHeap(), 0, size);
-}
-
-void eCDECL operator delete(ePtr ptr)
-{
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
-void eCDECL operator delete [] (ePtr ptr)
-{
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
-#else
-
-#undef new
-#undef delete
-#ifdef _WIN32
-#include <crtdbg.h>
-#include <malloc.h>
-#endif
-#undef new
-#undef delete
-
-static eU64 g_allocedMem = 0;
-static eU64 g_allocCount = 0;
-
-ePtr operator new(size_t size, const eChar *file, eU32 line)
-{
-#ifdef eDEBUG
-    ePtr ptr = _malloc_dbg(size, _NORMAL_BLOCK, file, line);
-#else
-    ePtr ptr = malloc(size);
-#endif
-
-#ifdef eEDITOR
-    g_allocedMem += _msize(ptr);
-    g_allocCount++;
-#endif
-
-    return ptr;
-}
-
-ePtr eCDECL operator new [] (size_t size, const eChar *file, eU32 line)
-{
-    return ::operator new(size, file, line);
-}
-
-ePtr eCDECL operator new(size_t size)
-{
-    return ::operator new(size, "", 0);
-}
-
-void eCDECL operator delete(ePtr ptr)
-{
-    if (!ptr)
-        return;
-
-#ifdef eEDITOR
-    g_allocedMem -= _msize(ptr);
-    g_allocCount--;
-#endif
-
-#ifdef eDEBUG
-    _free_dbg(ptr, _NORMAL_BLOCK);
-#else
-    free(ptr);
-#endif
-}
-
-void eCDECL operator delete [] (ePtr ptr)
-{
-    ::operator delete(ptr);
-}
-
-void eCDECL operator delete (ePtr ptr, const eChar *file, eU32 line)
-{
-    ::operator delete [] (ptr);
-}
-
-void eCDECL operator delete [] (ePtr ptr, const eChar *file, eU32 line)
-{
-    ::operator delete(ptr);
-}
-
-#endif
 
 ePtr eAllocAligned(eU32 size, eU32 alignment)
 {
@@ -157,129 +61,6 @@ void eFreeAligned(ePtr ptr)
         ePtr realPtr = (ePtr)(*((eU64 *)ptr-1));
         eDeleteArray(realPtr);
     }
-}
-
-#ifndef ePLAYER
-static eLogHandler g_logHandler = nullptr;
-static ePtr        g_logHandlerParam = nullptr;
-
-void eSetLogHandler(eLogHandler handler, ePtr param)
-{
-    g_logHandler = handler;
-    g_logHandlerParam = param;
-}
-#endif
-
-void eWriteToLog(const eChar *msg)
-{
-#ifdef eEDITOR
-    if (g_logHandler)
-        g_logHandler(msg, g_logHandlerParam);
-#endif
-
-    // always output message to console
-#ifdef _WIN32
-    OutputDebugString(msg);
-    OutputDebugString("\n");
-#endif
-}
-
-#ifndef ePLAYER
-eU64 eGetAllocatedMemory()
-{
-    return g_allocedMem;
-}
-
-eBool eGetSystemMemoryStats(eMemoryStats &ms)
-{
-#ifdef _WIN32
-    MEMORYSTATUSEX mse;
-    eMemZero(mse);
-    mse.dwLength = sizeof(mse);
-
-    if (GlobalMemoryStatusEx(&mse))
-    {
-        ms.virtTotal = mse.ullTotalVirtual;
-        ms.virtInUse = mse.ullTotalVirtual-mse.ullAvailVirtual;
-        ms.physTotal = mse.ullTotalPhys;
-        ms.physInUse = mse.ullTotalPhys-mse.ullAvailPhys;
-        return eTRUE;
-    }
-#endif
-    return eFALSE;
-}
-#endif
-
-void eLeakDetectorStart()
-{
-#ifdef _WIN32
-#ifdef eDEBUG
-    const eInt curFlags = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
-    _CrtSetDbgFlag(curFlags|_CRTDBG_LEAK_CHECK_DF|_CRTDBG_ALLOC_MEM_DF);
-#endif
-#endif
-}
-
-void eLeakDetectorStop()
-{
-#ifdef _WIN32
-#ifdef eDEBUG
-    const eInt oldFlags = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
-    _CrtSetDbgFlag(oldFlags & ~(_CRTDBG_LEAK_CHECK_DF|_CRTDBG_ALLOC_MEM_DF));
-#endif
-#endif
-}
-
-#ifdef eDEBUG
-// returns if user pressed the "try again" button
-eBool eShowAssertion(const eChar *expr, const eChar *file, eU32 line)
-{
-#ifdef _WIN32
-    eChar program[256];
-    GetModuleFileName(GetModuleHandle(nullptr), program, 256);
-
-    eChar text[1024];
-    eStrCopy(text, "Debug assertion failed!\n\nProgram: ");
-    eStrAppend(text, program);
-    eStrAppend(text, "\nFile: ");
-    eStrAppend(text, file);
-    eStrAppend(text, "\nLine: ");
-    eStrAppend(text, eIntToStr(line));
-    eStrAppend(text, "\n\nExpression: ");
-    eStrAppend(text, expr);
-    eStrAppend(text, "\n\nPress OK to debug the application, cancel to stop execution\n"
-                     "and continue to ignore assertion.");
-
-    // always output message to console
-    OutputDebugString(text);
-    OutputDebugString("\n");
-
-    // use default assertion handler in player
-    // or if no custom handler was specified
-    switch (MessageBox(nullptr, text, "Enigma - Assertion", MB_TASKMODAL|MB_ICONERROR|MB_CANCELTRYCONTINUE))
-    {
-    case IDTRYAGAIN:
-        return eTRUE;
-    case IDCANCEL:
-        eFatal(-1);
-    }
-#endif
-    return eFALSE;
-}
-#endif
-
-void eShowError(const eChar *error)
-{
-#ifdef _WIN32
-    MessageBox(nullptr, error, "Enigma - Error", MB_TASKMODAL|MB_ICONERROR);
-#endif
-}
-
-void eFatal(eU32 exitCode)
-{
-#ifdef _WIN32
-    ExitProcess(exitCode);
-#endif
 }
 
 ePtr eMemRealloc(ePtr ptr, eU32 oldLength, eU32 newLength)
@@ -465,7 +246,7 @@ eChar * eIntToStr(eInt val)
     if (negative)
         *(--cp) = '-';
 
-    return cp; 
+    return cp;
 }
 
 #if !defined(ePLAYER) || !defined(eRELEASE)
@@ -626,7 +407,7 @@ eU32 eRoundToMultiple(eU32 x, eU32 multiple)
 
 eBool eIsNumber(eF32 x)
 {
-   return (!eIsNan(x)) && (x <= eF32_MAX && x >= -eF32_MAX); 
+   return (!eIsNan(x)) && (x <= eF32_MAX && x >= -eF32_MAX);
 }
 
 eF32 eLog10(eF32 x)
@@ -737,7 +518,7 @@ eF32 eRadToDeg(eF32 radians)
 eBool eIsAligned(eConstPtr data, eU32 alignment)
 {
     // check that the alignment is a power-of-two
-    eASSERT((alignment&(alignment-1)) == 0); 
+    eASSERT((alignment&(alignment-1)) == 0);
     return (((eU64)data&(alignment-1)) == 0);
 }
 
@@ -761,7 +542,7 @@ eU32 eHashStr(const eChar *str)
 {
     eU32 hash = 5381;
     eChar c;
-    
+
     while ((c = *str++))
         hash = ((hash<<5)+hash)+c; // does a hash*33+c
 

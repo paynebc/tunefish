@@ -3,17 +3,17 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
@@ -39,84 +39,11 @@
 #define eMAX_PATH               260 // maximum length of a full path name
 
 // function macros
-
+#define eASSERT(x);
 #define eELEMENT_COUNT(a)       (sizeof(a)/sizeof(a[0]))
 #define eASSERT_ALIGNED16(x)    eASSERT(eU32(x)%16 == 0)
 #define eCOALESCE(x, y)         (x == nullptr ? y : x)
 
-#ifdef eDEBUG
-    #define eASSERT(expr)                                   \
-    {                                                       \
-        if (!(expr))                                        \
-            if (eShowAssertion(#expr, __FILE__, __LINE__))  \
-                eDEBUGBREAK();                              \
-    }
-#else   
-    #define eASSERT(x)
-#endif
-
-// overloaded new and delete operators: WinAPI
-// versions for release build and memory tracking
-// versions for debug build.
-#if defined(eRELEASE) && defined(ePLAYER)
-    ePtr eCDECL operator new(eU32 size);
-    ePtr eCDECL operator new [] (eU32 size);
-    void eCDECL operator delete(ePtr ptr);
-    void eCDECL operator delete [] (ePtr ptr);
-#else
-    // warning: assumption here is that if there is a
-    // symbol multiply defined in an .obj and a .lib
-    // file, the compiler uses the symbol from the
-    // .obj file. this is especially important when
-    // linking external 3rd-party libraries
-    #undef new
-
-    ePtr eCDECL operator new(size_t size, const eChar *file, eU32 line);
-    ePtr eCDECL operator new [] (size_t size, const eChar *file, eU32 line);
-    ePtr eCDECL operator new(size_t size);
-
-    void eCDECL operator delete(ePtr ptr);
-    void eCDECL operator delete [] (ePtr ptr);
-
-    // also overloaded delete operators to assure
-    // that memory is freed when an initialization
-    // throws an exception
-    void eCDECL operator delete (ePtr ptr, const eChar *file, eU32 line);
-    void eCDECL operator delete [] (ePtr ptr, const eChar *file, eU32 line);
-
-    #define new new(__FILE__, __LINE__)
-#endif
-
-#define eALLOC_STACK(type, count)  ((type *)_alloca((count)*sizeof(type))) // macro because it has to get inlined!
-
-// most of the following functions are not inlined for size reasons
-
-#ifndef ePLAYER
-typedef void (* eLogHandler)(const eChar *msg, ePtr param);
-typedef eBool (* eAssertHandler)(const eChar *msg);
-
-struct eMemoryStats
-{
-    eU64 virtTotal;
-    eU64 virtInUse;
-    eU64 physTotal;
-    eU64 physInUse;
-};
-
-eU64    eGetAllocatedMemory();
-eBool   eGetSystemMemoryStats(eMemoryStats &ms);
-void    eSetLogHandler(eLogHandler handler, ePtr param);
-#endif
-
-#ifdef eDEBUG
-eBool   eShowAssertion(const eChar *exp, const eChar *file, eU32 line);
-#endif
-
-void    eWriteToLog(const eChar *msg);
-void    eLeakDetectorStart();
-void    eLeakDetectorStop();
-void    eShowError(const eChar *error);
-void    eFatal(eU32 exitCode);
 ePtr    eAllocAligned(eU32 size, eU32 alignment);
 ePtr    eAllocAlignedAndZero(eU32 size, eU32 alignment);
 void    eFreeAligned(ePtr ptr);
@@ -184,9 +111,9 @@ eU32    eBzr(eU32 x);
 eBool   eClosedIntervalsOverlap(eInt start0, eInt end0, eInt start1, eInt end1);
 
 // negative safe modulo  -1 % 5 will return -1.  eNsMod(-1, 5) will return 4.
-eFORCEINLINE eInt eNsMod(eInt x, eInt y) 
+eFORCEINLINE eInt eNsMod(eInt x, eInt y)
 {
-    return ((x % y) + y) % y; 
+    return ((x % y) + y) % y;
 }
 
 // inlineable functions
