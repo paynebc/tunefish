@@ -97,7 +97,8 @@
         <MODULEPATH id="juce_audio_plugin_client" path="../../../../3rdparty/GrapefruitJUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
-    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst">
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst"
+                extraCompilerFlags="-fpermissive">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="Tunefish4"/>

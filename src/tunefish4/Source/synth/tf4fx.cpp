@@ -202,20 +202,12 @@ void eTfEffectDelayProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr,
 //  EFFECT REVERB
 // ---------------------------------------------------------------------------------------------------------------------------
 
-const eF32 MUTED        = 0.0f;
 const eF32 FIXEDGAIN    = 0.015f;
 const eF32 SCALEWET     = 3.0f;
 const eF32 SCALEDRY     = 2.0f;
 const eF32 SCALEDAMP    = 0.4f;
 const eF32 SCALEROOM    = 0.28f;
 const eF32 OFFSETROOM   = 0.7f;
-const eF32 INITIALROOM  = 0.5f;
-const eF32 INITIALDAMP  = 0.5f;
-const eF32 INITIALWET   = 1.0f / SCALEWET;
-const eF32 INITIALDRY   = 0.0f;
-const eF32 INITIALWIDTH = 1.0f;
-const eF32 INITIALMODE  = 0.0f;
-const eF32 FREEZEMODE   = 0.5f;
 const eInt STEREOSPREAD = 23;
 
 const eInt COMBTUNINGS[]    = { 1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617 };
