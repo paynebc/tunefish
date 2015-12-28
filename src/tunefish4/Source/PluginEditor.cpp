@@ -206,7 +206,7 @@ m_btnLFO2ShapeNoise("lfo2shapenoise", DrawableButton::ImageOnButtonBackground)
 
     _createIcons();
 
-    _addLabel(this, m_lblVersion, "v4.0.1", 1040, 0, 40, 15);
+    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1040, 0, 40, 15);
     m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
 
     // -------------------------------------
