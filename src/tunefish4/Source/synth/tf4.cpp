@@ -3,19 +3,19 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 #include "../runtime/system.hpp"
@@ -54,9 +54,9 @@ eBool eTfSignalMix(eF32 **master, eF32 **in, eU32 length, eF32 volume)
 
         eF32x2 val = eSimdAdd(
             eSimdMul(
-                eSimdSet2(*mix1++, *mix2++), 
+                eSimdSet2(*mix1++, *mix2++),
                 const_vol
-            ), 
+            ),
             eSimdSet2(*signal1, *signal2)
             );
 
@@ -124,7 +124,7 @@ void eTfSignalToPeak(eF32 **sig, eF32 *peak_left, eF32 *peak_right, eU32 length)
 void eTfEnvelopeReset(eTfEnvelope &state)
 {
     state.phase = eTfEnvelope::FINISHED;
-    state.volume = 0.0;    
+    state.volume = 0.0;
 }
 
 eBool eTfEnvelopeIsEnd(eTfEnvelope &state)
@@ -221,14 +221,14 @@ eF32 eTfEnvelopeProcess(eTfSynth &synth, eTfInstrument &instr, eTfEnvelope &envS
     case eTfEnvelope::FINISHED:
         break;
     }
-    
+
     /*
     if (volume != volume) // NaN
         volume = 0.0f;
-    
+
     volume = eClamp<eF32>(0.0f, volume, 1.0f);
     */
-    
+
     envState.volume = volume;
     return volume;
 }
@@ -253,31 +253,31 @@ eF32 eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eU32
     freq = (freq * freq) / synth.sampleRate * frameSize * 50.0f;
 
 #ifdef eCFG_NO_TF_LFO_SINE
-	if (shape < 0.2f)       { }												
+	if (shape < 0.2f)       { }
 #else
     if (shape < 0.2f)       result = ((eSin(lfoState.phase) + 1.0f) / 2.0f);
 #endif
 #ifdef eCFG_NO_TF_LFO_SAWDOWN
-    else if (shape < 0.4f)  { }	                                       
+    else if (shape < 0.4f)  { }
 #else
 	else if (shape < 0.4f)  result = eMod(lfoState.phase, eTWOPI) / eTWOPI;
 #endif
 #ifdef eCFG_NO_TF_LFO_SAWUP
-	else if (shape < 0.6f)  { }                              
+	else if (shape < 0.6f)  { }
 #else
 	else if (shape < 0.6f)  result = 1.0f - (eMod(lfoState.phase, eTWOPI) / eTWOPI);
 #endif
 #ifdef eCFG_NO_TF_LFO_PULSE
-	else if (shape < 0.8f)  { }                                          
+	else if (shape < 0.8f)  { }
 #else
-	else if (shape < 0.8f)  result = (lfoState.phase < ePI) ? 1.0f : 0.0f;           
+	else if (shape < 0.8f)  result = (lfoState.phase < ePI) ? 1.0f : 0.0f;
 #endif
 #ifdef eCFG_NO_TF_LFO_NOISE
-	else                    { }  
+	else                    { }
 #else
-	else                    result = synth.lfoNoiseTable[eFtoL(lfoState.phase / (ePI*2) * TF_LFONOISETABLESIZE)];   
+	else                    result = synth.lfoNoiseTable[eFtoL(lfoState.phase / (ePI*2) * TF_LFONOISETABLESIZE)];
 #endif
-	
+
     result = (result * depth) + (1.0f - depth);
 
     lfoState.phase += freq;
@@ -330,8 +330,8 @@ eBool eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &s
 
         state.entries[i].src   = (eTfModMatrix::Input)eFtoL(eRoundNearest(instr.params[TF_MM1_SOURCE + i*3] * (eTfModMatrix::INPUT_COUNT-1)));
         state.entries[i].dst   = (eTfModMatrix::Output)eFtoL(eRoundNearest(instr.params[TF_MM1_TARGET + i*3] * (eTfModMatrix::OUTPUT_COUNT-1)));
-        state.entries[i].mod   = mod; 
-        state.entries[i].result= 1.0f; 
+        state.entries[i].mod   = mod;
+        state.entries[i].result= 1.0f;
 
         switch(state.entries[i].src)
         {
@@ -346,7 +346,7 @@ eBool eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &s
             lfo2_done = eTRUE;
             state.entries[i].result = state.entries[i].mod * state.values[eTfModMatrix::INPUT_LFO2] * state.modulation[i];
             break;
-        
+
         case eTfModMatrix::INPUT_ADSR1:
             if (!adsr1_done)
             {
@@ -374,7 +374,7 @@ eBool eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &s
             break;
         }
     }
-    
+
     // determine values for self-modulation of mod matrix
     for(eU32 i=0;i<TF_MODMATRIXENTRIES;i++)
     {
@@ -450,7 +450,7 @@ void eTfGeneratorNormalize(eF32 *buffer, eU32 frameSize)
     eF32 max = 0.0;
     eF32 *smp = buffer;
     eU32 len = frameSize;
-    
+
 	// normalize the signal
 	// ------------------------------------------
     while(len--)
@@ -459,12 +459,12 @@ void eTfGeneratorNormalize(eF32 *buffer, eU32 frameSize)
         if (abs_smp > max) max = abs_smp;
         smp += 2;
     }
-    
-    if (max<1e-5f) max=1e-5f;    
+
+    if (max<1e-5f) max=1e-5f;
     max = 1.0f/max;
     smp = buffer;
     len = frameSize;
-    
+
 	eF32 avg = 0.0f;
     while(len--)
     {
@@ -496,15 +496,15 @@ void eTfGeneratorFft(eTfSynth &synth, eTfFftType type, eU32 frameSize, eF32 *fft
     eF32 sine, cosine;
     eInt count = eFtoL(eLog10((eF32)frameSize)/eLog10(2.0f));
 
-    for (i = 2; i < (eInt)(2*frameSize-2); i += 2) 
+    for (i = 2; i < (eInt)(2*frameSize-2); i += 2)
     {
-        for (bitm = 2, j = 0; bitm < (eInt)(2*frameSize); bitm <<= 1) 
+        for (bitm = 2, j = 0; bitm < (eInt)(2*frameSize); bitm <<= 1)
         {
             if (i & bitm) j++;
             j <<= 1;
         }
 
-        if (i < j) 
+        if (i < j)
         {
             p1 = fftBuffer+i; p2 = fftBuffer+j;
             temp = *p1; *(p1++) = *p2;
@@ -512,7 +512,7 @@ void eTfGeneratorFft(eTfSynth &synth, eTfFftType type, eU32 frameSize, eF32 *fft
             *p1 = *p2; *p2 = temp;
         }
     }
-    for (k = 0, le = 2; k < count; k++) 
+    for (k = 0, le = 2; k < count; k++)
     {
         le <<= 1;
         le2 = le>>1;
@@ -524,12 +524,12 @@ void eTfGeneratorFft(eTfSynth &synth, eTfFftType type, eU32 frameSize, eF32 *fft
         wr = cosine;
         wi = fsign * sine;
 
-        for (j = 0; j < le2; j += 2) 
+        for (j = 0; j < le2; j += 2)
         {
             p1r = fftBuffer+j; p1i = p1r+1;
             p2r = p1r+le2; p2i = p2r+1;
 
-            for (i = j; i < (eInt)(2*frameSize); i += le) 
+            for (i = j; i < (eInt)(2*frameSize); i += le)
             {
                 tr = *p2r * ur - *p2i * ui;
                 ti = *p2r * ui + *p2i * ur;
@@ -551,7 +551,7 @@ void eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, 
     eU32 frameSize = TF_IFFT_FRAMESIZE * 2;
     eU32 frameSizeHalf = frameSize / 2;
     eU32 genFrameSize = eFtoL(eF32(frameSizeHalf) * frequencyRange);
-    
+
     if (genFrameSize < 4)
         genFrameSize = 4;
 
@@ -564,7 +564,7 @@ void eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, 
     bandwidth   *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_BANDWIDTH);
     damp        *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_DAMP);
     scale       *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_SCALE);
-    
+
     harmonics   = eClamp<eF32>(0.0f, harmonics, 1.0f);
     bandwidth   = eClamp<eF32>(0.0f, bandwidth, 1.0f);
     damp        = eClamp<eF32>(0.0f, damp, 1.0f);
@@ -587,7 +587,7 @@ void eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, 
         for (eU32 harmonicIndex=1; harmonicIndex < numHarmonics + 1; harmonicIndex++)
         {
             eF32 invHarmonicFrequency = (1.0f / TF_IFFT_FRAMESIZE) * harmonicIndex;
-            harmonicOffset[harmonicIndex-1] = (((invHarmonicFrequency * frameSize) - 1.0f) * scale) + 1.0f; 
+            harmonicOffset[harmonicIndex-1] = (((invHarmonicFrequency * frameSize) - 1.0f) * scale) + 1.0f;
             harmonicBandwidth[harmonicIndex-1] = 0.3f + (bandwidth * harmonicIndex);
             harmonicVolume[harmonicIndex-1] = 1.0f / ePow((eF32)harmonicIndex, 1.0f + damp);
         }
@@ -608,7 +608,7 @@ void eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, 
 
                 if (dist < 5.0f)
                 {
-                    eU32 expLookup = eFtoL(dist / 5.0f * (TF_MAXFRAMESIZE-1)); 
+                    eU32 expLookup = eFtoL(dist / 5.0f * (TF_MAXFRAMESIZE-1));
                     eF32 exp = synth.expBuffer[expLookup];
                     exp *= *volumePtr;
                     amp += exp;
@@ -653,7 +653,7 @@ eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voic
     {
         eF32 modulationStrength = (eF32)i / (eF32)frameSizeHalf;
 
-        eF32 sineOffset = 0.0f; 
+        eF32 sineOffset = 0.0f;
         if (instr.params[TF_GEN_MODULATION])
             sineOffset = (generator.modulation * TF_FRAMESIZE) * (1.0f - (random * *randPtr++));
 
@@ -666,7 +666,7 @@ eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voic
 
     generator.freqModTable[0] = 1.0f;
     generator.freqModTable[1] = 0.0f;
-    
+
     generator.modulation += modulation / 100.0f;
 
     return eTRUE;
@@ -677,7 +677,7 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
     eF32 vol = instr.params[TF_GEN_VOLUME] * 4.0f * velocity;
     eF32 maxCurrentVolume = eMax(voice.lastVolL, voice.lastVolR);
     eF32 maxFrameVolume = eMax(maxCurrentVolume, vol);
-    
+
     if (maxFrameVolume > 0.0f)
     {
         eF32 freq       = instr.params[TF_GEN_FREQ];
@@ -736,7 +736,7 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
 
         // calculate signal
         // -------------------------------------------------
-        eF32x2 mdrive = eSimdSetAll(drive);        
+        eF32x2 mdrive = eSimdSetAll(drive);
         eF32x2 mmin = eSimdSetAll(-1.0f);
         eF32x2 mmax = eSimdSetAll(1.0f);
 
@@ -748,9 +748,9 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
             eF32 *phase2 = &generator.phase[j*2+1];
 
 			eF32x2 mvol = eSimdSet2(voice.lastVolL, voice.lastVolR);
-			eF32x2 mvol_step = eSimdSet2((vol_left - voice.lastVolL) / frameSize, 
+			eF32x2 mvol_step = eSimdSet2((vol_left - voice.lastVolL) / frameSize,
 				                         (vol_right - voice.lastVolR) / frameSize);
-			
+
             // make sure we do not get in negative value (for example with LFO modulation) or we crash
             if (generator.freq1 < 0.0f) generator.freq1 *= -1.0f;
             if (generator.freq2 < 0.0f) generator.freq2 *= -1.0f;
@@ -768,7 +768,7 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
                     eSimdMax(
                         eSimdMin(
                             eSimdMul(
-                                eSimdSet2(val1, val2), 
+                                eSimdSet2(val1, val2),
                                 mdrive),
                             mmax),
                         mmin),
@@ -874,7 +874,7 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
 {
     f = eClamp<eF32>(0.0f, f, 1.0f);
     q = eClamp<eF32>(0.0f, q, 0.85f);
-        
+
     if (type == eTfFilter::FILTER_LP)
     {
         f = f * f * 20000.0f + 30.0f;
@@ -887,14 +887,14 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
     else if (type == eTfFilter::FILTER_NT)
     {
         f = f * f * 20000.0f + 30.0f;
-        
-        eF32 z1x = eCos(2.0f * ePI * f / synth.sampleRate); 
 
-        state.b0 = (1.0f-q)*(1.0f-q)/(2.0f*(eAbs(z1x)+1.0f)) + q; 
+        eF32 z1x = eCos(2.0f * ePI * f / synth.sampleRate);
+
+        state.b0 = (1.0f-q)*(1.0f-q)/(2.0f*(eAbs(z1x)+1.0f)) + q;
         state.b2 = state.b0;
-        state.b1 = -2.0f * z1x * state.b0; 
-        state.a1 = -2.0f * z1x * q; 
-        state.a2 = q*q; 
+        state.b1 = -2.0f * z1x * state.b0;
+        state.a1 = -2.0f * z1x * q;
+        state.a2 = q*q;
     }
     else
     {
@@ -906,7 +906,7 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
         const eF32 sin_w0 = eSin(w0);
 
         eF32 alpha = sin_w0 * eSinH( eLog10(2.0f)/2.0f * (1.0f - q) * w0/sin_w0 );
-           
+
         switch(type)
         {
             case eTfFilter::FILTER_HP:
@@ -915,7 +915,7 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
                 state.b2 =  state.b0;
                 break;
 
-            case eTfFilter::FILTER_BP:         
+            case eTfFilter::FILTER_BP:
                 state.b0 =  sin_w0 / 2.0f;
                 state.b1 =  0.0f;
                 state.b2 = -state.b0;
@@ -1007,13 +1007,13 @@ void eTfFilterProcess(eTfFilter &state, eTfFilter::Type type, eF32 **signal, eU3
                             eSimdSub(
                                 eSimdAdd(
                                     eSimdAdd(
-                                        eSimdMul(b0, state.in0), 
+                                        eSimdMul(b0, state.in0),
                                         eSimdMul(b1, state.in1)),
-                                    eSimdMul(b2, state.in2)), 
+                                    eSimdMul(b2, state.in2)),
                                 eSimdMul(a1, state.out1)),
-                            eSimdMul(a2, state.out2)); 
-            
-            state.out2 = state.out1; 
+                            eSimdMul(a2, state.out2));
+
+            state.out2 = state.out1;
             state.out1 = out;
             state.in2 = state.in1;
             state.in1 = state.in0;
@@ -1023,7 +1023,7 @@ void eTfFilterProcess(eTfFilter &state, eTfFilter::Type type, eF32 **signal, eU3
             eSimdStore2(out, *signal1, *signal2);
 
             signal1++;
-            signal2++;            
+            signal2++;
         }
     }
     else
@@ -1038,10 +1038,10 @@ void eTfFilterProcess(eTfFilter &state, eTfFilter::Type type, eF32 **signal, eU3
         {
             eF32x2 in = eSimdSet2(*signal1, *signal2);
 
-            eF32x2 out = eSimdNfma(   
-                            eSimdNfma(      
+            eF32x2 out = eSimdNfma(
+                            eSimdNfma(
                                 eSimdFma(
-                                    eSimdFma( 
+                                    eSimdFma(
                                         eSimdMul(b0, in),
                                         b1, state.in1
                                         ),
@@ -1128,7 +1128,7 @@ void eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr)
         instr.effects[i] = nullptr;
         instr.effectIndex[i] = 0;
     }
-    
+
     for(eU32 i=0; i<TF_MAXVOICES; i++)
         eTfVoiceReset(instr.voice[i]);
 }
@@ -1164,7 +1164,7 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
             {
                 velocity = 0.0f;
             }
-            
+
             //  RUN NOISE GEN
             // -------------------------------------------------------------------------------
             eTfNoiseUpdate(synth, instr, voice.noiseGen, voice.modMatrix, velocity);
@@ -1215,13 +1215,13 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
                     eMemCopy(voice.generator.resultTable, voice.generator.freqModTable, TF_IFFT_FRAMESIZE * sizeof(eF32) * 2);
                 else
                     eMemCopy(voice.generator.resultTable, voice.generator.freqTable, TF_IFFT_FRAMESIZE * sizeof(eF32) * 2);
-                
+
                 eTfGeneratorFft(synth, IFFT, TF_IFFT_FRAMESIZE, voice.generator.resultTable);
                 eTfGeneratorNormalize(voice.generator.resultTable, TF_IFFT_FRAMESIZE);
             }
-            
+
             eTfGeneratorProcess(synth, instr, voice, voice.generator, velocity, tempBuffers, frameSize);
-    
+
             //  RUN VOICE SYNTHESIS
             // -------------------------------------------------------------------------------
             //eTfVocSynGenerate(synth, *synth.vocSyn, voice.vocState, (voice.time / 100) % 5, velocity, tempBuffers, frameSize);
@@ -1284,7 +1284,7 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
 
             // MIX SIGNAL
             // ------------------------------------------------------------------------------
-            eF32 gain = instr.params[TF_GLOBAL_GAIN];            
+            eF32 gain = instr.params[TF_GLOBAL_GAIN];
             voice.playing = eTfSignalMix(outputs, tempBuffers, frameSize, gain);
         }
     }
@@ -1307,7 +1307,7 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
                 instr.effects[i] = fx = nullptr;
                 instr.effectIndex[i] = 0;
             }
-        
+
             if (fxIndex != 0 && fx == nullptr)
             {
 				if (s_effectCreate[fxIndex]) {
@@ -1473,4 +1473,3 @@ void eTfSynthInit(eTfSynth &synth)
         synth.instr[j] = nullptr;
 
 }
-

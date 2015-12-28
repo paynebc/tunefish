@@ -3,19 +3,19 @@
     Tunefish 4  -  http://tunefish-synth.com
   ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 
@@ -53,7 +53,7 @@ void eTfDelayProcess(eTfDelay &delay, eF32 *signal, eU32 len, eF32 decay)
 {
     eU32 *read_pos      = &delay.readOffset;
     eU32 *write_pos     = &delay.writeOffset;
-    eF32 *buffer_src    = &delay.delayBuffer[*read_pos];         
+    eF32 *buffer_src    = &delay.delayBuffer[*read_pos];
     eF32 *buffer_dest   = &delay.delayBuffer[*write_pos];
     eU32 wrapPosition   = delay.singleDelay ? TF_DELAY_MAXLEN : delay.delayLen;
     eF32 mulDest        = delay.singleDelay ? 0.0f : 1.0f;
@@ -81,7 +81,7 @@ void eTfDelayProcess(eTfDelay &delay, eF32 *signal, eU32 len, eF32 decay)
         (*read_pos)++;
         if ((*read_pos) >= wrapPosition) {
             (*read_pos) = 0;
-            buffer_src = delay.delayBuffer;  
+            buffer_src = delay.delayBuffer;
         }
 
         // write to output
@@ -97,7 +97,7 @@ void eTfCombInit(eTfComb &comb, eU32 size)
 {
     eASSERT(size+3 < TF_COMB_MAXLEN);
     eMemZero(comb);
-    comb.bufsize = size;    
+    comb.bufsize = size;
 }
 
 void eTfCombProcess(eTfComb &comb1, eTfComb &comb2, eF32 damp1, eF32 damp2, eF32 feedback, eF32 gain, eF32 **signals_in, eF32 **signals_out, eU32 len)
@@ -106,16 +106,16 @@ void eTfCombProcess(eTfComb &comb1, eTfComb &comb2, eF32 damp1, eF32 damp2, eF32
     eF32 *inputR = signals_in[RIGHT];
     eF32 *outputL = signals_out[LEFT];
     eF32 *outputR = signals_out[RIGHT];
-    
+
     eF32x2 damp2x2 = eSimdSetAll(damp2);
     eF32x2 damp1x2 = eSimdSetAll(damp1);
     eF32x2 feedbackx2 = eSimdSetAll(feedback);
-        
+
     while(len--)
     {
         eF32 input = (*inputL++ + *inputR++) * gain;
         eF32x2 minput = eSimdSetAll(input);
-        
+
         eF32x2 output = eSimdSet2(comb1.buffer[comb1.bufidx], comb2.buffer[comb2.bufidx]);
         eF32x2 filterstore = eSimdSet2(comb1.filterstore, comb2.filterstore);
         filterstore = eSimdAdd(eSimdMul(output, damp2x2), eSimdMul(filterstore, damp1x2));
@@ -125,7 +125,7 @@ void eTfCombProcess(eTfComb &comb1, eTfComb &comb2, eF32 damp1, eF32 damp2, eF32
         eSimdStore2(buffer, comb1.buffer[comb1.bufidx], comb2.buffer[comb2.bufidx]);
         eSimdStore2(filterstore, comb1.filterstore, comb2.filterstore);
         eSimdStore2(output, *outputL++, *outputR++);
-        
+
         if (++comb1.bufidx >= comb1.bufsize) comb1.bufidx = 0;
         if (++comb2.bufidx >= comb2.bufsize) comb2.bufidx = 0;
     }
@@ -139,7 +139,7 @@ void eTfAllpassInit(eTfAllpass &allpass, eU32 size)
 {
     eASSERT(size+3 < TF_ALLPASS_MAXLEN);
     eMemZero(allpass);
-    allpass.bufsize = size;   
+    allpass.bufsize = size;
 }
 
 void eTfAllpassProcess(eTfAllpass &allpass1, eTfAllpass &allpass2, eF32 feedback, eF32 **signals_in, eF32 **signals_out, eU32 len)
@@ -150,7 +150,7 @@ void eTfAllpassProcess(eTfAllpass &allpass1, eTfAllpass &allpass2, eF32 feedback
     eF32 *outputR = signals_out[1];
 
     eF32x2 feedbackx2 = eSimdSetAll(feedback);
-    
+
     while(len--)
     {
         eF32x2 output = eSimdSet2(*inputL++, *inputR++);
@@ -159,7 +159,7 @@ void eTfAllpassProcess(eTfAllpass &allpass1, eTfAllpass &allpass2, eF32 feedback
         output = eSimdSub(bufout, output);
         eSimdStore2(buffer, allpass1.buffer[allpass1.bufidx], allpass2.buffer[allpass2.bufidx]);
         eSimdStore2(output, *outputL++, *outputR++);
-        
+
         if (++allpass1.bufidx >= allpass1.bufsize) allpass1.bufidx = 0;
         if (++allpass2.bufidx >= allpass2.bufsize) allpass2.bufidx = 0;
     }
@@ -216,7 +216,7 @@ const eInt ALLPASSTUNINGS[] = { 556, 441, 341, 225 };
 eTfEffect * eTfEffectReverbCreate()
 {
     eTfEffectReverb *reverb = (eTfEffectReverb *)eAllocAlignedAndZero(sizeof(eTfEffectReverb), 16);
-    
+
     for (int i=0; i<TF_FX_REVERB_NUMCOMBS; i++)
     {
         eTfCombInit(reverb->comb[LEFT][i], COMBTUNINGS[i]);
@@ -241,7 +241,7 @@ void eTfEffectReverbProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectReverb *reverb = (eTfEffectReverb *)fx;
-    
+
     eF32 roomsize          = instr.params[TF_REVERB_ROOMSIZE] * SCALEROOM + OFFSETROOM;
     eF32 damp              = instr.params[TF_REVERB_DAMP] * SCALEDAMP;
     eF32 wet               = instr.params[TF_REVERB_WET] * SCALEWET;
@@ -277,7 +277,7 @@ void eTfEffectReverbProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr
         eTfCombProcess(reverb->comb[LEFT][i], reverb->comb[RIGHT][i], damp1, damp2, cmbFeedback, gain, signal, signals_out, len);
         eTfSignalMix(signals_mix, signals_out, len, 0.5f);
     }
-    
+
     // run allpass filters in serial
     for (eU32 i=0;i<TF_FX_REVERB_NUMALLPASSES; i++)
     {
@@ -333,7 +333,7 @@ void eTfEffectDistortionProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &i
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectDistortion *dist = (eTfEffectDistortion *)fx;
-    
+
     eF32 amount = 1.0f - instr.params[TF_DISTORT_AMOUNT];
     if (amount != dist->generatedAmount)
     {
@@ -341,7 +341,7 @@ void eTfEffectDistortionProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &i
         for (eU32 base = 0; base<32768; base++)
             dist->powTable[base] = ePow(base/32768.f, amount);
     }
-    
+
     for(eU32 i=0;i<2;i++)
     {
         eF32 *in = signal[i];
@@ -377,7 +377,7 @@ void eTfEffectFormantProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &inst
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectFormant *formant = (eTfEffectFormant *)fx;
-    
+
     const eF64 coeff[5][11]= {
         { 3.11044e-06,
             8.943665402,    -36.83889529,    92.01697887,    -154.337906,    181.6233289,
@@ -399,31 +399,31 @@ void eTfEffectFormantProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &inst
         8.997322763,    -37.20218544,    93.11385476,    -156.2530937,    183.7080141,  ///U
         -153.2631681,    89.59539726,    -35.12454591,    8.338655623,    -0.910251753
         }
-    }; 
-    
+    };
+
     eU32 mode          = eFtoL(instr.params[TF_FORMANT_MODE] * 4.0f);
     eF32 wet           = instr.params[TF_FORMANT_WET];
     eF32 wet_inv    = 1.0f - wet;
-    
+
     const eF64 *co_vow = coeff[mode];
     eF64 res = 0.0f;
-    
+
     for(eU32 i=0;i<2;i++)
     {
         eF32 *in = signal[i];
         eF64 *mem = i==0 ? formant->memoryL : formant->memoryR;
-        
+
         eU32 len2 = len;
         while (len2--)
         {
             res = co_vow[0] * (eF64)*in;
-            
+
             for (eU32 j=0;j<TF_FX_FORMANT_MEMSIZE;j++)
                 res += co_vow[j+1] * mem[j];
 
             for(eU32 j=TF_FX_FORMANT_MEMSIZE-1;j>0;j--)
                 mem[j] = mem[j-1];
-            
+
             mem[0] = res;
 
             *in *= wet_inv;
@@ -455,27 +455,27 @@ void eTfEffectEqProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF
     for(eU32 i=0;i<3;i++)
     {
         gain[i] = instr.params[TF_EQ_LOW + i];
-        if (gain[i] <= 0.5f)    gain[i] *= 2.0f; 
+        if (gain[i] <= 0.5f)    gain[i] *= 2.0f;
         else                    gain[i] = ePow((gain[i] - 0.5f) * 2.0f, 2.0f) * 10.0f + 1.0f;
     }
 
     // Calculate filter cutoff frequencies
-    eF32 m_lf = 2.0f * eSin(ePI * (880.0f / synth.sampleRate)); 
+    eF32 m_lf = 2.0f * eSin(ePI * (880.0f / synth.sampleRate));
     eF32 m_hf = 2.0f * eSin(ePI * (5000.0f / synth.sampleRate));
 
     eF32 *in1 = signal[0];
     eF32 *in2 = signal[1];
-    
+
     eF32x2 lf = eSimdSetAll(m_lf);
     eF32x2 hf = eSimdSetAll(m_hf);
     eF32x2 lg = eSimdSetAll(gain[0]);
     eF32x2 mg = eSimdSetAll(gain[1]);
     eF32x2 hg = eSimdSetAll(gain[2]);
-    
+
     while(len--)
     {
         eF32x2 val = eSimdSet2(*in1, *in2);
-        
+
         // Locals
         eF32x2  l,m,h;      // Low / Mid / High - Sample Values
 
@@ -488,7 +488,7 @@ void eTfEffectEqProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF
         eq->m_f1p2 = eSimdFma(eq->m_f1p2, lf, eSimdSub(eq->m_f1p1, eq->m_f1p2));
         //m_f1p3  += (lf * (m_f1p2 - m_f1p3));
         eq->m_f1p3 = eSimdFma(eq->m_f1p3, lf, eSimdSub(eq->m_f1p2, eq->m_f1p3));
-        
+
         l = eq->m_f1p3;
 
         // Filter #2 (highpass)
@@ -500,7 +500,7 @@ void eTfEffectEqProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF
         eq->m_f2p2 = eSimdFma(eq->m_f2p2, hf, eSimdSub(eq->m_f2p1, eq->m_f2p2));
         //m_f2p3  += (hf * (m_f2p2 - m_f2p3));
         eq->m_f2p3 = eSimdFma(eq->m_f2p3, hf, eSimdSub(eq->m_f2p2, eq->m_f2p3));
-        
+
         h = eSimdSub(eq->m_sdm3, eq->m_f2p3);
 
         // Calculate midrange (signal - (low + high))
@@ -511,13 +511,13 @@ void eTfEffectEqProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF
         m = eSimdMul(m, mg);
         h = eSimdMul(h, hg);
 
-        // Shuffle history buffer 
+        // Shuffle history buffer
         eq->m_sdm3 = eq->m_sdm2;
         eq->m_sdm2 = eq->m_sdm1;
-        eq->m_sdm1 = val;                
+        eq->m_sdm1 = val;
 
         eF32x2 out = eSimdAdd(eSimdAdd(l, m), h);
-        
+
         eSimdStore2(out, *in1, *in2);
         in1++;
         in2++;
@@ -627,12 +627,12 @@ void eTfEffectFlangerProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &inst
 
         eF32 frequency = flanger->lfocount;
 
-        if (frequency==0.0) 
+        if (frequency==0.0)
             frequency=1.0f;
 
-        if(flanger->lastBpm != frequency) 
+        if(flanger->lastBpm != frequency)
         {
-            flanger->angle0 += (eF32)((eF64)flanger->angle * frequency * 120.0f / (synth.sampleRate * 4.0f * 60.0f / ePI));    
+            flanger->angle0 += (eF32)((eF64)flanger->angle * frequency * 120.0f / (synth.sampleRate * 4.0f * 60.0f / ePI));
             flanger->angle1 += (eF32)((eF64)flanger->angle * (1.0f - frequency) * 120.0f / (synth.sampleRate * 4.0f * 60.0f / ePI));
             flanger->lastBpm = frequency;
             flanger->angle = 0;
@@ -646,24 +646,24 @@ void eTfEffectFlangerProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &inst
         eInt ppleft = flanger->buffpos - deltaleft;
         eInt ppright = flanger->buffpos - deltaright;
 
-        if(ppleft<0) 
+        if(ppleft<0)
             ppleft += TF_FX_FLANGERBUFFSIZE;
 
-        if(ppright<0) 
+        if(ppright<0)
             ppright += TF_FX_FLANGERBUFFSIZE;
 
         eF32 l = *pcmleft - wet * flanger->buffleft[ppleft];
 
-        if (l<-1.0f) 
-            l=-1.0f; 
-        else if (l>1.0f) 
+        if (l<-1.0f)
+            l=-1.0f;
+        else if (l>1.0f)
             l=1.0f;
 
         eF32 r = *pcmright - wet * flanger->buffright[ppright];
 
         if (r<-1.0f)
-            r=-1.0f; 
-        else if (r>1.0f) 
+            r=-1.0f;
+        else if (r>1.0f)
             r=1.0f;
 
         eUndenormalise(l);
@@ -679,7 +679,7 @@ void eTfEffectFlangerProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &inst
         pcmright++;
         flanger->buffpos++;
 
-        if (flanger->buffpos >= TF_FX_FLANGERBUFFSIZE) 
+        if (flanger->buffpos >= TF_FX_FLANGERBUFFSIZE)
             flanger->buffpos = 0;
     }
 }

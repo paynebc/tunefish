@@ -3,19 +3,19 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 
@@ -89,7 +89,7 @@ enum eTfFxMode
     FX_COUNT
 };
 
-typedef void        eTfEffect; 
+typedef void        eTfEffect;
 typedef eTfEffect * (*eTfEffectCreateProc)();
 typedef void        (*eTfEffectDeleteProc)(eTfEffect *fx);
 typedef void        (*eTfEffectProcessProc)(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF32 **signal, eU32 len);
@@ -168,7 +168,7 @@ struct eTfEffectEq
 {
     // Filter #1 (Low band)
     eF32x2      m_f1p0;     // Poles ...
-    eF32x2      m_f1p1;     
+    eF32x2      m_f1p1;
     eF32x2      m_f1p2;
     eF32x2      m_f1p3;
 
@@ -236,7 +236,7 @@ void            eTfEffectFlangerProcess(eTfEffect *fx, eTfSynth &synth, eTfInstr
 // ---------------------------------------------------------------------------------------------------------------------------
 //  FUNCTION POINTERS
 // ---------------------------------------------------------------------------------------------------------------------------
-    
+
 static eTfEffectCreateProc s_effectCreate[] =
 {
     nullptr,

@@ -3,19 +3,19 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 
@@ -122,7 +122,7 @@ enum eTfParam
     TF_LFO2_DEPTH,
     TF_LFO2_SHAPE,
     TF_LFO2_SYNC,
-    
+
     TF_MM1_SOURCE,
     TF_MM1_MOD,
     TF_MM1_TARGET,
@@ -209,7 +209,7 @@ enum eTfParam
 
 #ifdef eVSTI
 
-static const eF32 TF_DEFAULTPROG[] = 
+static const eF32 TF_DEFAULTPROG[] =
 {
     0.5f,   // TF_GLOBAL_GAIN,
 
@@ -263,7 +263,7 @@ static const eF32 TF_DEFAULTPROG[] =
     0.5f,
     0.5f,
     0.0f,
-    0.0f, 
+    0.0f,
 
     // LFO2 (Filter)
     0.5f,
@@ -513,7 +513,7 @@ struct eTfLfo
 
 struct eTfEnvelope
 {
-    enum Phase 
+    enum Phase
     {
         ATTACK = 0,
         DECAY,
@@ -560,12 +560,12 @@ struct eTfModMatrix
     enum Input
     {
         INPUT_NONE = 0,
-        
+
         INPUT_LFO1,
         INPUT_LFO2,
         INPUT_ADSR1,
         INPUT_ADSR2,
-        
+
         INPUT_RESERVED1,
         INPUT_RESERVED2,
         INPUT_RESERVED3,
@@ -583,7 +583,7 @@ struct eTfModMatrix
     enum Output
     {
         OUTPUT_NONE = 0,
-        
+
         OUTPUT_BANDWIDTH,
         OUTPUT_DAMP,
         OUTPUT_NUMHARMONICS,
@@ -613,7 +613,7 @@ struct eTfModMatrix
         OUTPUT_MOD6,
         OUTPUT_MOD7,
         OUTPUT_MOD8,
-        
+
         OUTPUT_RESERVED1,
         OUTPUT_RESERVED2,
         OUTPUT_RESERVED3,
@@ -723,7 +723,7 @@ struct eTfVoice
 
 	eF32			lastVolL;
 	eF32			lastVolR;
-        
+
     eTfModMatrix    modMatrix;
     eTfNoise        noiseGen;
     eTfFilter *     filterLP;
@@ -759,10 +759,10 @@ struct eTfSynth
     eTfInstrument * instr[TF_MAX_INSTR];
 };
 
-struct eTfEvent 
+struct eTfEvent
 {
-	eTfEvent(eF32 time, eU8	instr, eU8 note, eU8 velocity) 
-	{ 
+	eTfEvent(eF32 time, eU8	instr, eU8 note, eU8 velocity)
+	{
 		this->time = time;
 		this->instr = instr;
 		this->note = note;
@@ -784,7 +784,7 @@ struct eTfSong
 	eU32				tempo;
 };
 
-struct eTfPlayer 
+struct eTfPlayer
 {
 	eTfSong				song;
     eTfSynth            synth;
