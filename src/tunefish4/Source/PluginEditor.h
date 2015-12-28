@@ -3,19 +3,19 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 
@@ -37,10 +37,10 @@ class eTfFreqView : public GroupComponent
 public:
     eTfFreqView();
     ~eTfFreqView();
-    
+
     void paint (Graphics& g);
     void setSynth(Tunefish4AudioProcessor *processor, eTfSynth *synth, eTfInstrument *instr);
-    
+
 private:
     eTfSynth *                  m_synth;
     eTfInstrument *             m_instr;
@@ -52,7 +52,7 @@ class eTfSlider : public Slider
 {
 public:
     eTfSlider() : Slider(), modValue(0.0f) { }
-    
+
     eF32 getModValue() { return modValue; }
     void setModValue(eF32 value) { if (modValue != value) { modValue = value; this->repaint(); } }
 private:
@@ -72,7 +72,7 @@ public Timer
 public:
     Tunefish4AudioProcessorEditor (Tunefish4AudioProcessor* ownerFilter, eTfSynth *synth);
     ~Tunefish4AudioProcessorEditor();
-    
+
     //==============================================================================
     // This is just a standard Juce paint method...
     void paint (Graphics& g);
@@ -80,13 +80,13 @@ public:
     void comboBoxChanged (ComboBox* comboBox);
     void buttonClicked (Button *button);
     void timerCallback() override;
-    
+
 private:
     Tunefish4AudioProcessor * getProcessor() const
     {
         return static_cast <Tunefish4AudioProcessor*> (getAudioProcessor());
     }
-    
+
     void _addRotarySlider(Component *parent, Slider &slider, Label &label, String text, eU32 x, eU32 y, Colour colour);
     void _addRotarySliderNoLabel(Component *parent, Slider &slider, eU32 x, eU32 y, Colour colour);
     void _addLinearSlider(Component *parent, Slider &slider, Label &label, String text, eU32 x, eU32 y, eU32 w, eU32 h);
@@ -97,16 +97,16 @@ private:
     void _addComboBox(Component *parent, ComboBox &combobox, String items, eU32 x, eU32 y, eU32 w, eU32 h);
     void _addEditableComboBox(Component *parent, ComboBox &combobox, String items, eU32 x, eU32 y, eU32 w, eU32 h);
     void _addLabel(Component *parent, Label &label, String text, eU32 x, eU32 y, eU32 w, eU32 h);
-    
+
     void _setParameterNotifyingHost(Slider *slider, eTfParam param);
     void _setParameterNotifyingHost(ComboBox *comboBox, eU32 maxIndex, eTfParam param);
     void _setParameterNotifyingHost(Button *button, eTfParam param);
     void _setParameterNotifyingHost(eF32 value, eTfParam param);
-    
+
     void _fillProgramCombobox();
-    
+
     void _createIcons();
-    
+
     // -------------------------------------
     //  COMPONENT GROUPS
     // -------------------------------------
@@ -129,7 +129,7 @@ private:
     eTfGroupComponent m_grpFxDistortion;
     eTfGroupComponent m_grpModMatrix;
     eTfGroupComponent m_grpEffectStack;
-    
+
     // -------------------------------------
     //  GLOBAL GROUP
     // -------------------------------------
@@ -141,7 +141,7 @@ private:
     Label m_lblGlobPolyphony;
     Label m_lblGlobPitchBendUp;
     Label m_lblGlobPitchBendDown;
-    
+
     eTfSlider m_sldGlobVolume;
     eTfSlider m_sldGlobFrequency;
     eTfSlider m_sldGlobDetune;
@@ -157,7 +157,7 @@ private:
     TextButton m_btnNext;
     TextButton m_btnCopy;
     TextButton m_btnPaste;
-    
+
     // -------------------------------------
     //  GENERATOR GROUP
     // -------------------------------------
@@ -170,7 +170,7 @@ private:
     eTfSlider m_sldGenDrive;
     eTfSlider m_sldGenScale;
     eTfSlider m_sldGenModulation;
-    
+
     Label m_lblGenVolume;
     Label m_lblGenPanning;
     Label m_lblGenSpread;
@@ -180,15 +180,15 @@ private:
     Label m_lblGenDrive;
     Label m_lblGenScale;
     Label m_lblGenModulation;
-    
+
     eTfSlider m_sldNoiseAmount;
     eTfSlider m_sldNoiseFreq;
     eTfSlider m_sldNoiseBandwidth;
-    
+
     Label m_lblNoiseAmount;
     Label m_lblNoiseFreq;
     Label m_lblNoiseBandwidth;
-    
+
     Label m_lblUnisono;
     TextButton m_btnGenUnisono1;
     TextButton m_btnGenUnisono2;
@@ -200,7 +200,7 @@ private:
     TextButton m_btnGenUnisono8;
     TextButton m_btnGenUnisono9;
     TextButton m_btnGenUnisono10;
-    
+
     Label m_lblOctave;
     TextButton m_btnGenOctave1;
     TextButton m_btnGenOctave2;
@@ -211,9 +211,9 @@ private:
     TextButton m_btnGenOctave7;
     TextButton m_btnGenOctave8;
     TextButton m_btnGenOctave9;
-    
+
     eTfFreqView m_freqView;
-    
+
     // -------------------------------------
     //  FILTER GROUP
     // -------------------------------------
@@ -222,25 +222,25 @@ private:
     eTfSlider m_sldLPResonance;
     Label m_lblLPFrequency;
     Label m_lblLPResonance;
-    
+
     TextButton m_btnHPOn;
     eTfSlider m_sldHPFrequency;
     eTfSlider m_sldHPResonance;
     Label m_lblHPFrequency;
     Label m_lblHPResonance;
-    
+
     TextButton m_btnBPOn;
     eTfSlider m_sldBPFrequency;
     eTfSlider m_sldBPQ;
     Label m_lblBPFrequency;
     Label m_lblBPQ;
-    
+
     TextButton m_btnNTOn;
     eTfSlider m_sldNTFrequency;
     eTfSlider m_sldNTQ;
     Label m_lblNTFrequency;
     Label m_lblNTQ;
-    
+
     // -------------------------------------
     //  LGO/ADSR GROUP
     // -------------------------------------
@@ -254,7 +254,7 @@ private:
     DrawableButton m_btnLFO1ShapeSawDown;
     DrawableButton m_btnLFO1ShapeSquare;
     DrawableButton m_btnLFO1ShapeNoise;
-    
+
     TextButton m_btnLFO2Sync;
     eTfSlider m_sldLFO2Rate;
     eTfSlider m_sldLFO2Depth;
@@ -265,7 +265,7 @@ private:
     DrawableButton m_btnLFO2ShapeSawDown;
     DrawableButton m_btnLFO2ShapeSquare;
     DrawableButton m_btnLFO2ShapeNoise;
-    
+
     Image m_imgShapeSine;
     Image m_imgShapeSawUp;
     Image m_imgShapeSawDown;
@@ -276,7 +276,7 @@ private:
     DrawableImage m_dimgShapeSawDown;
     DrawableImage m_dimgShapeSquare;
     DrawableImage m_dimgShapeNoise;
-    
+
     Slider m_sldADSR1Attack;
     Slider m_sldADSR1Decay;
     Slider m_sldADSR1Sustain;
@@ -287,7 +287,7 @@ private:
     Label m_lblADSR1Sustain;
     Label m_lblADSR1Release;
     Label m_lblADSR1Slope;
-    
+
     Slider m_sldADSR2Attack;
     Slider m_sldADSR2Decay;
     Slider m_sldADSR2Sustain;
@@ -298,7 +298,7 @@ private:
     Label m_lblADSR2Sustain;
     Label m_lblADSR2Release;
     Label m_lblADSR2Slope;
-    
+
     // -------------------------------------
     //  FX GROUPS
     // -------------------------------------
@@ -310,7 +310,7 @@ private:
     Label m_lblFlangerFrequency;
     Label m_lblFlangerAmplitude;
     Label m_lblFlangerWet;
-    
+
     eTfSlider m_sldReverbRoomsize;
     eTfSlider m_sldReverbDamp;
     eTfSlider m_sldReverbWet;
@@ -319,28 +319,28 @@ private:
     Label m_lblReverbDamp;
     Label m_lblReverbWet;
     Label m_lblReverbWidth;
-    
+
     eTfSlider m_sldDelayLeft;
     eTfSlider m_sldDelayRight;
     eTfSlider m_sldDelayDecay;
     Label m_lblDelayLeft;
     Label m_lblDelayRight;
     Label m_lblDelayDecay;
-    
+
     eTfSlider m_sldEqLow;
     eTfSlider m_sldEqMid;
     eTfSlider m_sldEqHigh;
     Label m_lblEqLow;
     Label m_lblEqMid;
     Label m_lblEqHigh;
-    
+
     eTfSlider m_sldChorusFreq;
     eTfSlider m_sldChorusDepth;
     eTfSlider m_sldChorusGain;
     Label m_lblChorusFreq;
     Label m_lblChorusDepth;
     Label m_lblChorusGain;
-    
+
     eTfSlider m_sldFormantWet;
     Label m_lblFormantWet;
     TextButton m_btnFormantA;
@@ -348,10 +348,10 @@ private:
     TextButton m_btnFormantI;
     TextButton m_btnFormantO;
     TextButton m_btnFormantU;
-    
+
     eTfSlider m_sldDistortionAmount;
     Label m_lblDistortionAmount;
-    
+
     // -------------------------------------
     //  MOD MATRIX GROUP
     // -------------------------------------
@@ -379,7 +379,7 @@ private:
     ComboBox m_cmbMM8Src;
     ComboBox m_cmbMM8Dest;
     eTfSlider m_sldMM8Mod;
-    
+
     // -------------------------------------
     //  EFFECT STACK GROUP
     // -------------------------------------
@@ -393,7 +393,7 @@ private:
     ComboBox m_cmbEffect8;
     ComboBox m_cmbEffect9;
     ComboBox m_cmbEffect10;
-    
+
     tfLookAndFeel tfLookAndFeel;
     Label m_lblVersion;
 };

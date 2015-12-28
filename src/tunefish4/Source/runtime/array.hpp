@@ -3,19 +3,19 @@
  Tunefish 4  -  http://tunefish-synth.com
  ---------------------------------------------------------------------
  This file is part of Tunefish.
- 
+
  Tunefish is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Tunefish is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
 
@@ -62,7 +62,7 @@ template<class T> void eSort(T *data, eU32 count, eBool (*predicate)(const T &a,
 
 
   #define  QUICKSORT_MAX_LEVELS  300
-  T piv; 
+  T piv;
   eS32 beg[QUICKSORT_MAX_LEVELS], end[QUICKSORT_MAX_LEVELS], i=0, L, R, swap;
 
   eRandom Rand;
@@ -80,14 +80,14 @@ template<class T> void eSort(T *data, eU32 count, eBool (*predicate)(const T &a,
 
       while (L<R) {
         while (L<R && (predicate(data[R],piv))) R--; if (L<R) data[L++]=data[R];
-        while (L<R && (predicate(piv,data[L]))) L++; if (L<R) data[R--]=data[L]; 
+        while (L<R && (predicate(piv,data[L]))) L++; if (L<R) data[R--]=data[L];
 	  }
       data[L]=piv; beg[i+1]=L+1; end[i+1]=end[i]; end[i++]=L;
       if (end[i]-beg[i]>end[i-1]-beg[i-1]) {
         swap=beg[i]; beg[i]=beg[i-1]; beg[i-1]=swap;
-        swap=end[i]; end[i]=end[i-1]; end[i-1]=swap; 
+        swap=end[i]; end[i]=end[i-1]; end[i-1]=swap;
 	  }
-	} else i--; 
+	} else i--;
   }
 
 /*
@@ -116,7 +116,7 @@ template<class T> void eMerge(T *arr0, eU32 elements0, T *arr1, eU32 elements1, 
 				*arrFinal = *arr0;
 				arrFinal++;
 				elements0--;
-				if(elements0 == 0) 
+				if(elements0 == 0)
 					break;
 				arr0++;
 			} else {
@@ -124,7 +124,7 @@ template<class T> void eMerge(T *arr0, eU32 elements0, T *arr1, eU32 elements1, 
 				*arrFinal = *arr1;
 				arrFinal++;
 				elements1--;
-				if(elements1 == 0) 
+				if(elements1 == 0)
 					break;
 				arr1++;
 			}
