@@ -4,14 +4,20 @@ Project("{A8722700-438F-A34E-E484-28F98430F82A}") = "Tunefish4", "Tunefish4.vcxp
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
+		Debug 32bit|Win32 = Debug 32bit|Win32
+		Release 32bit|Win32 = Release 32bit|Win32
+		Debug 64bit|x64 = Debug 64bit|x64
+		Release 64bit|Win32 = Release 64bit|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug|Win32.Build.0 = Debug|Win32
-		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release|Win32.ActiveCfg = Release|Win32
-		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release|Win32.Build.0 = Release|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug 32bit|Win32.ActiveCfg = Debug 32bit|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug 32bit|Win32.Build.0 = Debug 32bit|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release 32bit|Win32.ActiveCfg = Release 32bit|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release 32bit|Win32.Build.0 = Release 32bit|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug 64bit|x64.ActiveCfg = Debug 64bit|x64
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Debug 64bit|x64.Build.0 = Debug 64bit|x64
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release 64bit|Win32.ActiveCfg = Release 64bit|Win32
+		{F2A0134F-F651-8FED-4FF2-8571B1D8F5CD}.Release 64bit|Win32.Build.0 = Release 64bit|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
