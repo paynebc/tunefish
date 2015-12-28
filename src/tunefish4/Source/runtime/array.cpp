@@ -92,7 +92,7 @@ void eArrayResize(ePtrArray *a, eU32 size)
 void eArrayReverse(ePtrArray *a)
 {
 	const eU32 halfSize = a->m_size/2;
-	eU8 temp[a->m_typeSize];
+	eU8 temp[8];
 
 	for (eU32 i=0; i<halfSize; i++)
 	{

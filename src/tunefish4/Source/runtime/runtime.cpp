@@ -549,33 +549,4 @@ eU32 eHashStr(const eChar *str)
     return hash;
 }
 
-eU32 eNextPowerOf2(eU32 x)
-{
-    x--;
-    x = (x>>1)|x;
-    x = (x>>2)|x;
-    x = (x>>4)|x;
-    x = (x>>8)|x;
-    x = (x>>16)|x;
-    x++;
-    return x;
-}
 
-eBool eIsPowerOf2(eU32 x)
-{
-    return !(x&(x-1));
-}
-
-eU32 eBzr(eU32 x)
-{
-    eU32 index;
-#ifdef _WIN32
-    _BitScanReverse(&index, x);
-#endif
-    return index;
-}
-
-eBool eClosedIntervalsOverlap(eInt start0, eInt end0, eInt start1, eInt end1)
-{
-    return (start1 <= end0 && start0 <= end1);
-}
