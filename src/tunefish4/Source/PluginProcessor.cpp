@@ -59,6 +59,7 @@ adapterDataAvailable(0)
         tf->params[j] = programs[0].getParam(j);
     }
 
+    resetParamDirty(eTRUE);
     setCurrentProgram(0);
 }
 
@@ -90,7 +91,7 @@ float Tunefish4AudioProcessor::getParameterMod(int index)
     if (!voice->playing)
         return 0.0f;
 
-    eF32 value = eTfModMatrixGet(voice->modMatrix, (eTfModMatrix::Output)index);
+    eF32 value = eTfModMatrixGet(voice->modMatrix, static_cast<eTfModMatrix::Output>(index));
     if (value == 1.0f)
         return 0.0f;
 
@@ -107,6 +108,7 @@ void Tunefish4AudioProcessor::setParameter (int index, float newValue)
 {
     eASSERT(index >= 0 && index < TF_PARAM_COUNT);
     tf->params[index] = newValue;
+    paramDirty[index] = eTRUE;
 }
 
 const String Tunefish4AudioProcessor::getParameterName (int index)
@@ -180,6 +182,9 @@ int Tunefish4AudioProcessor::getCurrentProgram()
 
 void Tunefish4AudioProcessor::setCurrentProgram (int index)
 {
+    if (currentProgramIndex == index)
+        return;
+
     eASSERT(index >= 0 && index < TF_PLUG_NUM_PROGRAMS);
 
     // write program from tunefish to program list before switching
@@ -188,6 +193,7 @@ void Tunefish4AudioProcessor::setCurrentProgram (int index)
         ap->setParam(i, tf->params[i]);
 
     currentProgramIndex = index;
+    programSwitched = eTRUE;
 
     // load new program to into tunefish
     ap = &programs[currentProgramIndex];
@@ -455,6 +461,26 @@ bool Tunefish4AudioProcessor::pasteProgram()
     eStrCopy(programs[currentProgramIndex].getName(), ap->getName());
 
     return true;
+}
+
+bool Tunefish4AudioProcessor::isParamDirty(eU32 index)
+{
+    return paramDirty[index];
+}
+
+bool Tunefish4AudioProcessor::wasProgramSwitched() const
+{
+    return programSwitched;
+}
+
+void Tunefish4AudioProcessor::resetParamDirty(eBool dirty)
+{
+    for (eU32 j = 0; j<TF_PARAM_COUNT; j++)
+    {
+        paramDirty[j] = dirty;
+    }
+
+    programSwitched = dirty;
 }
 
 //==============================================================================

@@ -43,62 +43,66 @@ public:
     ~Tunefish4AudioProcessor();
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock);
-    void releaseResources();
+    void                    prepareToPlay (double sampleRate, int samplesPerBlock);
+    void                    releaseResources();
 
-    void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void processEvents(MidiBuffer &midiMessages, eU32 messageOffset, eU32 frameSize);
-
-    //==============================================================================
-    AudioProcessorEditor* createEditor();
-    bool hasEditor() const;
+    void                    processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void                    processEvents(MidiBuffer &midiMessages, eU32 messageOffset, eU32 frameSize);
 
     //==============================================================================
-    const String getName() const;
-
-    int getNumParameters();
-
-    float getParameterMod(int index);
-
-    float getParameter (int index);
-    void setParameter (int index, float newValue);
-
-    const String getParameterName (int index);
-    const String getParameterText (int index);
-
-    const String getInputChannelName (int channelIndex) const;
-    const String getOutputChannelName (int channelIndex) const;
-    bool isInputChannelStereoPair (int index) const;
-    bool isOutputChannelStereoPair (int index) const;
-
-    bool acceptsMidi() const;
-    bool producesMidi() const;
-    bool silenceInProducesSilenceOut() const;
-    double getTailLengthSeconds() const;
+    AudioProcessorEditor*   createEditor();
+    bool                    hasEditor() const;
 
     //==============================================================================
-    int getNumPrograms();
-    int getCurrentProgram();
-    void setCurrentProgram (int index);
-    const String getProgramName (int index);
-    void changeProgramName (int index, const String& newName);
+    const String            getName() const;
 
-    CriticalSection & getSynthCriticalSection();
+    int                     getNumParameters();
+
+    float                   getParameterMod(int index);
+
+    float                   getParameter (int index);
+    void                    setParameter (int index, float newValue);
+
+    const String            getParameterName (int index);
+    const String            getParameterText (int index);
+
+    const String            getInputChannelName (int channelIndex) const;
+    const String            getOutputChannelName (int channelIndex) const;
+    bool                    isInputChannelStereoPair (int index) const;
+    bool                    isOutputChannelStereoPair (int index) const;
+
+    bool                    acceptsMidi() const;
+    bool                    producesMidi() const;
+    bool                    silenceInProducesSilenceOut() const;
+    double                  getTailLengthSeconds() const;
 
     //==============================================================================
-    void getStateInformation (MemoryBlock& destData);
-    void setStateInformation (const void* data, int sizeInBytes);
+    int                     getNumPrograms();
+    int                     getCurrentProgram();
+    void                    setCurrentProgram (int index);
+    const String            getProgramName (int index);
+    void                    changeProgramName (int index, const String& newName);
 
-    void writeProgramToPresets();
-    void loadProgramFromPresets();
-    bool loadProgram();
-    bool loadProgram(eU32 index);
-    bool loadProgramAll();
-    bool saveProgram();
-    bool saveProgram(eU32 index);
-    bool saveProgramAll();
-    bool copyProgram();
-    bool pasteProgram();
+    CriticalSection &       getSynthCriticalSection();
+
+    //==============================================================================
+    void                    getStateInformation (MemoryBlock& destData);
+    void                    setStateInformation (const void* data, int sizeInBytes);
+
+    void                    writeProgramToPresets();
+    void                    loadProgramFromPresets();
+    bool                    loadProgram();
+    bool                    loadProgram(eU32 index);
+    bool                    loadProgramAll();
+    bool                    saveProgram();
+    bool                    saveProgram(eU32 index);
+    bool                    saveProgramAll();
+    bool                    copyProgram();
+    bool                    pasteProgram();
+
+    bool                    isParamDirty(eU32 index);
+    bool                    wasProgramSwitched() const;
+    void                    resetParamDirty(eBool dirty = eFALSE);
 
 private:
     //==============================================================================
@@ -107,6 +111,8 @@ private:
     eTfInstrument *         tf;
     eTfSynth *              synth;
     eTfSynthProgram         programs[TF_PLUG_NUM_PROGRAMS];
+    eBool                   paramDirty[TF_PARAM_COUNT];
+    eBool                   programSwitched;
     eTfSynthProgram         currentProgram;
     eTfSynthProgram         copiedProgram;
     eU32                    currentProgramIndex;

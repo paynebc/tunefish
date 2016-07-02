@@ -80,6 +80,7 @@ public:
     void comboBoxChanged (ComboBox* comboBox);
     void buttonClicked (Button *button);
     void timerCallback() override;
+    void refreshUiFromSynth();
 
 private:
     Tunefish4AudioProcessor * getProcessor() const
@@ -99,9 +100,9 @@ private:
     void _addLabel(Component *parent, Label &label, String text, eU32 x, eU32 y, eU32 w, eU32 h);
 
     void _setParameterNotifyingHost(Slider *slider, eTfParam param);
-    void _setParameterNotifyingHost(ComboBox *comboBox, eU32 maxIndex, eTfParam param);
-    void _setParameterNotifyingHost(Button *button, eTfParam param);
-    void _setParameterNotifyingHost(eF32 value, eTfParam param);
+    void _setParameterNotifyingHost(ComboBox *comboBox, eU32 maxIndex, eTfParam param) const;
+    void _setParameterNotifyingHost(Button *button, eTfParam param) const;
+    void _setParameterNotifyingHost(eF32 value, eTfParam param) const;
 
     void _fillProgramCombobox();
 
