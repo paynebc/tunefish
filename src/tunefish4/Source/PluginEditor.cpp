@@ -206,7 +206,7 @@ m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
 
     _createIcons();
 
-    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1040, 0, 40, 15);
+    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1020, 0, 60, 15);
     m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
 
     // -------------------------------------

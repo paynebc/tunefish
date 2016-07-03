@@ -1,0 +1,33 @@
+
+- v4.1.0 beta1  
+-----------------------------------------------------
+
+- Patches are continued to be loaded, if one of the files is missing
+- Comboboxes are now switching correctly when selecting a new entry
+
+
+- v4.0.1  -  May 5th, 2014
+-----------------------------------------------------
+
+- When using no ADSR, instruments were cut immediatelly resulting in plopping. This is fixed.
+- ADSR zero decay will no longer cause volume go up and cause things like reverb crashes or host going to mute.
+- Saving an instrument caused the preset file to grow larger and larger due to appending instead of rewriting the contents.
+- Restore instrument button did not work
+- Instrument count is now 1000
+- ADSR1 will not cut the note if ADSR2 is still going. 
+- Fixed Reverb width.
+
+
+- v4.0.0  -  January 18th, 2014
+-----------------------------------------------------
+
+- Fixed crash in mac version caused by validation
+- Fixed updating of instrument dropdown when instrument changes in host
+- Fixed mac version so it runs on older processors
+- Added new presets (courtesy of J.Ruegg)
+
+
+- v4.0.0 beta  -  January 7th, 2014
+-----------------------------------------------------
+- first release
+

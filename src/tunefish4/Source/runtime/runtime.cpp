@@ -134,7 +134,10 @@ void eStrClear(eChar *str)
 
 void eStrCopy(eChar *dst, const eChar *src)
 {
-    while (*dst++ = *src++);
+    while (*src)
+    {
+        *dst++ = *src++;
+    }
 }
 
 void eStrLCopy(eChar *dst, const eChar *src, eU32 count)
@@ -395,7 +398,7 @@ eF32 eRoundZero(eF32 x)
 
 eF32 eRoundNearest(eF32 x)
 {
-    return floorf(x);
+    return floorf(x + 0.5f);
 }
 
 eU32 eRoundToMultiple(eU32 x, eU32 multiple)

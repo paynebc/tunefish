@@ -182,7 +182,7 @@ int Tunefish4AudioProcessor::getCurrentProgram()
 
 void Tunefish4AudioProcessor::setCurrentProgram (int index)
 {
-    if (currentProgramIndex == index)
+    if (static_cast<eInt>(currentProgramIndex) == index)
         return;
 
     eASSERT(index >= 0 && index < TF_PLUG_NUM_PROGRAMS);
@@ -193,7 +193,7 @@ void Tunefish4AudioProcessor::setCurrentProgram (int index)
         ap->setParam(i, tf->params[i]);
 
     currentProgramIndex = index;
-    programSwitched = eTRUE;
+    resetParamDirty(eTRUE);
 
     // load new program to into tunefish
     ap = &programs[currentProgramIndex];
@@ -234,7 +234,7 @@ void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffe
 
     eU32 requestedLen = buffer.getNumSamples();
 
-    eU32 sampleRate = (eU32)getSampleRate();
+    eU32 sampleRate = static_cast<eU32>(getSampleRate());
     if (sampleRate > 0)
         synth->sampleRate = sampleRate;
 
@@ -296,14 +296,14 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
 
         if (midiMessage.isNoteOn())
         {
-            eU8 velocity = midiMessage.getVelocity();
-            eU8 note = midiMessage.getNoteNumber();
+            eU8 velocity = static_cast<eU8>(midiMessage.getVelocity());
+            eU8 note = static_cast<eU8>(midiMessage.getNoteNumber());
 
             eTfInstrumentNoteOn(*tf, note, velocity);
         }
         else if (midiMessage.isNoteOff())
         {
-            eU8 note = midiMessage.getNoteNumber();
+            eU8 note = static_cast<eU8>(midiMessage.getNoteNumber());
 
             eTfInstrumentNoteOff(*tf, note);
         }
@@ -345,7 +345,7 @@ bool Tunefish4AudioProcessor::loadProgram(eU32 index)
 {
     String path = pluginLocation +
     File::separatorString + String("tf4programs") + File::separatorString +
-    String("program") + String(index) + String(".txt");
+        String("program") + String(index) + String(".txt");
 
     File file(path);
     FileInputStream *stream = file.createInputStream();
@@ -389,10 +389,9 @@ bool Tunefish4AudioProcessor::loadProgram(eU32 index)
 
 bool Tunefish4AudioProcessor::loadProgramAll()
 {
-    for(int i=0;i<TF_PLUG_NUM_PROGRAMS;i++)
+    for(auto i=0;i<TF_PLUG_NUM_PROGRAMS;i++)
     {
-        if (!loadProgram(i))
-            return false;
+        loadProgram(i);
     }
 
     return true;
@@ -518,7 +517,7 @@ void Tunefish4AudioProcessor::setStateInformation (const void* data, int sizeInB
         {
             for (eU32 i=0; i<TF_PARAM_COUNT; i++)
             {
-                tf->params[i] = (float) xmlState->getDoubleAttribute (TF_NAMES[i], tf->params[i]);
+                tf->params[i] = static_cast<float>(xmlState->getDoubleAttribute (TF_NAMES[i], tf->params[i]));
             }
         }
     }
