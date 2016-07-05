@@ -878,7 +878,8 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
     m_sldBPFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_BP_FILTER_CUTOFF));
     m_sldGenBandwidth.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_BANDWIDTH));
 
-    m_freqView.repaint();
+    if (processor->wasProgramSwitched())
+        m_freqView.repaint();
 
     processor->resetParamDirty();
 }
