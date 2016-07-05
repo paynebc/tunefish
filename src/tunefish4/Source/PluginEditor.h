@@ -108,6 +108,8 @@ private:
 
     void _createIcons();
 
+    OpenGLContext m_openGlContext;
+
     // -------------------------------------
     //  COMPONENT GROUPS
     // -------------------------------------

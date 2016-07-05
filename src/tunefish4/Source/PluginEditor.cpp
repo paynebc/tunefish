@@ -178,6 +178,8 @@ m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
 m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
 m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
 {
+    m_openGlContext.attachTo(*this);
+
     tfLookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour::fromRGB(0, 0, 0));
     tfLookAndFeel.setColour(Slider::trackColourId, Colour::fromRGB(40, 40, 40));
     tfLookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour::fromRGB(240, 240, 200));
@@ -424,7 +426,7 @@ m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
     _addComboBox(&m_grpEffectStack, m_cmbEffect10, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 250, 160, 20);
 
     _fillProgramCombobox();
-    startTimer (50);
+    startTimer (100);
 }
 
 Tunefish4AudioProcessorEditor::~Tunefish4AudioProcessorEditor()
