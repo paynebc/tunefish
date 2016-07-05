@@ -693,12 +693,22 @@ struct eTfNoise
 
 struct eTfVoice
 {
-    eTfVoice()
+    eTfVoice(eBool allocFilters = eTRUE)
     {
-        filterLP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-        filterHP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-        filterBP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-        filterNT = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+        if (allocFilters) 
+        {
+            filterLP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+            filterHP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+            filterBP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+            filterNT = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+        } 
+        else
+        {
+            filterLP = nullptr;
+            filterHP = nullptr;
+            filterBP = nullptr;
+            filterNT = nullptr;
+        }
     }
 
     ~eTfVoice()

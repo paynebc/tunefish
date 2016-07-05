@@ -39,10 +39,11 @@ void eTfGroupComponent::paint (Graphics& g)
 
 //==============================================================================
 eTfFreqView::eTfFreqView() :
-m_synth(nullptr),
-m_instr(nullptr)
+    m_synth(nullptr),
+    m_instr(nullptr), 
+    m_processor(nullptr)
 {
-    m_voice = new eTfVoice;
+    m_voice = new eTfVoice(eFALSE);
 }
 
 eTfFreqView::~eTfFreqView()
@@ -55,7 +56,6 @@ void eTfFreqView::setSynth(Tunefish4AudioProcessor *processor, eTfSynth *synth, 
     m_processor = processor;
     m_synth = synth;
     m_instr = instr;
-
 }
 
 void eTfFreqView::paint (Graphics& g)
@@ -73,21 +73,28 @@ void eTfFreqView::paint (Graphics& g)
 
     if (m_synth != nullptr && m_instr != nullptr)
     {
-        m_processor->getSynthCriticalSection().enter();
-
         g.setColour(Colours::white);
 
-        eTfVoice *voice = m_instr->latestTriggeredVoice;
-        if (!voice) {
-            voice = m_voice;
+        // lock the synth and copy the current voice data
+        // -----------------------------------------------------------
+        m_processor->getSynthCriticalSection().enter();
+
+        if (m_instr->latestTriggeredVoice) {
+            eTfVoice *voice = m_instr->latestTriggeredVoice;
+            m_voice->modMatrix = voice->modMatrix;
+            m_voice->generator.modulation = voice->generator.modulation;
         }
+        
+        m_processor->getSynthCriticalSection().exit();
 
-        m_voice->generator.modulation = voice->generator.modulation;
-
+        // calculate the waveform
+        // -----------------------------------------------------------
         eTfVoiceReset(*m_voice);
-        eTfGeneratorUpdate(*m_synth, *m_instr, *voice, m_voice->generator, 1.0f);
+        eTfGeneratorUpdate(*m_synth, *m_instr, *m_voice, m_voice->generator, 1.0f);
         eF32 *freqTable = m_voice->generator.freqTable;
-        if (eTfGeneratorModulate(*m_synth, *m_instr, *voice, m_voice->generator)) {
+
+        if (eTfGeneratorModulate(*m_synth, *m_instr, *m_voice, m_voice->generator)) 
+        {
             freqTable = m_voice->generator.freqModTable;
         }
 
@@ -146,8 +153,6 @@ void eTfFreqView::paint (Graphics& g)
             lastValue = value;
             lastValueDrv = valueDrv;
         }
-
-        m_processor->getSynthCriticalSection().exit();
     }
 
     g.setColour(Colour::fromRGB(0, 0, 0));
