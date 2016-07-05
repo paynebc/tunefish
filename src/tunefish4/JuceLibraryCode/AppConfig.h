@@ -271,7 +271,7 @@
  #define JucePlugin_VersionCode            0x40100
 #endif
 #ifndef  JucePlugin_VersionString
- #define JucePlugin_VersionString          "4.1.0 beta2"
+ #define JucePlugin_VersionString          "4.1.0 beta3"
 #endif
 #ifndef  JucePlugin_VSTUniqueID
  #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode

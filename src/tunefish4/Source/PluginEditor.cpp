@@ -178,8 +178,36 @@ m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
 m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
 m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
 {
-    m_openGlContext.attachTo(*this);
+    setSize(1080, 740);
 
+    //m_openGlContext.attachTo(*this);
+
+    // Init configuration 
+    // -------------------------------------------------------------------------------------------
+    PropertiesFile::Options storageParams;
+    storageParams.applicationName = "Tunefish4";
+    storageParams.filenameSuffix = ".settings";
+    storageParams.folderName = "Brain Control";
+    storageParams.osxLibrarySubFolder = "Application Support";
+    storageParams.doNotSave = false;
+
+    m_appProperties.setStorageParameters(storageParams);
+
+    _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 10, 710, 100, 20);
+    _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 120, 710, 100, 20);
+    _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 230, 710, 100, 20);
+
+    m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
+    m_btnFastAnimations.setToggleState(_configAreAnimationsFast(), dontSendNotification);
+    m_btnMovingWaveforms.setToggleState(_configAreWaveformsMoving(), dontSendNotification);
+
+    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1020, 710, 60, 20);
+    m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
+
+    
+
+    // Init rest of UI
+    // -------------------------------------------------------------------------------------------
     tfLookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour::fromRGB(0, 0, 0));
     tfLookAndFeel.setColour(Slider::trackColourId, Colour::fromRGB(40, 40, 40));
     tfLookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour::fromRGB(240, 240, 200));
@@ -203,13 +231,7 @@ m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
     Colour colLfo = Colour::fromRGB(240, 240, 200);
     Colour colEffects = Colour::fromRGB(200, 240, 200);
 
-    // This is where our plugin's editor size is set.
-    setSize (1080, 710);
-
     _createIcons();
-
-    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1020, 0, 60, 15);
-    m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
 
     // -------------------------------------
     //  GLOBAL GROUP
@@ -426,7 +448,7 @@ m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
     _addComboBox(&m_grpEffectStack, m_cmbEffect10, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 250, 160, 20);
 
     _fillProgramCombobox();
-    startTimer (100);
+    _resetTimer();
 }
 
 Tunefish4AudioProcessorEditor::~Tunefish4AudioProcessorEditor()
@@ -601,199 +623,204 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
 
     Tunefish4AudioProcessor * processor = getProcessor();
 
-    if (processor->wasProgramSwitched())
-        m_cmbInstrument.setSelectedItemIndex(processor->getCurrentProgram(), dontSendNotification);
+    bool animationsOn = _configAreAnimationsOn();
+    bool waveformsMoving = _configAreWaveformsMoving();
 
-    if (processor->isParamDirty(TF_GEN_POLYPHONY))
-        m_cmbPolyphony.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_POLYPHONY) * (TF_MAXVOICES-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_PITCHWHEEL_UP))
-        m_cmbPitchBendUp.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_PITCHWHEEL_UP) * (TF_MAXPITCHBEND/2))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_PITCHWHEEL_DOWN))
-        m_cmbPitchBendDown.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_PITCHWHEEL_DOWN) * (TF_MAXPITCHBEND/2))), dontSendNotification);
-
-    m_sldGlobVolume.setValue (processor->getParameter(TF_GLOBAL_GAIN), dontSendNotification);
-    m_sldGlobFrequency.setValue (processor->getParameter(TF_GEN_FREQ), dontSendNotification);
-    m_sldGlobDetune.setValue (processor->getParameter(TF_GEN_DETUNE), dontSendNotification);
-    m_sldGlobSlop.setValue (processor->getParameter(TF_GEN_SLOP), dontSendNotification);
-    m_sldGlobGlide.setValue (processor->getParameter(TF_GEN_GLIDE), dontSendNotification);
-
-    m_sldGenVolume.setValue (processor->getParameter(TF_GEN_VOLUME), dontSendNotification);
-    m_sldGenPanning.setValue (processor->getParameter(TF_GEN_PANNING), dontSendNotification);
-    m_sldGenSpread.setValue (processor->getParameter(TF_GEN_SPREAD), dontSendNotification);
-    m_sldGenBandwidth.setValue (processor->getParameter(TF_GEN_BANDWIDTH), dontSendNotification);
-    m_sldGenDamp.setValue (processor->getParameter(TF_GEN_DAMP), dontSendNotification);
-    m_sldGenHarmonics.setValue (processor->getParameter(TF_GEN_NUMHARMONICS), dontSendNotification);
-    m_sldGenDrive.setValue (processor->getParameter(TF_GEN_DRIVE), dontSendNotification);
-    m_sldGenScale.setValue (processor->getParameter(TF_GEN_SCALE), dontSendNotification);
-    m_sldGenModulation.setValue (processor->getParameter(TF_GEN_MODULATION), dontSendNotification);
-
-    m_sldNoiseAmount.setValue (processor->getParameter(TF_NOISE_AMOUNT), dontSendNotification);
-    m_sldNoiseFreq.setValue (processor->getParameter(TF_NOISE_FREQ), dontSendNotification);
-    m_sldNoiseBandwidth.setValue (processor->getParameter(TF_NOISE_BW), dontSendNotification);
-
-    m_btnLPOn.setToggleState(processor->getParameter(TF_LP_FILTER_ON) > 0.5f, dontSendNotification);
-    m_sldLPFrequency.setValue(processor->getParameter(TF_LP_FILTER_CUTOFF), dontSendNotification);
-    m_sldLPResonance.setValue(processor->getParameter(TF_LP_FILTER_RESONANCE), dontSendNotification);
-    m_btnHPOn.setToggleState(processor->getParameter(TF_HP_FILTER_ON) > 0.5f, dontSendNotification);
-    m_sldHPFrequency.setValue(processor->getParameter(TF_HP_FILTER_CUTOFF), dontSendNotification);
-    m_sldHPResonance.setValue(processor->getParameter(TF_HP_FILTER_RESONANCE), dontSendNotification);
-    m_btnBPOn.setToggleState(processor->getParameter(TF_BP_FILTER_ON) > 0.5f, dontSendNotification);
-    m_sldBPFrequency.setValue(processor->getParameter(TF_BP_FILTER_CUTOFF), dontSendNotification);
-    m_sldBPQ.setValue(processor->getParameter(TF_BP_FILTER_Q), dontSendNotification);
-    m_btnNTOn.setToggleState(processor->getParameter(TF_NT_FILTER_ON) > 0.5f, dontSendNotification);
-    m_sldNTFrequency.setValue(processor->getParameter(TF_NT_FILTER_CUTOFF), dontSendNotification);
-    m_sldNTQ.setValue(processor->getParameter(TF_NT_FILTER_Q), dontSendNotification);
-
-    m_sldLFO1Rate.setValue(processor->getParameter(TF_LFO1_RATE), dontSendNotification);
-    m_sldLFO1Depth.setValue(processor->getParameter(TF_LFO1_DEPTH), dontSendNotification);
-    m_sldLFO2Rate.setValue(processor->getParameter(TF_LFO2_RATE), dontSendNotification);
-    m_sldLFO2Depth.setValue(processor->getParameter(TF_LFO2_DEPTH), dontSendNotification);
-
-    m_sldADSR1Attack.setValue(processor->getParameter(TF_ADSR1_ATTACK), dontSendNotification);
-    m_sldADSR1Decay.setValue(processor->getParameter(TF_ADSR1_DECAY), dontSendNotification);
-    m_sldADSR1Sustain.setValue(processor->getParameter(TF_ADSR1_SUSTAIN), dontSendNotification);
-    m_sldADSR1Release.setValue(processor->getParameter(TF_ADSR1_RELEASE), dontSendNotification);
-    m_sldADSR1Slope.setValue(processor->getParameter(TF_ADSR1_SLOPE), dontSendNotification);
-
-    m_sldADSR2Attack.setValue(processor->getParameter(TF_ADSR2_ATTACK), dontSendNotification);
-    m_sldADSR2Decay.setValue(processor->getParameter(TF_ADSR2_DECAY), dontSendNotification);
-    m_sldADSR2Sustain.setValue(processor->getParameter(TF_ADSR2_SUSTAIN), dontSendNotification);
-    m_sldADSR2Release.setValue(processor->getParameter(TF_ADSR2_RELEASE), dontSendNotification);
-    m_sldADSR2Slope.setValue(processor->getParameter(TF_ADSR2_SLOPE), dontSendNotification);
-
-    m_sldFlangerFrequency.setValue(processor->getParameter(TF_FLANGER_FREQUENCY), dontSendNotification);
-    m_sldFlangerAmplitude.setValue(processor->getParameter(TF_FLANGER_AMPLITUDE), dontSendNotification);
-    m_sldFlangerLFO.setValue(processor->getParameter(TF_FLANGER_LFO), dontSendNotification);
-    m_sldFlangerWet.setValue(processor->getParameter(TF_FLANGER_WET), dontSendNotification);
-
-    m_sldReverbRoomsize.setValue(processor->getParameter(TF_REVERB_ROOMSIZE), dontSendNotification);
-    m_sldReverbDamp.setValue(processor->getParameter(TF_REVERB_DAMP), dontSendNotification);
-    m_sldReverbWet.setValue(processor->getParameter(TF_REVERB_WET), dontSendNotification);
-    m_sldReverbWidth.setValue(processor->getParameter(TF_REVERB_WIDTH), dontSendNotification);
-
-    m_sldDelayLeft.setValue(processor->getParameter(TF_DELAY_LEFT), dontSendNotification);
-    m_sldDelayRight.setValue(processor->getParameter(TF_DELAY_RIGHT), dontSendNotification);
-    m_sldDelayDecay.setValue(processor->getParameter(TF_DELAY_DECAY), dontSendNotification);
-
-    m_sldChorusFreq.setValue(processor->getParameter(TF_CHORUS_RATE), dontSendNotification);
-    m_sldChorusDepth.setValue(processor->getParameter(TF_CHORUS_DEPTH), dontSendNotification);
-    m_sldChorusGain.setValue(processor->getParameter(TF_CHORUS_GAIN), dontSendNotification);
-
-    m_sldEqLow.setValue(processor->getParameter(TF_EQ_LOW), dontSendNotification);
-    m_sldEqMid.setValue(processor->getParameter(TF_EQ_MID), dontSendNotification);
-    m_sldEqHigh.setValue(processor->getParameter(TF_EQ_HIGH), dontSendNotification);
-
-    m_sldFormantWet.setValue(processor->getParameter(TF_FORMANT_WET), dontSendNotification);
-
-    m_sldDistortionAmount.setValue(processor->getParameter(TF_DISTORT_AMOUNT), dontSendNotification);
-
-    // MOD Matrix Slot 1 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM1_SOURCE))
-        m_cmbMM1Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM1_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM1_TARGET))
-        m_cmbMM1Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM1_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM1Mod.setValue(processor->getParameter(TF_MM1_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 2 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM2_SOURCE))
-        m_cmbMM2Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM2_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM2_TARGET))
-        m_cmbMM2Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM2_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM2Mod.setValue(processor->getParameter(TF_MM2_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 3 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM3_SOURCE))
-        m_cmbMM3Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM3_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM3_TARGET))
-        m_cmbMM3Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM3_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM3Mod.setValue(processor->getParameter(TF_MM3_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 4 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM4_SOURCE))
-        m_cmbMM4Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM4_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM4_TARGET))
-        m_cmbMM4Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM4_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM4Mod.setValue(processor->getParameter(TF_MM4_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 5 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM5_SOURCE))
-        m_cmbMM5Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM5_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM5_TARGET))
-        m_cmbMM5Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM5_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM5Mod.setValue(processor->getParameter(TF_MM5_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 6 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM6_SOURCE))
-        m_cmbMM6Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM6_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM6_TARGET))
-        m_cmbMM6Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM6_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM6Mod.setValue(processor->getParameter(TF_MM6_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 7 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM7_SOURCE))
-        m_cmbMM7Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM7_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM7_TARGET))
-        m_cmbMM7Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM7_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM7Mod.setValue(processor->getParameter(TF_MM7_MOD), dontSendNotification);
-    
-    // MOD Matrix Slot 8 --------------------------------------------------------------
-    if (processor->isParamDirty(TF_MM8_SOURCE))
-        m_cmbMM8Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM8_SOURCE) * (eTfModMatrix::INPUT_COUNT-1))), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_MM8_TARGET))
-        m_cmbMM8Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM8_TARGET) * (eTfModMatrix::OUTPUT_COUNT-1))), dontSendNotification);
-    
-    m_sldMM8Mod.setValue(processor->getParameter(TF_MM8_MOD), dontSendNotification);
-
-    // EFFECTS Section ----------------------------------------------------------------
-    if (processor->isParamDirty(TF_EFFECT_1))
-        m_cmbEffect1.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_1) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_2))
-        m_cmbEffect2.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_2) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_3))
-        m_cmbEffect3.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_3) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_4))
-        m_cmbEffect4.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_4) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_5))
-        m_cmbEffect5.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_5) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_6))
-        m_cmbEffect6.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_6) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_7))
-        m_cmbEffect7.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_7) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_8))
-        m_cmbEffect8.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_8) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_9))
-        m_cmbEffect9.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_9) * TF_MAXEFFECTS)), dontSendNotification);
-    
-    if (processor->isParamDirty(TF_EFFECT_10))
-        m_cmbEffect10.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_10) * TF_MAXEFFECTS)), dontSendNotification);
-
-    switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_UNISONO) * (TF_MAXUNISONO-1))))
+    if (animationsOn || processor->wasProgramSwitched())
     {
+        if (processor->wasProgramSwitched())
+            m_cmbInstrument.setSelectedItemIndex(processor->getCurrentProgram(), dontSendNotification);
+
+        if (processor->isParamDirty(TF_GEN_POLYPHONY))
+            m_cmbPolyphony.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_POLYPHONY) * (TF_MAXVOICES - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_PITCHWHEEL_UP))
+            m_cmbPitchBendUp.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_PITCHWHEEL_UP) * (TF_MAXPITCHBEND / 2))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_PITCHWHEEL_DOWN))
+            m_cmbPitchBendDown.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_PITCHWHEEL_DOWN) * (TF_MAXPITCHBEND / 2))), dontSendNotification);
+
+        m_sldGlobVolume.setValue(processor->getParameter(TF_GLOBAL_GAIN), dontSendNotification);
+        m_sldGlobFrequency.setValue(processor->getParameter(TF_GEN_FREQ), dontSendNotification);
+        m_sldGlobDetune.setValue(processor->getParameter(TF_GEN_DETUNE), dontSendNotification);
+        m_sldGlobSlop.setValue(processor->getParameter(TF_GEN_SLOP), dontSendNotification);
+        m_sldGlobGlide.setValue(processor->getParameter(TF_GEN_GLIDE), dontSendNotification);
+
+        m_sldGenVolume.setValue(processor->getParameter(TF_GEN_VOLUME), dontSendNotification);
+        m_sldGenPanning.setValue(processor->getParameter(TF_GEN_PANNING), dontSendNotification);
+        m_sldGenSpread.setValue(processor->getParameter(TF_GEN_SPREAD), dontSendNotification);
+        m_sldGenBandwidth.setValue(processor->getParameter(TF_GEN_BANDWIDTH), dontSendNotification);
+        m_sldGenDamp.setValue(processor->getParameter(TF_GEN_DAMP), dontSendNotification);
+        m_sldGenHarmonics.setValue(processor->getParameter(TF_GEN_NUMHARMONICS), dontSendNotification);
+        m_sldGenDrive.setValue(processor->getParameter(TF_GEN_DRIVE), dontSendNotification);
+        m_sldGenScale.setValue(processor->getParameter(TF_GEN_SCALE), dontSendNotification);
+        m_sldGenModulation.setValue(processor->getParameter(TF_GEN_MODULATION), dontSendNotification);
+
+        m_sldNoiseAmount.setValue(processor->getParameter(TF_NOISE_AMOUNT), dontSendNotification);
+        m_sldNoiseFreq.setValue(processor->getParameter(TF_NOISE_FREQ), dontSendNotification);
+        m_sldNoiseBandwidth.setValue(processor->getParameter(TF_NOISE_BW), dontSendNotification);
+
+        m_btnLPOn.setToggleState(processor->getParameter(TF_LP_FILTER_ON) > 0.5f, dontSendNotification);
+        m_sldLPFrequency.setValue(processor->getParameter(TF_LP_FILTER_CUTOFF), dontSendNotification);
+        m_sldLPResonance.setValue(processor->getParameter(TF_LP_FILTER_RESONANCE), dontSendNotification);
+        m_btnHPOn.setToggleState(processor->getParameter(TF_HP_FILTER_ON) > 0.5f, dontSendNotification);
+        m_sldHPFrequency.setValue(processor->getParameter(TF_HP_FILTER_CUTOFF), dontSendNotification);
+        m_sldHPResonance.setValue(processor->getParameter(TF_HP_FILTER_RESONANCE), dontSendNotification);
+        m_btnBPOn.setToggleState(processor->getParameter(TF_BP_FILTER_ON) > 0.5f, dontSendNotification);
+        m_sldBPFrequency.setValue(processor->getParameter(TF_BP_FILTER_CUTOFF), dontSendNotification);
+        m_sldBPQ.setValue(processor->getParameter(TF_BP_FILTER_Q), dontSendNotification);
+        m_btnNTOn.setToggleState(processor->getParameter(TF_NT_FILTER_ON) > 0.5f, dontSendNotification);
+        m_sldNTFrequency.setValue(processor->getParameter(TF_NT_FILTER_CUTOFF), dontSendNotification);
+        m_sldNTQ.setValue(processor->getParameter(TF_NT_FILTER_Q), dontSendNotification);
+
+        m_sldLFO1Rate.setValue(processor->getParameter(TF_LFO1_RATE), dontSendNotification);
+        m_sldLFO1Depth.setValue(processor->getParameter(TF_LFO1_DEPTH), dontSendNotification);
+        m_sldLFO2Rate.setValue(processor->getParameter(TF_LFO2_RATE), dontSendNotification);
+        m_sldLFO2Depth.setValue(processor->getParameter(TF_LFO2_DEPTH), dontSendNotification);
+
+        m_sldADSR1Attack.setValue(processor->getParameter(TF_ADSR1_ATTACK), dontSendNotification);
+        m_sldADSR1Decay.setValue(processor->getParameter(TF_ADSR1_DECAY), dontSendNotification);
+        m_sldADSR1Sustain.setValue(processor->getParameter(TF_ADSR1_SUSTAIN), dontSendNotification);
+        m_sldADSR1Release.setValue(processor->getParameter(TF_ADSR1_RELEASE), dontSendNotification);
+        m_sldADSR1Slope.setValue(processor->getParameter(TF_ADSR1_SLOPE), dontSendNotification);
+
+        m_sldADSR2Attack.setValue(processor->getParameter(TF_ADSR2_ATTACK), dontSendNotification);
+        m_sldADSR2Decay.setValue(processor->getParameter(TF_ADSR2_DECAY), dontSendNotification);
+        m_sldADSR2Sustain.setValue(processor->getParameter(TF_ADSR2_SUSTAIN), dontSendNotification);
+        m_sldADSR2Release.setValue(processor->getParameter(TF_ADSR2_RELEASE), dontSendNotification);
+        m_sldADSR2Slope.setValue(processor->getParameter(TF_ADSR2_SLOPE), dontSendNotification);
+
+        m_sldFlangerFrequency.setValue(processor->getParameter(TF_FLANGER_FREQUENCY), dontSendNotification);
+        m_sldFlangerAmplitude.setValue(processor->getParameter(TF_FLANGER_AMPLITUDE), dontSendNotification);
+        m_sldFlangerLFO.setValue(processor->getParameter(TF_FLANGER_LFO), dontSendNotification);
+        m_sldFlangerWet.setValue(processor->getParameter(TF_FLANGER_WET), dontSendNotification);
+
+        m_sldReverbRoomsize.setValue(processor->getParameter(TF_REVERB_ROOMSIZE), dontSendNotification);
+        m_sldReverbDamp.setValue(processor->getParameter(TF_REVERB_DAMP), dontSendNotification);
+        m_sldReverbWet.setValue(processor->getParameter(TF_REVERB_WET), dontSendNotification);
+        m_sldReverbWidth.setValue(processor->getParameter(TF_REVERB_WIDTH), dontSendNotification);
+
+        m_sldDelayLeft.setValue(processor->getParameter(TF_DELAY_LEFT), dontSendNotification);
+        m_sldDelayRight.setValue(processor->getParameter(TF_DELAY_RIGHT), dontSendNotification);
+        m_sldDelayDecay.setValue(processor->getParameter(TF_DELAY_DECAY), dontSendNotification);
+
+        m_sldChorusFreq.setValue(processor->getParameter(TF_CHORUS_RATE), dontSendNotification);
+        m_sldChorusDepth.setValue(processor->getParameter(TF_CHORUS_DEPTH), dontSendNotification);
+        m_sldChorusGain.setValue(processor->getParameter(TF_CHORUS_GAIN), dontSendNotification);
+
+        m_sldEqLow.setValue(processor->getParameter(TF_EQ_LOW), dontSendNotification);
+        m_sldEqMid.setValue(processor->getParameter(TF_EQ_MID), dontSendNotification);
+        m_sldEqHigh.setValue(processor->getParameter(TF_EQ_HIGH), dontSendNotification);
+
+        m_sldFormantWet.setValue(processor->getParameter(TF_FORMANT_WET), dontSendNotification);
+
+        m_sldDistortionAmount.setValue(processor->getParameter(TF_DISTORT_AMOUNT), dontSendNotification);
+
+        // MOD Matrix Slot 1 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM1_SOURCE))
+            m_cmbMM1Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM1_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM1_TARGET))
+            m_cmbMM1Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM1_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM1Mod.setValue(processor->getParameter(TF_MM1_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 2 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM2_SOURCE))
+            m_cmbMM2Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM2_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM2_TARGET))
+            m_cmbMM2Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM2_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM2Mod.setValue(processor->getParameter(TF_MM2_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 3 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM3_SOURCE))
+            m_cmbMM3Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM3_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM3_TARGET))
+            m_cmbMM3Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM3_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM3Mod.setValue(processor->getParameter(TF_MM3_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 4 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM4_SOURCE))
+            m_cmbMM4Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM4_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM4_TARGET))
+            m_cmbMM4Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM4_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM4Mod.setValue(processor->getParameter(TF_MM4_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 5 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM5_SOURCE))
+            m_cmbMM5Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM5_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM5_TARGET))
+            m_cmbMM5Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM5_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM5Mod.setValue(processor->getParameter(TF_MM5_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 6 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM6_SOURCE))
+            m_cmbMM6Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM6_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM6_TARGET))
+            m_cmbMM6Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM6_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM6Mod.setValue(processor->getParameter(TF_MM6_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 7 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM7_SOURCE))
+            m_cmbMM7Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM7_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM7_TARGET))
+            m_cmbMM7Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM7_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM7Mod.setValue(processor->getParameter(TF_MM7_MOD), dontSendNotification);
+
+        // MOD Matrix Slot 8 --------------------------------------------------------------
+        if (processor->isParamDirty(TF_MM8_SOURCE))
+            m_cmbMM8Src.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM8_SOURCE) * (eTfModMatrix::INPUT_COUNT - 1))), dontSendNotification);
+
+        if (processor->isParamDirty(TF_MM8_TARGET))
+            m_cmbMM8Dest.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_MM8_TARGET) * (eTfModMatrix::OUTPUT_COUNT - 1))), dontSendNotification);
+
+        m_sldMM8Mod.setValue(processor->getParameter(TF_MM8_MOD), dontSendNotification);
+
+        // EFFECTS Section ----------------------------------------------------------------
+        if (processor->isParamDirty(TF_EFFECT_1))
+            m_cmbEffect1.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_1) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_2))
+            m_cmbEffect2.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_2) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_3))
+            m_cmbEffect3.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_3) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_4))
+            m_cmbEffect4.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_4) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_5))
+            m_cmbEffect5.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_5) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_6))
+            m_cmbEffect6.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_6) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_7))
+            m_cmbEffect7.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_7) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_8))
+            m_cmbEffect8.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_8) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_9))
+            m_cmbEffect9.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_9) * TF_MAXEFFECTS)), dontSendNotification);
+
+        if (processor->isParamDirty(TF_EFFECT_10))
+            m_cmbEffect10.setSelectedItemIndex(static_cast<eU32>(eRoundNearest(processor->getParameter(TF_EFFECT_10) * TF_MAXEFFECTS)), dontSendNotification);
+
+        switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_UNISONO) * (TF_MAXUNISONO - 1))))
+        {
         case 0: m_btnGenUnisono1.setToggleState(true, dontSendNotification); break;
         case 1: m_btnGenUnisono2.setToggleState(true, dontSendNotification); break;
         case 2: m_btnGenUnisono3.setToggleState(true, dontSendNotification); break;
@@ -804,10 +831,10 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         case 7: m_btnGenUnisono8.setToggleState(true, dontSendNotification); break;
         case 8: m_btnGenUnisono9.setToggleState(true, dontSendNotification); break;
         case 9: m_btnGenUnisono10.setToggleState(true, dontSendNotification); break;
-    }
+        }
 
-    switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_OCTAVE) * (TF_MAXOCTAVES-1))))
-    {
+        switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_GEN_OCTAVE) * (TF_MAXOCTAVES - 1))))
+        {
         case 8: m_btnGenOctave1.setToggleState(true, dontSendNotification); break;
         case 7: m_btnGenOctave2.setToggleState(true, dontSendNotification); break;
         case 6: m_btnGenOctave3.setToggleState(true, dontSendNotification); break;
@@ -817,69 +844,72 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         case 2: m_btnGenOctave7.setToggleState(true, dontSendNotification); break;
         case 1: m_btnGenOctave8.setToggleState(true, dontSendNotification); break;
         case 0: m_btnGenOctave9.setToggleState(true, dontSendNotification); break;
-    }
+        }
 
-    switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_LFO1_SHAPE) * (TF_LFOSHAPECOUNT-1))))
-    {
+        switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_LFO1_SHAPE) * (TF_LFOSHAPECOUNT - 1))))
+        {
         case 0: m_btnLFO1ShapeSine.setToggleState(true, dontSendNotification); break;
         case 1: m_btnLFO1ShapeSawDown.setToggleState(true, dontSendNotification); break;
         case 2: m_btnLFO1ShapeSawUp.setToggleState(true, dontSendNotification); break;
         case 3: m_btnLFO1ShapeSquare.setToggleState(true, dontSendNotification); break;
         case 4: m_btnLFO1ShapeNoise.setToggleState(true, dontSendNotification); break;
-    }
+        }
 
-    switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_LFO2_SHAPE) * (TF_LFOSHAPECOUNT-1))))
-    {
+        switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_LFO2_SHAPE) * (TF_LFOSHAPECOUNT - 1))))
+        {
         case 0: m_btnLFO2ShapeSine.setToggleState(true, dontSendNotification); break;
         case 1: m_btnLFO2ShapeSawDown.setToggleState(true, dontSendNotification); break;
         case 2: m_btnLFO2ShapeSawUp.setToggleState(true, dontSendNotification); break;
         case 3: m_btnLFO2ShapeSquare.setToggleState(true, dontSendNotification); break;
         case 4: m_btnLFO2ShapeNoise.setToggleState(true, dontSendNotification); break;
-    }
+        }
 
-    switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_FORMANT_MODE) * (TF_FORMANTCOUNT-1))))
-    {
+        switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_FORMANT_MODE) * (TF_FORMANTCOUNT - 1))))
+        {
         case 0: m_btnFormantA.setToggleState(true, dontSendNotification); break;
         case 1: m_btnFormantE.setToggleState(true, dontSendNotification); break;
         case 2: m_btnFormantI.setToggleState(true, dontSendNotification); break;
         case 3: m_btnFormantO.setToggleState(true, dontSendNotification); break;
         case 4: m_btnFormantU.setToggleState(true, dontSendNotification); break;
+        }
+
+        // -----------------------------------------------------
+        //  Update modulation subvalues for all dials
+        // -----------------------------------------------------
+
+        m_sldGenVolume.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_VOLUME));
+        m_sldGenSpread.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_SPREAD));
+        m_sldGenScale.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_SCALE));
+        m_sldGenPanning.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_PAN));
+        m_sldGenHarmonics.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_NUMHARMONICS));
+        m_sldNTQ.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_NT_FILTER_Q));
+        m_sldNTFrequency.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_NT_FILTER_CUTOFF));
+        m_sldNoiseAmount.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_NOISE_AMOUNT));
+        m_sldMM8Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD8));
+        m_sldMM7Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD7));
+        m_sldMM6Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD6));
+        m_sldMM5Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD5));
+        m_sldMM4Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD4));
+        m_sldMM3Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD3));
+        m_sldMM2Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD2));
+        m_sldMM1Mod.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_MOD1));
+        m_sldLPResonance.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_LP_FILTER_RESONANCE));
+        m_sldLPFrequency.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_LP_FILTER_CUTOFF));
+        m_sldHPResonance.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_HP_FILTER_RESONANCE));
+        m_sldHPFrequency.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_HP_FILTER_CUTOFF));
+        m_sldGlobFrequency.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_FREQ));
+        m_sldGenDrive.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_DRIVE));
+        m_sldGlobDetune.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_DETUNE));
+        m_sldGenDamp.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_DAMP));
+        m_sldBPQ.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_BP_FILTER_Q));
+        m_sldBPFrequency.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_BP_FILTER_CUTOFF));
+        m_sldGenBandwidth.setModValue(processor->getParameterMod(eTfModMatrix::OUTPUT_BANDWIDTH));
     }
 
-    // -----------------------------------------------------
-    //  Update modulation subvalues for all dials
-    // -----------------------------------------------------
-
-    m_sldGenVolume.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_VOLUME));
-    m_sldGenSpread.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_SPREAD));
-    m_sldGenScale.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_SCALE));
-    m_sldGenPanning.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_PAN));
-    m_sldGenHarmonics.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_NUMHARMONICS));
-    m_sldNTQ.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_NT_FILTER_Q));
-    m_sldNTFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_NT_FILTER_CUTOFF));
-    m_sldNoiseAmount.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_NOISE_AMOUNT));
-    m_sldMM8Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD8));
-    m_sldMM7Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD7));
-    m_sldMM6Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD6));
-    m_sldMM5Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD5));
-    m_sldMM4Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD4));
-    m_sldMM3Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD3));
-    m_sldMM2Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD2));
-    m_sldMM1Mod.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_MOD1));
-    m_sldLPResonance.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_LP_FILTER_RESONANCE));
-    m_sldLPFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_LP_FILTER_CUTOFF));
-    m_sldHPResonance.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_HP_FILTER_RESONANCE));
-    m_sldHPFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_HP_FILTER_CUTOFF));
-    m_sldGlobFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_FREQ));
-    m_sldGenDrive.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_DRIVE));
-    m_sldGlobDetune.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_DETUNE));
-    m_sldGenDamp.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_DAMP));
-    m_sldBPQ.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_BP_FILTER_Q));
-    m_sldBPFrequency.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_BP_FILTER_CUTOFF));
-    m_sldGenBandwidth.setModValue (processor->getParameterMod(eTfModMatrix::OUTPUT_BANDWIDTH));
-
-    if (processor->wasProgramSwitched())
+    if ((animationsOn && waveformsMoving) || processor->wasProgramSwitched())
+    {
         m_freqView.repaint();
+    }
 
     processor->resetParamDirty();
 }
@@ -1155,6 +1185,22 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
         tfProcessor->updateHostDisplay();
         m_freqView.repaint();
     }
+    else if (button == &m_btnAnimationsOn)
+    {
+        bool animationsOn = m_btnAnimationsOn.getToggleState();
+        _configSetAnimationsOn(animationsOn);
+    }
+    else if (button == &m_btnFastAnimations)
+    {
+        bool animationsFast = m_btnFastAnimations.getToggleState();
+        _configSetAnimationsFast(animationsFast);
+        _resetTimer();
+    }
+    else if (button == &m_btnMovingWaveforms)
+    {
+        bool movingWaveforms = m_btnMovingWaveforms.getToggleState();
+        _configSetWaveformsMoving(movingWaveforms);
+    }
 }
 
 void Tunefish4AudioProcessorEditor::_createIcons()
@@ -1212,4 +1258,46 @@ void Tunefish4AudioProcessorEditor::_createIcons()
     m_dimgShapeSawDown.setImage(m_imgShapeSawDown);
     m_dimgShapeSquare.setImage(m_imgShapeSquare);
     m_dimgShapeNoise.setImage(m_imgShapeNoise);
+}
+
+void Tunefish4AudioProcessorEditor::_resetTimer()
+{
+   if (_configAreAnimationsFast())
+   {
+       startTimer(40);
+   }
+   else
+   {
+       startTimer(100);
+   }
+}
+
+bool Tunefish4AudioProcessorEditor::_configAreAnimationsOn()
+{
+    return m_appProperties.getUserSettings()->getBoolValue("AnimationsOn", true);
+}
+
+bool Tunefish4AudioProcessorEditor::_configAreAnimationsFast()
+{
+    return m_appProperties.getUserSettings()->getBoolValue("FastAnimations", true);
+}
+
+bool Tunefish4AudioProcessorEditor::_configAreWaveformsMoving()
+{
+    return m_appProperties.getUserSettings()->getBoolValue("MovingWaveforms", true);
+}
+
+void Tunefish4AudioProcessorEditor::_configSetAnimationsOn(bool value)
+{
+    m_appProperties.getUserSettings()->setValue("AnimationsOn", value);
+}
+
+void Tunefish4AudioProcessorEditor::_configSetAnimationsFast(bool value)
+{
+    m_appProperties.getUserSettings()->setValue("FastAnimations", value);
+}
+
+void Tunefish4AudioProcessorEditor::_configSetWaveformsMoving(bool value)
+{
+    m_appProperties.getUserSettings()->setValue("MovingWaveforms", value);
 }

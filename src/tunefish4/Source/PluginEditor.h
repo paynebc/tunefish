@@ -105,10 +105,21 @@ private:
     void _setParameterNotifyingHost(eF32 value, eTfParam param) const;
 
     void _fillProgramCombobox();
-
     void _createIcons();
+    void _resetTimer();
+
+    bool _configAreAnimationsOn();
+    bool _configAreAnimationsFast();
+    bool _configAreWaveformsMoving();
+    void _configSetAnimationsOn(bool value);
+    void _configSetAnimationsFast(bool value);
+    void _configSetWaveformsMoving(bool value);
 
     OpenGLContext m_openGlContext;
+    ApplicationProperties m_appProperties;
+    TextButton m_btnAnimationsOn;
+    TextButton m_btnFastAnimations;
+    TextButton m_btnMovingWaveforms;
 
     // -------------------------------------
     //  COMPONENT GROUPS
