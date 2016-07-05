@@ -593,6 +593,12 @@ void Tunefish4AudioProcessorEditor::timerCallback()
 
 void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
 {
+    if (!isShowing())
+    {
+        // we do not refresh the UI, if the window is closed!
+        return;
+    }
+
     Tunefish4AudioProcessor * processor = getProcessor();
 
     if (processor->wasProgramSwitched())
