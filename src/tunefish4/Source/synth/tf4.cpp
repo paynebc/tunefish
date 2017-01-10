@@ -18,8 +18,15 @@
  along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
  ---------------------------------------------------------------------
  */
+
+#ifdef eENIGMA
+#include "synth.hpp"
+#else
 #include "../runtime/system.hpp"
 #include "tf4.hpp"
+#endif
+
+#ifndef eCFG_NO_TF
 
 // ------------------------------------------------------------------------------------
 // HELPER FUNCTIONS
@@ -431,17 +438,17 @@ void eTfModMatrixPanic(eTfModMatrix &state)
 void eTfGeneratorReset(eTfGenerator &state)
 {
     eRandom rand;
-    rand.seedRandomly();
+    rand.SeedRandomly();
 
     for(eU32 i=0; i<TF_MAXUNISONO; i++)
 	{
-        eF32 base = rand.nextFloat();
-		eF32 off = rand.nextFloat()*0.1f;
+        eF32 base = rand.NextFloat();
+		eF32 off = rand.NextFloat()*0.1f;
         state.phase[i*2] = base;
 		state.phase[i*2+1] = base+off;
 	}
 
-    state.modulation = rand.nextFloat(0.0f, 100.0f);
+    state.modulation = rand.NextFloat(0.0f, 100.0f);
     state.freq1 = state.freq2 = 0.0f;
 }
 
@@ -808,10 +815,10 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
 void eTfNoiseReset(eTfNoise &state)
 {
     eRandom rand;
-    rand.seedRandomly();
+    rand.SeedRandomly();
 
-    state.offset1 = rand.nextInt(0, TF_NOISETABLESIZE/2);
-    state.offset2 = rand.nextInt(0, TF_NOISETABLESIZE/2);
+    state.offset1 = rand.NextInt(0, TF_NOISETABLESIZE/2);
+    state.offset2 = rand.NextInt(0, TF_NOISETABLESIZE/2);
     state.filterOn = eFALSE;
     state.amount = 0.0f;
 }
@@ -1081,11 +1088,11 @@ void eTfVoiceReset(eTfVoice &state)
 void eTfVoiceNoteOn(eTfVoice &state, eS32 note, eS32 velocity, eF32 lfoPhase1, eF32 lfoPhase2)
 {
     eRandom rand;
-    rand.seedRandomly();
+    rand.SeedRandomly();
 
     state.currentNote = note;
     state.currentVelocity = velocity;
-    state.currentSlop = rand.nextFloat(-1.0f, 1.0f);
+    state.currentSlop = rand.NextFloat(-1.0f, 1.0f);
     state.noteIsOn = eTRUE;
     state.time = 0;
 	state.lastVolL = 0.0f;
@@ -1131,6 +1138,22 @@ void eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr)
 
     for(eU32 i=0; i<TF_MAXVOICES; i++)
         eTfVoiceReset(instr.voice[i]);
+}
+
+void eTfInstrumentFree(eTfSynth &synth, eTfInstrument &instr)
+{
+    for (eU32 i = 0; i < TF_MAXEFFECTS; i++)
+    {
+        eTfEffect *fx = instr.effects[i];
+        eU32 fxIndex = instr.effectIndex[i];
+
+        if (fxIndex != 0)
+        {
+            s_effectDelete[fxIndex](fx);
+            instr.effects[i] = fx = nullptr;
+            instr.effectIndex[i] = 0;
+        }
+    }
 }
 
 eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, long frameSize)
@@ -1432,12 +1455,12 @@ eU32 eTfInstrumentAllocateVoice(eTfInstrument &instr)
 void eTfSynthInit(eTfSynth &synth)
 {
     eRandom rand;
-    rand.seedRandomly();
+    rand.SeedRandomly();
 
     for (eU32 i=0; i<TF_MAXFRAMESIZE; i++)
     {
-        synth.randomBuffer[i] = eSin(rand.nextFloat(0.0f, eTWOPI));
-        synth.sinBuffer[i] = eSin((eF32)i / TF_MAXFRAMESIZE * 2 * ePI);
+        synth.randomBuffer[i] = eSin(rand.NextFloat(0.0f, eTWOPI));
+        synth.sinBuffer[i] = eSin(static_cast<eF32>(i) / TF_MAXFRAMESIZE * 2 * ePI);
         synth.expBuffer[i] = eExp(-(5.0f / TF_MAXFRAMESIZE * i));
     }
 
@@ -1449,23 +1472,23 @@ void eTfSynthInit(eTfSynth &synth)
 
     for (eU32 i = 0; i < TF_NUMFREQS; i++)    // 128 midi notes
     {
-        synth.freqTable[i] = (eF32)a;
+        synth.freqTable[i] = static_cast<eF32>(a);
         a *= TF_12TH_ROOT_OF_2;
     }
 
     for (eU32 i=0;i<TF_LFONOISETABLESIZE;i++)
     {
-        synth.lfoNoiseTable[i] = rand.nextFloat(0.0f, 1.0f);
+        synth.lfoNoiseTable[i] = rand.NextFloat(0.0f, 1.0f);
     }
 
     for (eU32 i=0;i<TF_NOISETABLESIZE;i++)
     {
-        const static eInt q = 15;
-        const static eF32 c1 = (1 << q) - 1;
-        const static eF32 c2 = (eF32)(eFtoL(c1 / 3)) + 1;
-        const static eF32 c3 = 1.f / c1;
+        const eInt q = 15;
+        const eF32 c1 = (1 << q) - 1;
+        const eF32 c2 = static_cast<eF32>(eFtoL(c1 / 3)) + 1;
+        const eF32 c3 = 1.f / c1;
 
-        eF32 random = rand.nextFloat(0.0f, 1.0f);
+        eF32 random = rand.NextFloat(0.0f, 1.0f);
         synth.whiteNoiseTable[i] = (2.f * ((random * c2) + (random * c2) + (random * c2)) - 3.f * (c2 - 1.f)) * c3;
     }
 
@@ -1473,3 +1496,5 @@ void eTfSynthInit(eTfSynth &synth)
         synth.instr[j] = nullptr;
 
 }
+
+#endif

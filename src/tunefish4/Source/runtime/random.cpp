@@ -24,26 +24,26 @@
 
 eRandom::eRandom()
 {
-    seed(0);
+    Seed(0);
 }
 
 eRandom::eRandom(eU32 initSeed)
 {
-    seed(initSeed);
+    Seed(initSeed);
 }
 
-void eRandom::seed(eU32 newSeed)
+void eRandom::Seed(eU32 newSeed)
 {
     // seed may not be 0 => +1, take care of overflows
     m_seed = (newSeed == eU32_MAX ? 1 : newSeed+1);
 }
 
-void eRandom::seedRandomly()
+void eRandom::SeedRandomly()
 {
-    seed(clock());
+    Seed(clock());
 }
 
-eU32 eRandom::nextInt()
+eU32 eRandom::NextInt()
 {
     eU32 lo = 16807*(m_seed&0xffff);
     eU32 hi = 16807*(m_seed>>16);
@@ -55,29 +55,29 @@ eU32 eRandom::nextInt()
     return m_seed;
 }
 
-eInt eRandom::nextInt(eInt min, eInt max)
+eInt eRandom::NextInt(eInt min, eInt max)
 {
-    return nextInt()%(max-min)+min;
+    return NextInt()%(max-min)+min;
 }
 
-eF32 eRandom::nextFloat()
+eF32 eRandom::NextFloat()
 {
-    return (eF32)nextInt()/(eF32)max();
+    return (eF32)NextInt()/(eF32)Max();
 }
 
-eF32 eRandom::nextFloat(eF32 min, eF32 max)
+eF32 eRandom::NextFloat(eF32 min, eF32 max)
 {
-    return nextFloat()*(max-min)+min;
+    return NextFloat()*(max-min)+min;
 }
 
-eF32 eRandom::nextFloatNormalDistribution(eF32 Mean, eF32 StdDeviation)
+eF32 eRandom::NextFloatNormalDistribution(eF32 Mean, eF32 StdDeviation)
 {
     // Box-Muller Transform
     eF32 x1, x2, w, y1, y2;
 
     do {
-        x1 = 2.0f * nextFloat() - 1.0f;
-        x2 = 2.0f * nextFloat() - 1.0f;
+        x1 = 2.0f * NextFloat() - 1.0f;
+        x2 = 2.0f * NextFloat() - 1.0f;
         w = x1 * x1 + x2 * x2;
     } while (w >= 1.0);
 
@@ -88,7 +88,7 @@ eF32 eRandom::nextFloatNormalDistribution(eF32 Mean, eF32 StdDeviation)
     return Mean + y1 * StdDeviation;
 }
 
-eU32 eRandom::max() const
+eU32 eRandom::Max() const
 {
     return 2147483647;
 }

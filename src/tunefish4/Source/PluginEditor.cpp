@@ -1282,7 +1282,7 @@ void Tunefish4AudioProcessorEditor::_createIcons()
     eRandom random;
     for (eU32 i=0;i<PIXWIDTH;i++)
     {
-        gNoise.drawLine(i, MAX_Y/2, i, random.nextInt(0, MAX_Y));
+        gNoise.drawLine(i, MAX_Y/2, i, random.NextInt(0, MAX_Y));
     }
 
     m_dimgShapeSine.setImage(m_imgShapeSine);

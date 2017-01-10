@@ -673,8 +673,11 @@ struct eTfNoise
 {
     eTfNoise()
     {
-        filterLP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-        filterHP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+        filterLP = static_cast<eTfFilter*>(eAllocAligned(sizeof(eTfFilter), 16));
+        filterHP = static_cast<eTfFilter*>(eAllocAligned(sizeof(eTfFilter), 16));
+        eMemSet(filterLP, 0, sizeof(eTfFilter));
+        eMemSet(filterHP, 0, sizeof(eTfFilter));
+
     }
 
     ~eTfNoise()
@@ -697,10 +700,14 @@ struct eTfVoice
     {
         if (allocFilters) 
         {
-            filterLP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-            filterHP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-            filterBP = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
-            filterNT = (eTfFilter*)eAllocAlignedAndZero(sizeof(eTfFilter), 16);
+            filterLP = (eTfFilter*)eAllocAligned(sizeof(eTfFilter), 16);
+            filterHP = (eTfFilter*)eAllocAligned(sizeof(eTfFilter), 16);
+            filterBP = (eTfFilter*)eAllocAligned(sizeof(eTfFilter), 16);
+            filterNT = (eTfFilter*)eAllocAligned(sizeof(eTfFilter), 16);
+            eMemSet(filterLP, 0, sizeof(eTfFilter));
+            eMemSet(filterHP, 0, sizeof(eTfFilter));
+            eMemSet(filterBP, 0, sizeof(eTfFilter));
+            eMemSet(filterNT, 0, sizeof(eTfFilter));
         } 
         else
         {
@@ -794,20 +801,6 @@ struct eTfSong
 	eU32				tempo;
 };
 
-struct eTfPlayer
-{
-	eTfSong				song;
-    eTfSynth            synth;
-
-    eF32                volume;
-    eF32                time;
-    eBool               playing;
-
-    eF32                outputSignal[sizeof(eF32)*TF_FRAMESIZE*2];
-    eF32                tempSignal[sizeof(eF32)*TF_FRAMESIZE*2];
-    eS16                outputFinal[sizeof(eF32)*TF_FRAMESIZE];
-};
-
 eBool   eTfSignalMix(eF32 **master, eF32 **in, eU32 length, eF32 volume);
 void    eTfSignalToS16(eF32 **sig, eS16 *out, const eF32 gain, eU32 length);
 void    eTfSignalToPeak(eF32 **sig, eF32 *peak_left, eF32 *peak_right, eU32 length);
@@ -850,6 +843,7 @@ void    eTfVoicePitchBend(eTfVoice &state, eF32 semitones, eF32 cents);
 void    eTfVoicePanic(eTfVoice &state);
 
 void    eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr);
+void    eTfInstrumentFree(eTfSynth &synth, eTfInstrument &instr);
 eF32    eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, long sampleFrames);
 void    eTfInstrumentNoteOn(eTfInstrument &instr, eS32 note, eS32 velocity);
 eBool   eTfInstrumentNoteOff(eTfInstrument &instr, eS32 note);
