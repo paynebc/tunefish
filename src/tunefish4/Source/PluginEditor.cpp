@@ -166,22 +166,23 @@ const eU32 PIXHEIGHT = 14;
 
 //==============================================================================
 Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProcessor* ownerFilter, eTfSynth *synth)
-: AudioProcessorEditor (ownerFilter),
-m_btnLFO1ShapeSine("lfo1shapesine", DrawableButton::ImageOnButtonBackground),
-m_btnLFO1ShapeSawUp("lfo1shapesawup", DrawableButton::ImageOnButtonBackground),
-m_btnLFO1ShapeSawDown("lfo1shapesawdown", DrawableButton::ImageOnButtonBackground),
-m_btnLFO1ShapeSquare("lfo1shapesquare", DrawableButton::ImageOnButtonBackground),
-m_btnLFO1ShapeNoise("lfo1shapenoise", DrawableButton::ImageOnButtonBackground),
-m_btnLFO2ShapeSine("lfo2shapesine", DrawableButton::ImageOnButtonBackground),
-m_btnLFO2ShapeSawUp("lfo2shapesawup", DrawableButton::ImageOnButtonBackground),
-m_btnLFO2ShapeSawDown("lfo2shapesawdown", DrawableButton::ImageOnButtonBackground),
-m_btnLFO2ShapeSquare("lfo2shapesquare", DrawableButton::ImageOnButtonBackground),
-m_btnLFO2ShapeNoise("lfo2shapenoise", DrawableButton::ImageOnButtonBackground),
-m_imgShapeSine(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-m_imgShapeSawUp(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
+    : AudioProcessorEditor (ownerFilter),
+    m_wasWindowHidden(false),
+    m_btnLFO1ShapeSine("lfo1shapesine", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO1ShapeSawUp("lfo1shapesawup", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO1ShapeSawDown("lfo1shapesawdown", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO1ShapeSquare("lfo1shapesquare", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO1ShapeNoise("lfo1shapenoise", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO2ShapeSine("lfo2shapesine", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO2ShapeSawUp("lfo2shapesawup", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO2ShapeSawDown("lfo2shapesawdown", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO2ShapeSquare("lfo2shapesquare", DrawableButton::ImageOnButtonBackground),
+    m_btnLFO2ShapeNoise("lfo2shapenoise", DrawableButton::ImageOnButtonBackground),
+    m_imgShapeSine(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
+    m_imgShapeSawUp(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
+    m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
+    m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
+    m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
 {
     setSize(1080, 740);
 
@@ -208,8 +209,7 @@ m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
 
     _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1020, 710, 60, 20);
     m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
-
-    
+       
 
     // Init rest of UI
     // -------------------------------------------------------------------------------------------
@@ -618,21 +618,26 @@ void Tunefish4AudioProcessorEditor::timerCallback()
     refreshUiFromSynth();
 }
 
+void Tunefish4AudioProcessorEditor::visibilityChanged()
+{
+    m_wasWindowHidden = isVisible();
+}
+
 void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
 {
-    if (!isShowing())
-    {
-        // we do not refresh the UI, if the window is closed!
-        return;
-    }
-
     Tunefish4AudioProcessor * processor = getProcessor();
-
     bool animationsOn = _configAreAnimationsOn();
     bool waveformsMoving = _configAreWaveformsMoving();
 
-    if (animationsOn || processor->wasProgramSwitched())
+    if (animationsOn || processor->wasProgramSwitched() || m_wasWindowHidden)
     {
+        // if the window was previously hidden, we need to fill all those comboboxes again
+        if (m_wasWindowHidden)
+        {
+            processor->resetParamDirty(eTRUE);
+            m_wasWindowHidden = false;
+        }
+        
         if (processor->wasProgramSwitched())
             m_cmbInstrument.setSelectedItemIndex(processor->getCurrentProgram(), dontSendNotification);
 

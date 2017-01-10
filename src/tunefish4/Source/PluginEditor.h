@@ -80,6 +80,7 @@ public:
     void comboBoxChanged (ComboBox* comboBox);
     void buttonClicked (Button *button);
     void timerCallback() override;
+    void visibilityChanged() override;
     void refreshUiFromSynth();
 
 private:
@@ -115,6 +116,7 @@ private:
     void _configSetAnimationsFast(bool value);
     void _configSetWaveformsMoving(bool value);
 
+    bool m_wasWindowHidden;
     OpenGLContext m_openGlContext;
     ApplicationProperties m_appProperties;
     TextButton m_btnAnimationsOn;
