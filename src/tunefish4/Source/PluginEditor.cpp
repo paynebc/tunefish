@@ -21,6 +21,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "synth/tfrecorder.hpp"
 
 void eTfGroupComponent::paint (Graphics& g)
 {
@@ -202,6 +203,7 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 10, 710, 100, 20);
     _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 120, 710, 100, 20);
     _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 230, 710, 100, 20);
+    _addTextToggleButton(this, m_btnRecord, "Record", "", 900, 710, 100, 20);
 
     m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
     m_btnFastAnimations.setToggleState(_configAreAnimationsFast(), dontSendNotification);
@@ -1210,6 +1212,26 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
     {
         bool movingWaveforms = m_btnMovingWaveforms.getToggleState();
         _configSetWaveformsMoving(movingWaveforms);
+    }
+    else if (button == &m_btnRecord)
+    {
+        eTfRecorder &recorder = eTfRecorder::getInstance();
+
+        if (recorder.isRecording())
+        {
+            recorder.stopRecording();
+
+            FileChooser myChooser("Please select a file to save to", File::getSpecialLocation(File::userHomeDirectory), "*.tfm");
+            if (myChooser.browseForFileToSave(true))
+            {                
+                recorder.saveToFile(myChooser.getResult());
+            }       
+        }
+        else
+        {
+            recorder.reset();
+            recorder.startRecording();
+        }
     }
 }
 

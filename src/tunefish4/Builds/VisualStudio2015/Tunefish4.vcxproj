@@ -353,6 +353,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\synth\tfrecorder.cpp" />
     <ClCompile Include="..\..\Source\tfsynthprogram.cpp" />
     <ClCompile Include="..\..\Source\tflookandfeel.cpp" />
     <ClCompile Include="..\..\Source\PluginProcessor.cpp" />
@@ -1534,6 +1535,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\synth\tfrecorder.hpp" />
     <ClInclude Include="..\..\Source\tfsynthprogram.hpp" />
     <ClInclude Include="..\..\Source\tflookandfeel.h" />
     <ClInclude Include="..\..\Source\PluginProcessor.h" />

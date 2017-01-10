@@ -21,14 +21,15 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "synth/tfrecorder.hpp"
 
 //==============================================================================
 Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
-tf(nullptr),
-synth(nullptr),
-currentProgramIndex(0),
-adapterWriteOffset(0),
-adapterDataAvailable(0)
+    tf(nullptr),
+    synth(nullptr),
+    currentProgramIndex(0),
+    adapterWriteOffset(0),
+    adapterDataAvailable(0)
 {
     pluginLocation = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getFullPathName();
 
@@ -61,10 +62,14 @@ adapterDataAvailable(0)
 
     resetParamDirty(eTRUE);
     setCurrentProgram(0);
+
+    recorderIndex = eTfRecorder::getInstance().addSynth(this);
 }
 
 Tunefish4AudioProcessor::~Tunefish4AudioProcessor()
 {
+    eTfRecorder::getInstance().removeSynth(this);
+
     eDelete(adapterBuffer[0]);
     eDelete(adapterBuffer[1]);
     eDelete(tf);
@@ -213,6 +218,16 @@ void Tunefish4AudioProcessor::changeProgramName (int index, const String& newNam
     programs[index].setName(newName.toRawUTF8());
 }
 
+eTfSynth* Tunefish4AudioProcessor::getSynth() const
+{
+    return synth;
+}
+
+CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
+{
+    return csSynth;
+}
+
 //==============================================================================
 void Tunefish4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
@@ -287,6 +302,15 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
     MidiMessage midiMessage;
     int samplePosition;
 
+    // get the samplerate
+    eF32 sampleRate = static_cast<eF32>(getSampleRate());
+
+    // get the current tempo
+    juce::AudioPlayHead::CurrentPositionInfo cpi;
+    getPlayHead()->getCurrentPosition(cpi);
+    eU32 tempo = static_cast<eU32>(cpi.bpm);
+    eTfRecorder::getInstance().setTempo(tempo);
+
     it.setNextSamplePosition(messageOffset);
 
     while (it.getNextEvent(midiMessage, samplePosition))
@@ -294,18 +318,25 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
         if (samplePosition >= messageOffset + frameSize)
             break;
 
+        eF32 time = static_cast<eF32>(cpi.timeInSeconds) + (static_cast<eF32>(samplePosition) / sampleRate);
+        
         if (midiMessage.isNoteOn())
         {
             eU8 velocity = static_cast<eU8>(midiMessage.getVelocity());
             eU8 note = static_cast<eU8>(midiMessage.getNoteNumber());
 
             eTfInstrumentNoteOn(*tf, note, velocity);
+
+            eTfRecorder::getInstance().recordEvent(eTfEvent(time, recorderIndex, note, velocity));
         }
         else if (midiMessage.isNoteOff())
         {
             eU8 note = static_cast<eU8>(midiMessage.getNoteNumber());
 
-            eTfInstrumentNoteOff(*tf, note);
+            if (eTfInstrumentNoteOff(*tf, note))
+            {
+                eTfRecorder::getInstance().recordEvent(eTfEvent(time, recorderIndex, note, 0));                
+            }
         }
         else if (midiMessage.isAllNotesOff())
         {
@@ -528,9 +559,4 @@ void Tunefish4AudioProcessor::setStateInformation (const void* data, int sizeInB
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new Tunefish4AudioProcessor();
-}
-
-CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
-{
-    return csSynth;
 }

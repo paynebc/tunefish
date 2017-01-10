@@ -83,6 +83,7 @@ public:
     const String            getProgramName (int index);
     void                    changeProgramName (int index, const String& newName);
 
+    eTfSynth *              getSynth() const;
     CriticalSection &       getSynthCriticalSection();
 
     //==============================================================================
@@ -118,6 +119,7 @@ private:
     eU32                    currentProgramIndex;
     String                  pluginLocation;
     CriticalSection         csSynth;
+    eS32                    recorderIndex;
 
     eF32 *                  adapterBuffer[2];
     eU32                    adapterWriteOffset;

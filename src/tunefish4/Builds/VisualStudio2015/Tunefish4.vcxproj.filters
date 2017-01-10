@@ -1563,6 +1563,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp">
       <Filter>Juce Library Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\synth\tfrecorder.cpp">
+      <Filter>Tunefish4\synth</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\tfsynthprogram.hpp">
@@ -3034,6 +3037,9 @@
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
       <Filter>Tunefish4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\synth\tfrecorder.hpp">
+      <Filter>Tunefish4\synth</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
