@@ -55,6 +55,7 @@ OBJECTS := \
   $(OBJDIR)/PluginEditor_94d4fb09.o \
   $(OBJDIR)/tf4_c53dd0b0.o \
   $(OBJDIR)/tf4fx_cda591c2.o \
+  $(OBJDIR)/tfrecorder.o \
   $(OBJDIR)/array_c34163e3.o \
   $(OBJDIR)/random_f6bd4543.o \
   $(OBJDIR)/runtime_3a4468a2.o \
@@ -121,6 +122,11 @@ $(OBJDIR)/tf4_c53dd0b0.o: ../../Source/synth/tf4.cpp
 $(OBJDIR)/tf4fx_cda591c2.o: ../../Source/synth/tf4fx.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling tf4fx.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/tfrecorder.o: ../../Source/synth/tfrecorder.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling tfrecorder.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/array_c34163e3.o: ../../Source/runtime/array.cpp
