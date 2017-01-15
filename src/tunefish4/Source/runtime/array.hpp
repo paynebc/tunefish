@@ -74,7 +74,7 @@ template<class T> void eSort(T *data, eU32 count, eBool (*predicate)(const T &a,
       // original:
       //piv=data[L];
       // modified: pick random element and "exchange" with data[L]
-      eU32 PivIdx = Rand.nextInt(L, R);//L + Rand.nextInt() % (R - L + 1);
+      eU32 PivIdx = Rand.NextInt(L, R);//L + Rand.nextInt() % (R - L + 1);
       piv=data[PivIdx];
       data[PivIdx] = data[L];
 

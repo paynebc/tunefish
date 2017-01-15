@@ -1223,8 +1223,9 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
 
             FileChooser myChooser("Please select a file to save to", File::getSpecialLocation(File::userHomeDirectory), "*.tfm");
             if (myChooser.browseForFileToSave(true))
-            {                
-                recorder.saveToFile(myChooser.getResult());
+            {
+                File file = myChooser.getResult();
+                recorder.saveToFile(file);
             }       
         }
         else
