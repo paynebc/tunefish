@@ -1,8 +1,11 @@
 *.obj
 *.user
 *.db
-binary/tf4programs/
-src/tunefish4/Builds/VisualStudio2015/x64/
-binary/
 *.suo
+*.sdf
 *.opendb
+binary/
+src/tunefish4/Builds/VisualStudio2015/Debug/
+src/tunefish4/Builds/VisualStudio2015/Release/
+src/tunefish4/Builds/VisualStudio2015/x64/
+
