@@ -718,7 +718,7 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
 
         // calculate octave multiplicator
         // -------------------------------------------------
-        eU32 ioctave = eFtoL(octave * (TF_MAXOCTAVES-1));
+        eU32 ioctave = eFtoL(eRoundNearest(octave * (TF_MAXOCTAVES-1)));
         eF32 octave_mul = TF_OCTAVES[ioctave];
 
         // calculate final frequency
