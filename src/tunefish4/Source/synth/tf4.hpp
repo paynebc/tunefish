@@ -752,6 +752,7 @@ struct eTfVoice
 
 struct eTfInstrument
 {
+	eU32			index;
     eF32            params[TF_PARAM_COUNT];
     eS16            output[TF_MAXFRAMESIZE*2];
     eF32            lfo1Phase;
@@ -854,5 +855,6 @@ eU32    eTfInstrumentGetPolyphony(eTfInstrument &instr);
 eU32    eTfInstrumentAllocateVoice(eTfInstrument &instr);
 
 void    eTfSynthInit(eTfSynth &synth);
+
 
 #endif
