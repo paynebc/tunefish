@@ -39,4 +39,4 @@ VST SDK has to be put in directory ~/src/3rdparty/vst
 
 ### Running
 
-Copy the directory tf4programs from /pathches/ and the tunefish4.dll/.so/.component/vst (depending on platform) to your desired plugins directory. Run your sequencer.
+Copy the directory tf4programs from /patches/ and the tunefish4.dll/.so/.component/vst (depending on platform) to your desired plugins directory. Run your sequencer.
