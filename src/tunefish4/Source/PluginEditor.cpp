@@ -94,7 +94,7 @@ void eTfFreqView::paint (Graphics& g)
         eTfGeneratorUpdate(*m_synth, *m_instr, *m_voice, m_voice->generator, 1.0f);
         eF32 *freqTable = m_voice->generator.freqTable;
 
-        if (eTfGeneratorModulate(*m_synth, *m_instr, *m_voice, m_voice->generator)) 
+        if (eTfGeneratorModulate(*m_synth, *m_instr, m_voice->generator)) 
         {
             freqTable = m_voice->generator.freqModTable;
         }
@@ -123,7 +123,7 @@ void eTfFreqView::paint (Graphics& g)
             g.drawLine(x, halfViewHeight, x, halfViewHeight - (value * halfViewHeight));
         }
 
-        eTfGeneratorFft(*m_synth, IFFT, TF_IFFT_FRAMESIZE, freqTable);
+        eTfGeneratorFft(IFFT, TF_IFFT_FRAMESIZE, freqTable);
         eTfGeneratorNormalize(freqTable, TF_IFFT_FRAMESIZE);
 
         eF32 drive = m_instr->params[TF_GEN_DRIVE];

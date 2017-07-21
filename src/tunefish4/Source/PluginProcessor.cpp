@@ -41,7 +41,7 @@ Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     synth->sampleRate = 44100;
 
     synth->instr[0] = tf = new eTfInstrument();
-    eTfInstrumentInit(*synth, *tf);
+    eTfInstrumentInit(*tf);
 
     for (eU32 i=0; i<TF_PLUG_NUM_PROGRAMS; i++)
     {
@@ -72,6 +72,7 @@ Tunefish4AudioProcessor::~Tunefish4AudioProcessor()
 
     eDelete(adapterBuffer[0]);
     eDelete(adapterBuffer[1]);
+    eTfInstrumentFree(*tf);
     eDelete(tf);
     eDelete(synth);
 }

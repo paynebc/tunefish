@@ -824,15 +824,15 @@ eBool   eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix 
 eF32    eTfModMatrixGet(eTfModMatrix &state, eTfModMatrix::Output output);
 
 void    eTfGeneratorReset(eTfGenerator &state);
-void    eTfGeneratorFft(eTfSynth &synth, eTfFftType type, eU32 frameSize, eF32 *buffer);
+void    eTfGeneratorFft(eTfFftType type, eU32 frameSize, eF32 *buffer);
 void    eTfGeneratorNormalize(eF32 *buffer, eU32 frameSize);
 void    eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, eTfGenerator &generator, eF32 frequencyRange);
-eBool   eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, eTfGenerator &generator);
+eBool   eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfGenerator &generator);
 eBool   eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, eTfGenerator &generator, eF32 velocity, eF32 **signal, eU32 frameSize);
 
 void    eTfNoiseReset(eTfNoise &state);
 void    eTfNoiseUpdate(eTfSynth &synth, eTfInstrument &instr, eTfNoise &state, eTfModMatrix &modMatrix, eF32 velocity);
-eBool   eTfNoiseProcess(eTfSynth &synth, eTfInstrument &instr, eTfNoise &state, eF32 **signal, eU32 frameSize);
+eBool   eTfNoiseProcess(eTfSynth &synth, eTfNoise &state, eF32 **signal, eU32 frameSize);
 
 void    eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilter::Type type);
 void    eTfFilterProcess(eTfFilter &state, eTfFilter::Type type, eF32 **signal, eU32 frameSize);
@@ -843,8 +843,8 @@ void    eTfVoiceNoteOff(eTfVoice &state);
 void    eTfVoicePitchBend(eTfVoice &state, eF32 semitones, eF32 cents);
 void    eTfVoicePanic(eTfVoice &state);
 
-void    eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr);
-void    eTfInstrumentFree(eTfSynth &synth, eTfInstrument &instr);
+void    eTfInstrumentInit(eTfInstrument &instr);
+void    eTfInstrumentFree(eTfInstrument &instr);
 eF32    eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, long sampleFrames);
 void    eTfInstrumentNoteOn(eTfInstrument &instr, eS32 note, eS32 velocity);
 eBool   eTfInstrumentNoteOff(eTfInstrument &instr, eS32 note);

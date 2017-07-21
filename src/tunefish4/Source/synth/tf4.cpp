@@ -104,8 +104,8 @@ void eTfSignalToS16(eF32 **sig, eS16 *out, const eF32 gain, eU32 length)
         val = eSimdMin(eSimdMax(eSimdMul(val, const_gain), const_min), const_max);
         eF32 store_val[2];
         eSimdStore2(val, store_val[0], store_val[1]);
-        *dest++ = eFtoL(store_val[0]);
-        *dest++ = eFtoL(store_val[1]);
+        *dest++ = static_cast<eS16>(eFtoL(store_val[0]));
+        *dest++ = static_cast<eS16>(eFtoL(store_val[1]));
     }
 }
 
@@ -337,37 +337,20 @@ eF32 eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eU32
 {
     eF32 freq = instr.params[paramOffset];
     eF32 depth = instr.params[paramOffset+1];
-    eF32 shape = instr.params[paramOffset+2];
+    eU32 shape = static_cast<eU32>(eRoundNearest(instr.params[paramOffset + 2] * (TF_LFOSHAPECOUNT - 1)));
 
     eF32 result = 1.0f;
     depth = depth * depth;
     freq = (freq * freq) / synth.sampleRate * frameSize * 50.0f;
 
-#ifdef eCFG_NO_TF_LFO_SINE
-	if (shape < 0.2f)       { }
-#else
-    if (shape < 0.2f)       result = ((eSin(lfoState.phase) + 1.0f) / 2.0f);
-#endif
-#ifdef eCFG_NO_TF_LFO_SAWDOWN
-    else if (shape < 0.4f)  { }
-#else
-	else if (shape < 0.4f)  result = eMod(lfoState.phase, eTWOPI) / eTWOPI;
-#endif
-#ifdef eCFG_NO_TF_LFO_SAWUP
-	else if (shape < 0.6f)  { }
-#else
-	else if (shape < 0.6f)  result = 1.0f - (eMod(lfoState.phase, eTWOPI) / eTWOPI);
-#endif
-#ifdef eCFG_NO_TF_LFO_PULSE
-	else if (shape < 0.8f)  { }
-#else
-	else if (shape < 0.8f)  result = (lfoState.phase < ePI) ? 1.0f : 0.0f;
-#endif
-#ifdef eCFG_NO_TF_LFO_NOISE
-	else                    { }
-#else
-	else                    result = synth.lfoNoiseTable[eFtoL(lfoState.phase / (ePI*2) * TF_LFONOISETABLESIZE)];
-#endif
+    switch (shape)
+    {
+    case 0: result = ((eSin(lfoState.phase) + 1.0f) / 2.0f); break; // sine
+    case 1: result = eMod(lfoState.phase, eTWOPI) / eTWOPI; break;  // ramp up
+    case 2: result = 1.0f - (eMod(lfoState.phase, eTWOPI) / eTWOPI); break; // ramp down
+    case 3: result = (lfoState.phase < ePI) ? 1.0f : 0.0f; break; // square
+    case 4: result = synth.lfoNoiseTable[eFtoL(lfoState.phase / (ePI * 2) * TF_LFONOISETABLESIZE)]; break; // noise
+    }
 
     result = (result * depth) + (1.0f - depth);
 
@@ -577,7 +560,7 @@ void eTfGeneratorNormalize(eF32 *buffer, eU32 frameSize)
 	}
 }
 
-void eTfGeneratorFft(eTfSynth &synth, eTfFftType type, eU32 frameSize, eF32 *fftBuffer)
+void eTfGeneratorFft(eTfFftType type, eU32 frameSize, eF32 *fftBuffer)
 {
     eInt sign = (eInt)type;
     eF32 wr, wi, arg, *p1, *p2, temp;
@@ -725,7 +708,7 @@ void eTfGeneratorUpdate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, 
     }
 }
 
-eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice, eTfGenerator &generator)
+eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfGenerator &generator)
 {
     if (eIsFloatZero(generator.modulation))
         return eFALSE;
@@ -923,7 +906,7 @@ void eTfNoiseUpdate(eTfSynth &synth, eTfInstrument &instr, eTfNoise &state, eTfM
     }
 }
 
-eBool eTfNoiseProcess(eTfSynth &synth, eTfInstrument &instr, eTfNoise &state, eF32 **signal, eU32 frameSize)
+eBool eTfNoiseProcess(eTfSynth &synth, eTfNoise &state, eF32 **signal, eU32 frameSize)
 {
     eF32 *signal1 = signal[0];
     eF32 *signal2 = signal[1];
@@ -990,7 +973,6 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
     else
     {
         f = f * f * 10000.0f + 30.0f;
-        eF32 A = 1.059253725f;
         eF32 w0 = 2.0f * ePI * f / synth.sampleRate;
 
         const eF32 cos_w0 = eCos(w0);
@@ -1214,7 +1196,7 @@ void eTfVoicePanic(eTfVoice &state)
 static eU32 instrIndex = 0;
 #endif
 
-void eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr)
+void eTfInstrumentInit(eTfInstrument &instr)
 {
 #ifdef eTF_DUMP_DATA
 	instr.index = instrIndex++;
@@ -1232,7 +1214,7 @@ void eTfInstrumentInit(eTfSynth &synth, eTfInstrument &instr)
         eTfVoiceReset(instr.voice[i]);
 }
 
-void eTfInstrumentFree(eTfSynth &synth, eTfInstrument &instr)
+void eTfInstrumentFree(eTfInstrument &instr)
 {
     for (eU32 i = 0; i < TF_MAXEFFECTS; i++)
     {
@@ -1286,7 +1268,7 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
             // -------------------------------------------------------------------------------
 #ifndef eCFG_NO_TF_NOISEGEN
             eTfNoiseUpdate(synth, instr, voice.noiseGen, voice.modMatrix, velocity);
-            eTfNoiseProcess(synth, instr, voice.noiseGen, tempBuffers, frameSize);
+            eTfNoiseProcess(synth, voice.noiseGen, tempBuffers, frameSize);
 			eTfDumpToFile("tf_after_noise", instr, tempBuffers, frameSize);
 #else
 			eMemSet(tempBuffers[0], 0, sizeof(eF32) * frameSize);
@@ -1335,12 +1317,12 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
                 invFreqRange = ePow(invFreqRange, 3.0f);
                 eTfGeneratorUpdate(synth, instr, voice, voice.generator, invFreqRange);
 
-                if (eTfGeneratorModulate(synth, instr, voice, voice.generator))
+                if (eTfGeneratorModulate(synth, instr, voice.generator))
                     eMemCopy(voice.generator.resultTable, voice.generator.freqModTable, TF_IFFT_FRAMESIZE * sizeof(eF32) * 2);
                 else
                     eMemCopy(voice.generator.resultTable, voice.generator.freqTable, TF_IFFT_FRAMESIZE * sizeof(eF32) * 2);
 
-                eTfGeneratorFft(synth, IFFT, TF_IFFT_FRAMESIZE, voice.generator.resultTable);
+                eTfGeneratorFft(IFFT, TF_IFFT_FRAMESIZE, voice.generator.resultTable);
                 eTfGeneratorNormalize(voice.generator.resultTable, TF_IFFT_FRAMESIZE);
             }
 

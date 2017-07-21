@@ -306,14 +306,14 @@ void eTfEffectReverbProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr
     while(len--)
     {
         eF32x2 in = eSimdSet2(*dryL, *dryR);
-        eF32x2 wet1 = eSimdSet2(*wetL, *wetR);
-		eF32x2 wet2 = eSimdSet2(*wetR++, *wetL++);
+        eF32x2 lwet1 = eSimdSet2(*wetL, *wetR);
+		eF32x2 lwet2 = eSimdSet2(*wetR++, *wetL++);
         eF32x2 out = eSimdSetAll(0.0f);
 
         out = eSimdAdd(
                 eSimdAdd(
-                    eSimdMul(wet1, wet1x2),
-                    eSimdMul(wet2, wet2x2)),
+                    eSimdMul(lwet1, wet1x2),
+                    eSimdMul(lwet2, wet2x2)),
                 eSimdMul(in, dry0x2));
 
         eSimdStore2(out, *dryL++, *dryR++);
