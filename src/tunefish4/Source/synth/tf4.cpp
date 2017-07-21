@@ -717,6 +717,7 @@ eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfGenerator &
     eU32 frameSizeHalf = frameSize / 2;
 
     eF32 random = instr.params[TF_GEN_MODULATION];
+    eBool randomizationOn = !eIsFloatZero(instr.params[TF_GEN_MODULATION]);
     eF32 modulation = ePow(random, 3);
 
     eF32 *readPtr = generator.freqTable;
@@ -725,10 +726,10 @@ eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfGenerator &
 
     for (eU32 i=0; i<frameSizeHalf; i++)
     {
-        eF32 modulationStrength = (eF32)i / (eF32)frameSizeHalf;
+        eF32 modulationStrength = static_cast<eF32>(i) / static_cast<eF32>(frameSizeHalf);
 
         eF32 sineOffset = 0.0f;
-        if (instr.params[TF_GEN_MODULATION])
+        if (randomizationOn)
             sineOffset = (generator.modulation * TF_FRAMESIZE) * (1.0f - (random * *randPtr++));
 
         eU32 sinLookup = eFtoL(sineOffset * modulationStrength) % TF_FRAMESIZE;
@@ -742,6 +743,8 @@ eBool eTfGeneratorModulate(eTfSynth &synth, eTfInstrument &instr, eTfGenerator &
     generator.freqModTable[1] = 0.0f;
 
     generator.modulation += modulation / 100.0f;
+    if (generator.modulation >= 100.0f)
+        generator.modulation -= 100.0f;
 
     return eTRUE;
 }
@@ -781,7 +784,7 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
         drive   *= 32.0f;
         drive   += 1.0f;
         freq    = ePow(freq, 2.0f) * 1000.0f;
-        spread  = ePow(spread, 4.0f) / (eF32)synth.sampleRate * 10.0f;
+        spread  = ePow(spread, 4.0f) / static_cast<eF32>(synth.sampleRate) * 10.0f;
 
         // calculate octave multiplicator
         // -------------------------------------------------
@@ -980,25 +983,17 @@ void eTfFilterUpdate(eTfSynth &synth, eTfFilter &state, eF32 f, eF32 q, eTfFilte
 
         eF32 alpha = sin_w0 * eSinH( eLog10(2.0f)/2.0f * (1.0f - q) * w0/sin_w0 );
 
-        switch(type)
+        if (type == eTfFilter::FILTER_HP)
         {
-            case eTfFilter::FILTER_HP:
-                state.b0 =  (1.0f + cos_w0)/2.0f;
-                state.b1 = -(1.0f + cos_w0);
-                state.b2 =  state.b0;
-                break;
-
-            case eTfFilter::FILTER_BP:
-                state.b0 =  sin_w0 / 2.0f;
-                state.b1 =  0.0f;
-                state.b2 = -state.b0;
-                break;
-
-            /*case eTfFilter::FILTER_NT:
-                state.b0 =  1.0f;
-                state.b1 = -2.0f * cos_w0;
-                state.b2 =  1.0f;
-                break;*/
+            state.b0 = (1.0f + cos_w0) / 2.0f;
+            state.b1 = -(1.0f + cos_w0);
+            state.b2 = state.b0;
+        }
+        else if (type == eTfFilter::FILTER_BP)
+        {
+            state.b0 = sin_w0 / 2.0f;
+            state.b1 = 0.0f;
+            state.b2 = -state.b0;
         }
 
         state.a0 =   1.0f + alpha;
@@ -1588,13 +1583,13 @@ void eTfSynthInit(eTfSynth &synth)
         synth.lfoNoiseTable[i] = rand.NextFloat(0.0f, 1.0f);
     }
 
+    const eInt q = 15;
+    const eF32 c1 = (1 << q) - 1;
+    const eF32 c2 = static_cast<eF32>(eFtoL(c1 / 3.0f)) + 1;
+    const eF32 c3 = 1.f / c1;
+
     for (eU32 i=0;i<TF_NOISETABLESIZE;i++)
     {
-        const eInt q = 15;
-        const eF32 c1 = (1 << q) - 1;
-        const eF32 c2 = static_cast<eF32>(eFtoL(c1 / 3)) + 1;
-        const eF32 c3 = 1.f / c1;
-
         eF32 random = rand.NextFloat(0.0f, 1.0f);
         synth.whiteNoiseTable[i] = (2.f * ((random * c2) + (random * c2) + (random * c2)) - 3.f * (c2 - 1.f)) * c3;
     }
