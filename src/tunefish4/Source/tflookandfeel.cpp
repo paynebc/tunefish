@@ -56,14 +56,19 @@ TfLookAndFeel::TfLookAndFeel()
     setColour(Slider::trackColourId, Colour::fromRGB(40, 40, 40));
     setColour(Slider::rotarySliderFillColourId, Colour::fromRGB(240, 240, 200));
     setColour(Slider::thumbColourId, Colour::fromRGB(255, 255, 255));
+
     setColour(Label::textColourId, Colour::fromRGB(255, 255, 255));
+
     setColour(GroupComponent::textColourId, Colour::fromRGB(255, 255, 255));
     setColour(GroupComponent::outlineColourId, Colour::fromRGB(255, 255, 255));
+
     setColour(ToggleButton::textColourId, Colour::fromRGB(255, 255, 255));
+
     setColour(ComboBox::textColourId, Colour::fromRGB(128, 150, 128));
     setColour(ComboBox::backgroundColourId, Colour::fromRGB(60, 60, 60));
     setColour(ComboBox::arrowColourId, Colour::fromRGB(80, 80, 80));
     setColour(ComboBox::outlineColourId, Colour::fromRGB(128, 128, 128));
+
     setColour(TextButton::textColourOffId, Colour::fromRGB(220, 220, 220));
     setColour(TextButton::textColourOnId, Colour::fromRGB(200, 230, 200));
     setColour(TextButton::buttonColourId, Colour::fromRGB(128, 128, 128));

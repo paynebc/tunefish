@@ -397,46 +397,51 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     // -------------------------------------
     //  MOD MATRIX GROUP
     // -------------------------------------
+    const char* MOD_SOURCES = "none|LFO1|LFO2|ADSR1|ADSR2";
+    const char* MOD_TARGETS = "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8";
+
     _addGroupBox(this, m_grpModMatrix, "MOD MATRIX", 890, 0, 180, 410);
-    _addComboBox(&m_grpModMatrix, m_cmbMM1Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 25, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM1Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 45, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM1Src, MOD_SOURCES, 10, 25, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM1Dest, MOD_TARGETS, 10, 45, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM1Mod, 130, 25, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM2Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 70, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM2Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 90, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM2Src, MOD_SOURCES, 10, 70, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM2Dest, MOD_TARGETS, 10, 90, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM2Mod, 130, 70, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM3Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 115, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM3Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 135, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM3Src, MOD_SOURCES, 10, 115, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM3Dest, MOD_TARGETS, 10, 135, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM3Mod, 130, 115, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM4Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 160, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM4Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 180, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM4Src, MOD_SOURCES, 10, 160, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM4Dest, MOD_TARGETS, 10, 180, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM4Mod, 130, 160, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM5Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 205, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM5Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 225, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM5Src, MOD_SOURCES, 10, 205, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM5Dest, MOD_TARGETS, 10, 225, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM5Mod, 130, 205, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM6Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 250, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM6Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 270, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM6Src, MOD_SOURCES, 10, 250, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM6Dest, MOD_TARGETS, 10, 270, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM6Mod, 130, 250, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM7Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 295, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM7Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 315, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM7Src, MOD_SOURCES, 10, 295, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM7Dest, MOD_TARGETS, 10, 315, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM7Mod, 130, 295, colGlobal);
-    _addComboBox(&m_grpModMatrix, m_cmbMM8Src, "none|LFO1|LFO2|ADSR1|ADSR2", 10, 340, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM8Dest, "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8", 10, 360, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM8Src, MOD_SOURCES, 10, 340, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM8Dest, MOD_TARGETS, 10, 360, 110, 20);
     _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM8Mod, 130, 340, colGlobal);
 
     // -------------------------------------
     //  EFFECT STACK GROUP
     // -------------------------------------
+    const char* FX_SECTIONS = "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ";
+
     _addGroupBox(this, m_grpEffectStack, "EFFECTS STACK", 890, 410, 180, 290);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect1, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 25, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect2, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 50, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect3, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 75, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect4, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 100, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect5, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 125, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect6, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 150, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect7, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 175, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect8, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 200, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect9, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 225, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect10, "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ", 10, 250, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect1, FX_SECTIONS, 10, 25, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect2, FX_SECTIONS, 10, 50, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect3, FX_SECTIONS, 10, 75, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect4, FX_SECTIONS, 10, 100, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect5, FX_SECTIONS, 10, 125, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect6, FX_SECTIONS, 10, 150, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect7, FX_SECTIONS, 10, 175, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect8, FX_SECTIONS, 10, 200, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect9, FX_SECTIONS, 10, 225, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect10, FX_SECTIONS, 10, 250, 160, 20);
 
     _fillProgramCombobox();
     _resetTimer();
