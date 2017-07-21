@@ -411,9 +411,27 @@ private:
     ComboBox m_cmbEffect9;
     ComboBox m_cmbEffect10;
 
-    tfLookAndFeel tfLookAndFeel;
-    Label m_lblVersion;
+    // -------------------------------------
+    // Other
+    // -------------------------------------
+    TextButton m_btnAbout;
 };
+
+class AboutComponent : public Component
+{
+public:
+
+    static void openAboutWindow(Component* parent = nullptr);
+
+    AboutComponent();
+    void paint(Graphics& g);
+    void resized();
+
+private:
+    HyperlinkButton  link1, link2;
+    AttributedString text1, text2, text3;
+};
+
 
 
 #endif  // PLUGINEDITOR_H_INCLUDED

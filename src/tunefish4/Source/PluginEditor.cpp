@@ -187,12 +187,10 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
 {
     setSize(1080, 740);
 
-    //m_openGlContext.attachTo(*this);
-
     // Init configuration 
     // -------------------------------------------------------------------------------------------
     PropertiesFile::Options storageParams;
-    storageParams.applicationName = "Tunefish4";
+    storageParams.applicationName = JucePlugin_Name;
     storageParams.filenameSuffix = ".settings";
     storageParams.folderName = "Brain Control";
     storageParams.osxLibrarySubFolder = "Application Support";
@@ -203,35 +201,15 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 10, 710, 100, 20);
     _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 120, 710, 100, 20);
     _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 230, 710, 100, 20);
-    _addTextToggleButton(this, m_btnRecord, "Record", "", 900, 710, 100, 20);
+    _addTextToggleButton(this, m_btnRecord, "Record", "", 790, 710, 100, 20);
+    _addTextButton(this, m_btnAbout, String("Tunefish ") + JucePlugin_VersionString, 900, 710, 170, 20);
 
     m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
     m_btnFastAnimations.setToggleState(_configAreAnimationsFast(), dontSendNotification);
     m_btnMovingWaveforms.setToggleState(_configAreWaveformsMoving(), dontSendNotification);
-
-    _addLabel(this, m_lblVersion, JucePlugin_VersionString, 1020, 710, 60, 20);
-    m_lblVersion.setColour(Label::textColourId, Colour::fromRGB(100, 100, 100));
        
-
     // Init rest of UI
     // -------------------------------------------------------------------------------------------
-    tfLookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour::fromRGB(0, 0, 0));
-    tfLookAndFeel.setColour(Slider::trackColourId, Colour::fromRGB(40, 40, 40));
-    tfLookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour::fromRGB(240, 240, 200));
-    tfLookAndFeel.setColour(Slider::thumbColourId, Colour::fromRGB(255, 255, 255));
-    tfLookAndFeel.setColour(Label::textColourId, Colour::fromRGB(255, 255, 255));
-    tfLookAndFeel.setColour(GroupComponent::textColourId, Colour::fromRGB(255, 255, 255));
-    tfLookAndFeel.setColour(GroupComponent::outlineColourId, Colour::fromRGB(255, 255, 255));
-    tfLookAndFeel.setColour(ToggleButton::textColourId, Colour::fromRGB(255, 255, 255));
-    tfLookAndFeel.setColour(ComboBox::textColourId, Colour::fromRGB(128, 150, 128));
-    tfLookAndFeel.setColour(ComboBox::backgroundColourId, Colour::fromRGB(60, 60, 60));
-    tfLookAndFeel.setColour(ComboBox::arrowColourId, Colour::fromRGB(80, 80, 80));
-    tfLookAndFeel.setColour(ComboBox::outlineColourId, Colour::fromRGB(128, 128, 128));
-    tfLookAndFeel.setColour(TextButton::textColourOffId, Colour::fromRGB(220, 220, 220));
-    tfLookAndFeel.setColour(TextButton::textColourOnId, Colour::fromRGB(200, 230, 200));
-    tfLookAndFeel.setColour(TextButton::buttonColourId, Colour::fromRGB(128, 128, 128));
-    tfLookAndFeel.setColour(TextButton::buttonOnColourId, Colour::fromRGB(40, 40, 40));
-
     Colour colGlobal = Colour::fromRGB(240, 240, 240);
     Colour colGen = Colour::fromRGB(240, 200, 200);
     Colour colFilter = Colour::fromRGB(200, 200, 240);
@@ -468,12 +446,11 @@ void Tunefish4AudioProcessorEditor::_addRotarySlider(Component *parent, Slider &
 
     slider.setVisible(true);
     slider.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    //slider.setRotaryParameters(-2.9f, 2.9f, true);
     slider.addListener (this);
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, 60, 40);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(&tfLookAndFeel);
+    slider.setLookAndFeel(TfLookAndFeel::getInstance());
     slider.setColour(Slider::rotarySliderFillColourId, colour);
 
     _addLabel(parent, label, text, x, y+40, 60, 20);
@@ -486,12 +463,11 @@ void Tunefish4AudioProcessorEditor::_addRotarySliderNoLabel(Component *parent, S
 
     slider.setVisible(true);
     slider.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    //rslider.setRotaryParameters(-2.9f, 2.9f, true);
     slider.addListener (this);
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, 40, 40);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(&tfLookAndFeel);
+    slider.setLookAndFeel(TfLookAndFeel::getInstance());
     slider.setColour(Slider::rotarySliderFillColourId, colour);
 }
 
@@ -505,7 +481,7 @@ void Tunefish4AudioProcessorEditor::_addLinearSlider(Component *parent, Slider &
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, w, h-20);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(&tfLookAndFeel);
+    slider.setLookAndFeel(TfLookAndFeel::getInstance());
 
     _addLabel(parent, label, text, x, y+h-20, w, 20);
     label.setJustificationType(Justification::centredBottom);
@@ -518,7 +494,7 @@ void Tunefish4AudioProcessorEditor::_addGroupBox(Component *parent, GroupCompone
     group.setVisible(true);
     group.setText(text);
     group.setBounds(x, y, w, h);
-    group.setLookAndFeel(&tfLookAndFeel);
+    group.setLookAndFeel(TfLookAndFeel::getInstance());
 }
 
 void Tunefish4AudioProcessorEditor::_addTextButton(Component *parent, TextButton &button, String text, eU32 x, eU32 y, eU32 w, eU32 h)
@@ -527,7 +503,7 @@ void Tunefish4AudioProcessorEditor::_addTextButton(Component *parent, TextButton
 
     button.setVisible(true);
     button.addListener(this);
-    button.setLookAndFeel(&tfLookAndFeel);
+    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setButtonText(text);
     button.setBounds(x, y, w, h);
 }
@@ -539,7 +515,7 @@ void Tunefish4AudioProcessorEditor::_addTextToggleButton(Component *parent, Text
     button.setVisible(true);
     button.addListener(this);
     button.setClickingTogglesState(true);
-    button.setLookAndFeel(&tfLookAndFeel);
+    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setButtonText(text);
     button.setBounds(x, y, w, h);
 
@@ -555,7 +531,7 @@ void Tunefish4AudioProcessorEditor::_addImageToggleButton(Component *parent, Dra
     button.addListener(this);
     button.setRadioGroupId(group.hashCode());
     button.setClickingTogglesState(true);
-    button.setLookAndFeel(&tfLookAndFeel);
+    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setImages(&image);
     button.setBounds(x, y, w, h);
 }
@@ -569,7 +545,7 @@ void Tunefish4AudioProcessorEditor::_addComboBox(Component *parent, ComboBox &co
 
     combobox.setVisible(true);
     combobox.addListener(this);
-    combobox.setLookAndFeel(&tfLookAndFeel);
+    combobox.setLookAndFeel(TfLookAndFeel::getInstance());
     combobox.setBounds(x, y, w, h);
     combobox.addItemList(itemArray, 1);
 }
@@ -589,7 +565,7 @@ void Tunefish4AudioProcessorEditor::_addLabel(Component *parent, Label &label, S
     label.setJustificationType(Justification::left);
     label.setFont (Font (11.0f));
     label.setText(text, NotificationType::dontSendNotification);
-    label.setLookAndFeel(&tfLookAndFeel);
+    label.setLookAndFeel(TfLookAndFeel::getInstance());
 }
 
 void Tunefish4AudioProcessorEditor::_fillProgramCombobox()
@@ -1234,6 +1210,10 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
             recorder.startRecording();
         }
     }
+    else if (button == &m_btnAbout)
+    {
+        AboutComponent::openAboutWindow(this);
+    }
 }
 
 void Tunefish4AudioProcessorEditor::_createIcons()
@@ -1334,3 +1314,84 @@ void Tunefish4AudioProcessorEditor::_configSetWaveformsMoving(bool value)
 {
     m_appProperties.getUserSettings()->setValue("MovingWaveforms", value);
 }
+
+
+
+/**************************************************************************************
+*      AboutComponent
+**************************************************************************************/
+
+
+AboutComponent::AboutComponent() :
+    link1("braincontrol.org", URL("http://www.braincontrol.org")),
+    link2("tunefish-synth.com", URL("https://www.tunefish-synth.com"))
+{
+    String pluginName(JucePlugin_Name);
+
+    text1.setJustification(Justification::centred);
+    text1.append(pluginName + "\n",
+        Fonts::getInstance()->title(),
+        Colours::black);
+    text1.append(String("Version ") + JucePlugin_VersionString,
+        Fonts::getInstance()->normal(),
+        Colours::black);
+
+    text2.setJustification(Justification::centred);
+    text2.append(String::fromUTF8("© 2017 Brain Control"),
+        Fonts::getInstance()->normal(),
+        Colours::black);
+
+    text3.setJustification(Justification::left);
+    text3.append(pluginName + " is free software under GPLv3. If you want to support the developer of this synth, please make a donation at tunefish-synth.com. " + pluginName + " comes with no warranty of any kind. Use at your own risk. Sources are available on GitHub. Please regard included license files.",
+        Fonts::getInstance()->normal(),
+        Colour(0xff555555));
+
+    addAndMakeVisible(&link1);
+    link1.setFont(Font(10.0f, Font::underlined), true);
+    addAndMakeVisible(&link2);
+    link2.setFont(Font(10.0f, Font::underlined), true);
+}
+
+void AboutComponent::paint(Graphics& g)
+{
+    g.fillAll(Colour(0xffebebeb));
+    text1.draw(g, Rectangle<int>(0, 0, getWidth(), 32).toFloat());
+    text2.draw(g, Rectangle<int>(0, 40, getWidth(), 32).toFloat());
+    text3.draw(g, Rectangle<int>(0, 98, getWidth(), getHeight() - 100).toFloat());
+}
+
+void AboutComponent::resized()
+{
+    link2.setSize(100, 22);
+    link2.changeWidthToFitText();
+    link2.setTopLeftPosition((getWidth() - link2.getWidth()) / 2, getHeight() - link2.getHeight() - 10);
+
+    link1.setSize(100, 22);
+    link1.changeWidthToFitText();
+    link1.setTopLeftPosition((getWidth() - link1.getWidth()) / 2, getHeight() - link1.getHeight() - 10 - link2.getHeight());
+}
+
+void AboutComponent::openAboutWindow(Component* parent)
+{
+    AlertWindow window("", "", AlertWindow::AlertIconType::NoIcon);
+    AboutComponent comp;
+    comp.setSize(300, 260);
+    window.setLookAndFeel(TfLookAndFeel::getInstance());
+    window.setUsingNativeTitleBar(true);
+    window.addCustomComponent(&comp);
+    window.addButton("Close", 1);
+
+    if (parent)
+    {
+        Rectangle<int> bounds = parent->getScreenBounds();
+        window.setCentrePosition(bounds.getCentreX(), bounds.getCentreY() - 90);
+    }
+    window.toFront(true);
+    window.setVisible(true);
+
+    window.setEscapeKeyCancels(true);
+    window.runModalLoop();
+}
+
+
+

@@ -22,7 +22,55 @@
 #include "tflookandfeel.h"
 #include "PluginEditor.h"
 
-void tfLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
+juce_ImplementSingleton(Fonts);
+
+Fonts::Fonts()
+{
+#ifdef JUCE_MAC
+    _title = Font("Helvetica", 20.0, Font::bold);
+    _large = Font("Helvetica", 14.0, Font::plain);
+    _normal = Font("Helvetica", 11.0, Font::plain);
+    _small = Font("Helvetica", 10.0, Font::plain);
+    _fixed = Font("Menlo", 11.0, Font::plain);
+#else
+    _title = Font("Arial", 20.0, Font::bold);
+    _large = Font("Arial", 14.0, Font::plain);
+    _normal = Font("Arial", 12.0, Font::plain);
+    _small = Font("Arial", 11.0, Font::plain);
+    _fixed = Font("Courier", 12.0, Font::plain);
+#endif
+}
+
+
+juce_ImplementSingleton(TfLookAndFeel);
+
+TfLookAndFeel::TfLookAndFeel()
+{
+#ifdef JUCE_MAC
+    setDefaultSansSerifTypefaceName("Helvetica");
+#else
+    setDefaultSansSerifTypefaceName("Arial");
+#endif
+
+    setColour(Slider::rotarySliderOutlineColourId, Colour::fromRGB(0, 0, 0));
+    setColour(Slider::trackColourId, Colour::fromRGB(40, 40, 40));
+    setColour(Slider::rotarySliderFillColourId, Colour::fromRGB(240, 240, 200));
+    setColour(Slider::thumbColourId, Colour::fromRGB(255, 255, 255));
+    setColour(Label::textColourId, Colour::fromRGB(255, 255, 255));
+    setColour(GroupComponent::textColourId, Colour::fromRGB(255, 255, 255));
+    setColour(GroupComponent::outlineColourId, Colour::fromRGB(255, 255, 255));
+    setColour(ToggleButton::textColourId, Colour::fromRGB(255, 255, 255));
+    setColour(ComboBox::textColourId, Colour::fromRGB(128, 150, 128));
+    setColour(ComboBox::backgroundColourId, Colour::fromRGB(60, 60, 60));
+    setColour(ComboBox::arrowColourId, Colour::fromRGB(80, 80, 80));
+    setColour(ComboBox::outlineColourId, Colour::fromRGB(128, 128, 128));
+    setColour(TextButton::textColourOffId, Colour::fromRGB(220, 220, 220));
+    setColour(TextButton::textColourOnId, Colour::fromRGB(200, 230, 200));
+    setColour(TextButton::buttonColourId, Colour::fromRGB(128, 128, 128));
+    setColour(TextButton::buttonOnColourId, Colour::fromRGB(40, 40, 40));
+}
+
+void TfLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
 {
     const float radius = jmin (width / 2, height / 2) - 2.0f;
@@ -34,7 +82,7 @@ void tfLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int 
     const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
     const bool isMouseOver = slider.isMouseOverOrDragging() && slider.isEnabled();
 
-    eTfSlider &tfslider = *(eTfSlider*)&slider;
+    eTfSlider &tfslider = *static_cast<eTfSlider*>(&slider);
     eF32 modValue = tfslider.getModValue();
     eF32 modAngle = rotaryStartAngle + eClamp<eF32>(0.0f, (sliderPos * modValue), 1.0f) * (rotaryEndAngle - rotaryStartAngle);
 

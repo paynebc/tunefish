@@ -25,8 +25,35 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 
-class tfLookAndFeel : public LookAndFeel_V3
+class Fonts
 {
+public:
+    Fonts();
+    virtual ~Fonts() { }
+
+    juce_DeclareSingleton(Fonts, false);
+
+    Font& title() { return _title; }
+    Font& large() { return _large; }
+    Font& normal() { return _normal; }
+    Font& small() { return _small; }
+    Font& fixed() { return _fixed; }
+
+private:
+    Font _title;
+    Font _large;
+    Font _normal;
+    Font _small;
+    Font _fixed;
+};
+
+class TfLookAndFeel : public LookAndFeel_V3
+{
+public:
+    juce_DeclareSingleton(TfLookAndFeel, false);
+
+    TfLookAndFeel();
+
     void drawRotarySlider (Graphics&, int x, int y, int width, int height,
                            float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle,
                            Slider&) override;
