@@ -27,6 +27,7 @@
 Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     tf(nullptr),
     synth(nullptr),
+    paramDirtyAny(false),
     currentProgramIndex(0),
     adapterWriteOffset(0),
     adapterDataAvailable(0)
@@ -115,6 +116,7 @@ void Tunefish4AudioProcessor::setParameter (int index, float newValue)
     eASSERT(index >= 0 && index < TF_PARAM_COUNT);
     tf->params[index] = newValue;
     paramDirty[index] = eTRUE;
+    paramDirtyAny = eTRUE;
 }
 
 const String Tunefish4AudioProcessor::getParameterName (int index)
@@ -499,6 +501,11 @@ bool Tunefish4AudioProcessor::isParamDirty(eU32 index)
     return paramDirty[index];
 }
 
+bool Tunefish4AudioProcessor::isParamDirtyAny()
+{
+    return paramDirtyAny;
+}
+
 bool Tunefish4AudioProcessor::wasProgramSwitched() const
 {
     return programSwitched;
@@ -512,6 +519,7 @@ void Tunefish4AudioProcessor::resetParamDirty(eBool dirty)
     }
 
     programSwitched = dirty;
+    paramDirtyAny = dirty;
 }
 
 //==============================================================================

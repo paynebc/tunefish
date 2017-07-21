@@ -102,6 +102,7 @@ public:
     bool                    pasteProgram();
 
     bool                    isParamDirty(eU32 index);
+    bool                    isParamDirtyAny();
     bool                    wasProgramSwitched() const;
     void                    resetParamDirty(eBool dirty = eFALSE);
 
@@ -112,6 +113,7 @@ private:
     eTfInstrument *         tf;
     eTfSynth *              synth;
     eTfSynthProgram         programs[TF_PLUG_NUM_PROGRAMS];
+    eBool                   paramDirtyAny;
     eBool                   paramDirty[TF_PARAM_COUNT];
     eBool                   programSwitched;
     eTfSynthProgram         currentProgram;

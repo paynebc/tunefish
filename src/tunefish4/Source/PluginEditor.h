@@ -106,6 +106,7 @@ private:
     void _setParameterNotifyingHost(eF32 value, eTfParam param) const;
 
     void _fillProgramCombobox();
+    bool _isEffectUsed(eU32 effectNum) const;
     void _createIcons();
     void _resetTimer();
 

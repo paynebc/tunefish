@@ -25,12 +25,18 @@
 
 void eTfGroupComponent::paint (Graphics& g)
 {
-    g.setGradientFill (ColourGradient (Colour::fromRGB(80, 80, 80), 0, 0, Colour::fromRGB(70, 70, 70), 0, (float) getHeight(), false));
-    g.fillRect(0, 15, getWidth(), getHeight()-15);
+    bool enabled = isEnabled();
+    Colour gradientCol1 = enabled ? Colour::fromRGB(80, 80, 80) : Colour::fromRGB(60, 60, 60);
+    Colour gradientCol2 = enabled ? Colour::fromRGB(70, 70, 70) : Colour::fromRGB(50, 50, 50);
+    Colour rectCol1 = Colour::fromRGB(0, 0, 0);
+    Colour rectCol2 = enabled ? Colour::fromRGB(128, 128, 128) : Colour::fromRGB(100, 100, 100);
 
-    g.setColour(Colour::fromRGB(0, 0, 0));
+    g.setGradientFill(ColourGradient(gradientCol1, 0, 0, gradientCol2, 0, static_cast<float>(getHeight()), false));
+    g.fillRect(0, 15, getWidth(), getHeight() - 15);
+
+    g.setColour(rectCol1);
     g.drawRect(0, 15, getWidth(), getHeight()-15);
-    g.setColour(Colour::fromRGB(128, 128, 128));
+    g.setColour(rectCol2);
     g.drawRect(1, 16, getWidth()-2, getHeight()-17);
 
     g.setFont(Font(14.0f));
@@ -291,22 +297,22 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     //  FILTER GROUPS
     // -------------------------------------
     _addGroupBox(this, m_grpLPFilter, "LOWPASS", 10, 430, 140, 110);
-    _addTextToggleButton(&m_grpLPFilter, m_btnLPOn, "On", "", 5, 20, 25, 20);
+    _addTextToggleButton(nullptr, m_btnLPOn, "On", "", 15, 450, 25, 20);
     _addRotarySlider(&m_grpLPFilter, m_sldLPFrequency, m_lblLPFrequency, "Frequency", 10, 40, colFilter);
     _addRotarySlider(&m_grpLPFilter, m_sldLPResonance, m_lblLPResonance, "Resonance", 70, 40, colFilter);
 
     _addGroupBox(this, m_grpHPFilter, "HIGHPASS", 160, 430, 140, 110);
-    _addTextToggleButton(&m_grpHPFilter, m_btnHPOn, "On", "", 5, 20, 25, 20);
+    _addTextToggleButton(nullptr, m_btnHPOn, "On", "", 165, 450, 25, 20);
     _addRotarySlider(&m_grpHPFilter, m_sldHPFrequency, m_lblHPFrequency, "Frequency", 10, 40, colFilter);
     _addRotarySlider(&m_grpHPFilter, m_sldHPResonance, m_lblHPResonance, "Resonance", 70, 40, colFilter);
 
     _addGroupBox(this, m_grpBPFilter, "BANDPASS", 310, 430, 140, 110);
-    _addTextToggleButton(&m_grpBPFilter, m_btnBPOn, "On", "", 5, 20, 25, 20);
+    _addTextToggleButton(nullptr, m_btnBPOn, "On", "", 315, 450, 25, 20);
     _addRotarySlider(&m_grpBPFilter, m_sldBPFrequency, m_lblBPFrequency, "Frequency", 10, 40, colFilter);
     _addRotarySlider(&m_grpBPFilter, m_sldBPQ, m_lblBPQ, "Q", 70, 40, colFilter);
 
     _addGroupBox(this, m_grpNTFilter, "NOTCH", 460, 430, 140, 110);
-    _addTextToggleButton(&m_grpNTFilter, m_btnNTOn, "On", "", 5, 20, 25, 20);
+    _addTextToggleButton(nullptr, m_btnNTOn, "On", "", 465, 450, 25, 20);
     _addRotarySlider(&m_grpNTFilter, m_sldNTFrequency, m_lblNTFrequency, "Frequency", 10, 40, colFilter);
     _addRotarySlider(&m_grpNTFilter, m_sldNTQ, m_lblNTQ, "Q", 70, 40, colFilter);
 
@@ -510,7 +516,10 @@ void Tunefish4AudioProcessorEditor::_addTextButton(Component *parent, TextButton
 
 void Tunefish4AudioProcessorEditor::_addTextToggleButton(Component *parent, TextButton &button, String text, String group, eU32 x, eU32 y, eU32 w, eU32 h)
 {
-    parent->addChildComponent(&button);
+    if (parent)
+        parent->addChildComponent(&button);
+    else
+        addAndMakeVisible(&button);
 
     button.setVisible(true);
     button.addListener(this);
@@ -607,7 +616,9 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
     bool animationsOn = _configAreAnimationsOn();
     bool waveformsMoving = _configAreWaveformsMoving();
 
-    if (animationsOn || processor->wasProgramSwitched() || m_wasWindowHidden)
+    bool parametersChanged = processor->wasProgramSwitched() || processor->isParamDirtyAny();
+
+    if (animationsOn || parametersChanged || m_wasWindowHidden)
     {
         // if the window was previously hidden, we need to fill all those comboboxes again
         if (m_wasWindowHidden)
@@ -842,6 +853,7 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         case 3: m_btnLFO1ShapeSquare.setToggleState(true, dontSendNotification); break;
         case 4: m_btnLFO1ShapeNoise.setToggleState(true, dontSendNotification); break;
         }
+        m_btnLFO1Sync.setToggleState(processor->getParameter(TF_LFO1_SYNC) > 0.5, dontSendNotification);
 
         switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_LFO2_SHAPE) * (TF_LFOSHAPECOUNT - 1))))
         {
@@ -851,6 +863,7 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         case 3: m_btnLFO2ShapeSquare.setToggleState(true, dontSendNotification); break;
         case 4: m_btnLFO2ShapeNoise.setToggleState(true, dontSendNotification); break;
         }
+        m_btnLFO2Sync.setToggleState(processor->getParameter(TF_LFO2_SYNC) > 0.5, dontSendNotification);
 
         switch (static_cast<eU32>(eRoundNearest(processor->getParameter(TF_FORMANT_MODE) * (TF_FORMANTCOUNT - 1))))
         {
@@ -899,6 +912,22 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         m_freqView.repaint();
     }
 
+    if (parametersChanged)
+    {
+        m_grpLPFilter.setEnabled(processor->getParameter(TF_LP_FILTER_ON) > 0.5);
+        m_grpHPFilter.setEnabled(processor->getParameter(TF_HP_FILTER_ON) > 0.5);
+        m_grpBPFilter.setEnabled(processor->getParameter(TF_BP_FILTER_ON) > 0.5);
+        m_grpNTFilter.setEnabled(processor->getParameter(TF_NT_FILTER_ON) > 0.5);
+
+        m_grpFxDistortion.setEnabled(_isEffectUsed(1));
+        m_grpFxDelay.setEnabled(_isEffectUsed(2));
+        m_grpFxChorus.setEnabled(_isEffectUsed(3));
+        m_grpFxFlanger.setEnabled(_isEffectUsed(4));
+        m_grpFxReverb.setEnabled(_isEffectUsed(5));
+        m_grpFxFormant.setEnabled(_isEffectUsed(6));
+        m_grpFxEQ.setEnabled(_isEffectUsed(7));
+    }
+
     processor->resetParamDirty();
 }
 
@@ -908,6 +937,7 @@ void Tunefish4AudioProcessorEditor::_setParameterNotifyingHost(Slider *slider, e
 
     if (param == TF_GEN_BANDWIDTH ||
         param == TF_GEN_DAMP ||
+        param == TF_GEN_SPREAD ||
         param == TF_GEN_DRIVE ||
         param == TF_GEN_MODULATION ||
         param == TF_GEN_NUMHARMONICS ||
@@ -1112,12 +1142,14 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
     else if (button == &m_btnLFO1ShapeSawUp)    _setParameterNotifyingHost(fromIndex(2, 0, TF_LFOSHAPECOUNT-1), TF_LFO1_SHAPE);
     else if (button == &m_btnLFO1ShapeSquare)   _setParameterNotifyingHost(fromIndex(3, 0, TF_LFOSHAPECOUNT-1), TF_LFO1_SHAPE);
     else if (button == &m_btnLFO1ShapeNoise)    _setParameterNotifyingHost(fromIndex(4, 0, TF_LFOSHAPECOUNT-1), TF_LFO1_SHAPE);
+    else if (button == &m_btnLFO1Sync)          _setParameterNotifyingHost((button->getToggleState() ? 1.0 : 0.0), TF_LFO1_SYNC);
 
     else if (button == &m_btnLFO2ShapeSine)     _setParameterNotifyingHost(fromIndex(0, 0, TF_LFOSHAPECOUNT-1), TF_LFO2_SHAPE);
     else if (button == &m_btnLFO2ShapeSawDown)  _setParameterNotifyingHost(fromIndex(1, 0, TF_LFOSHAPECOUNT-1), TF_LFO2_SHAPE);
     else if (button == &m_btnLFO2ShapeSawUp)    _setParameterNotifyingHost(fromIndex(2, 0, TF_LFOSHAPECOUNT-1), TF_LFO2_SHAPE);
     else if (button == &m_btnLFO2ShapeSquare)   _setParameterNotifyingHost(fromIndex(3, 0, TF_LFOSHAPECOUNT-1), TF_LFO2_SHAPE);
     else if (button == &m_btnLFO2ShapeNoise)    _setParameterNotifyingHost(fromIndex(4, 0, TF_LFOSHAPECOUNT-1), TF_LFO2_SHAPE);
+    else if (button == &m_btnLFO2Sync)          _setParameterNotifyingHost((button->getToggleState() ? 1.0 : 0.0), TF_LFO2_SYNC);
 
     else if (button == &m_btnFormantA)          _setParameterNotifyingHost(fromIndex(0, 0, TF_FORMANTCOUNT-1), TF_FORMANT_MODE);
     else if (button == &m_btnFormantE)          _setParameterNotifyingHost(fromIndex(1, 0, TF_FORMANTCOUNT-1), TF_FORMANT_MODE);
@@ -1214,6 +1246,19 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
     {
         AboutComponent::openAboutWindow(this);
     }
+}
+
+bool Tunefish4AudioProcessorEditor::_isEffectUsed(eU32 effectNum) const
+{
+    Tunefish4AudioProcessor * processor = getProcessor();
+
+    for (int fxSlot = TF_EFFECT_1; fxSlot <= TF_EFFECT_10; ++fxSlot)
+    {
+        // "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ"
+        if ((eU32)round(processor->getParameter(fxSlot) * TF_MAXEFFECTS) == effectNum)
+            return true;
+    }
+    return false;
 }
 
 void Tunefish4AudioProcessorEditor::_createIcons()
