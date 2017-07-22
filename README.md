@@ -1,5 +1,8 @@
 # Tunefish Synthesizer
-This document describes compiling, installing and using the tunefish synth.
+
+Tunefish v4 was developed as a smaller replacement of Tunefish v3 with roughly the same power. It was developed for our intro Turtles all the way down which forced us to rethink how to most effectively produce music in very tight machine code. Read more about it here. The result was totally worth it and some might argue it is even more powerful. To open it up to a broader range of people, it was also ported over to Linux and MacOS and it was given a new polished UI. 
+
+Check our website at https://tunefish-synth.com
 
 ## Screenshot
 
