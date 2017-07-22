@@ -1,11 +1,12 @@
 
-- v4.1.0 beta1  
+- v4.1.0  -  July 22th, 2017
 -----------------------------------------------------
 
 - Patches are continued to be loaded, if one of the files is missing
 - Comboboxes are now switching correctly when selecting a new entry
 - LFO sync fixed.
 - unneeded areas in the synth become disabled so less confusing what is currently relevant.
+- many small issues fixed in the codebase
 
 
 - v4.0.1  -  May 5th, 2014

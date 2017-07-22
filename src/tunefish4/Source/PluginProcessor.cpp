@@ -45,24 +45,11 @@ Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     eTfInstrumentInit(*tf);
 
     for (eU32 i=0; i<TF_PLUG_NUM_PROGRAMS; i++)
-    {
         programs[i].loadDefault(i);
 
-        for (eU32 j=0; j<TF_PARAM_COUNT; j++)
-        {
-            programs[i].setParam(j, TF_DEFAULTPROG[j]);
-        }
-    }
-
     loadProgramAll();
-
-    for (eU32 j=0; j<TF_PARAM_COUNT; j++)
-    {
-        tf->params[j] = programs[0].getParam(j);
-    }
-
+    programs[0].applyToSynth(tf);
     resetParamDirty(eTRUE);
-    setCurrentProgram(0);
 
     recorderIndex = eTfRecorder::getInstance().addSynth(this);
 }

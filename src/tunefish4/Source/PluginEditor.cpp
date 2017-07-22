@@ -23,6 +23,9 @@
 #include "PluginEditor.h"
 #include "synth/tfrecorder.hpp"
 
+// this is used for recording songs to tf4m format only. Meant for Demos or Executable music
+//#define HAVE_RECORDING 
+
 const char* MOD_SOURCES = "none|LFO1|LFO2|ADSR1|ADSR2";
 const char* MOD_TARGETS = "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8";
 const char* FX_SECTIONS = "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ";
@@ -237,7 +240,11 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 10, 710, 100, 20);
     _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 120, 710, 100, 20);
     _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 230, 710, 100, 20);
+
+#ifdef HAVE_RECORDING
     _addTextToggleButton(this, m_btnRecord, "Record", "", 790, 710, 100, 20);
+#endif
+
     _addTextButton(this, m_btnAbout, String("Tunefish ") + JucePlugin_VersionString, 900, 710, 170, 20);
 
     m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
@@ -950,6 +957,11 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         m_grpFxReverb.setEnabled(_isEffectUsed(5));
         m_grpFxFormant.setEnabled(_isEffectUsed(6));
         m_grpFxEQ.setEnabled(_isEffectUsed(7));
+
+        m_grpLFO1.setEnabled(_isModulatorUsed(1));
+        m_grpLFO2.setEnabled(_isModulatorUsed(2));
+        m_grpADSR1.setEnabled(_isModulatorUsed(3));
+        m_grpADSR2.setEnabled(_isModulatorUsed(4));
     }
 
     processor->resetParamDirty();
@@ -1274,6 +1286,23 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
     }
 }
 
+bool Tunefish4AudioProcessorEditor::_isModulatorUsed(eU32 mod) const
+{
+    Tunefish4AudioProcessor * processor = getProcessor();
+
+    for (int slot = TF_MM1_SOURCE; slot <= TF_MM10_SOURCE; slot+=3)
+    {
+        // "none|LFO1|LFO2|ADSR1|ADSR2"
+        auto value = processor->getParameter(slot);
+        auto intValue = static_cast<eU32>(round(value * eTfModMatrix::INPUT_COUNT));
+
+        if (intValue == mod)
+            return true;
+    }
+
+    return false;
+}
+
 bool Tunefish4AudioProcessorEditor::_isEffectUsed(eU32 effectNum) const
 {
     Tunefish4AudioProcessor * processor = getProcessor();
@@ -1281,9 +1310,13 @@ bool Tunefish4AudioProcessorEditor::_isEffectUsed(eU32 effectNum) const
     for (int fxSlot = TF_EFFECT_1; fxSlot <= TF_EFFECT_10; ++fxSlot)
     {
         // "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ"
-        if ((eU32)round(processor->getParameter(fxSlot) * TF_MAXEFFECTS) == effectNum)
+        auto value = processor->getParameter(fxSlot);
+        auto intValue = static_cast<eU32>(round(value * TF_MAXEFFECTS));
+
+        if (intValue == effectNum)
             return true;
     }
+
     return false;
 }
 
