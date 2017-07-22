@@ -91,18 +91,18 @@ public:
     void                    setStateInformation (const void* data, int sizeInBytes);
 
     void                    writeProgramToPresets();
-    void                    loadProgramFromPresets();
+    void                    loadProgramFromPresets() const;
     bool                    loadProgram();
     bool                    loadProgram(eU32 index);
     bool                    loadProgramAll();
-    bool                    saveProgram();
-    bool                    saveProgram(eU32 index);
-    bool                    saveProgramAll();
+    bool                    saveProgram() const;
+    bool                    saveProgram(eU32 index) const;
+    bool                    saveProgramAll() const;
     bool                    copyProgram();
     bool                    pasteProgram();
 
     bool                    isParamDirty(eU32 index);
-    bool                    isParamDirtyAny();
+    bool                    isParamDirtyAny() const;
     bool                    wasProgramSwitched() const;
     void                    resetParamDirty(eBool dirty = eFALSE);
 

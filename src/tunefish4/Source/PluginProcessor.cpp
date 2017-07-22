@@ -196,17 +196,15 @@ void Tunefish4AudioProcessor::setCurrentProgram (int index)
     eASSERT(index >= 0 && index < TF_PLUG_NUM_PROGRAMS);
 
     // write program from tunefish to program list before switching
-    eTfSynthProgram *ap = &programs[currentProgramIndex];
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        ap->setParam(i, tf->params[i]);
+    programs[currentProgramIndex].loadFromSynth(tf);
 
     currentProgramIndex = index;
     resetParamDirty(eTRUE);
 
     // load new program to into tunefish
-    ap = &programs[currentProgramIndex];
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        tf->params[i] = ap->getParam(i);
+    programs[currentProgramIndex].applyToSynth(tf);
+
+    updateHostDisplay();
 }
 
 const String Tunefish4AudioProcessor::getProgramName (int index)
@@ -234,8 +232,8 @@ CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
 //==============================================================================
 void Tunefish4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    if (sampleRate > 0)
+        synth->sampleRate = sampleRate;
 }
 
 void Tunefish4AudioProcessor::releaseResources()
@@ -256,7 +254,7 @@ void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffe
     if (sampleRate > 0)
         synth->sampleRate = sampleRate;
 
-    for (int i = 0; i < getNumOutputChannels(); ++i)
+    for (int i = 0; i < getTotalNumOutputChannels(); ++i)
     {
         buffer.clear(i, 0, buffer.getNumSamples());
     }
@@ -297,6 +295,7 @@ void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffe
     }
 
     processEvents(midiMessages, messageOffset, requestedLen);
+    midiMessages.clear();
 }
 
 void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messageOffset, eU32 frameSize)
@@ -358,16 +357,12 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
 
 void Tunefish4AudioProcessor::writeProgramToPresets()
 {
-    eTfSynthProgram *ap = &programs[currentProgramIndex];
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        ap->setParam(i, tf->params[i]);
+    programs[currentProgramIndex].loadFromSynth(tf);
 }
 
-void Tunefish4AudioProcessor::loadProgramFromPresets()
+void Tunefish4AudioProcessor::loadProgramFromPresets() const
 {
-    eTfSynthProgram *ap = &programs[currentProgramIndex];
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        tf->params[i] = ap->getParam(i);
+    programs[currentProgramIndex].applyToSynth(tf);
 }
 
 bool Tunefish4AudioProcessor::loadProgram()
@@ -431,12 +426,12 @@ bool Tunefish4AudioProcessor::loadProgramAll()
     return true;
 }
 
-bool Tunefish4AudioProcessor::saveProgram()
+bool Tunefish4AudioProcessor::saveProgram() const
 {
     return saveProgram(currentProgramIndex);
 }
 
-bool Tunefish4AudioProcessor::saveProgram(eU32 index)
+bool Tunefish4AudioProcessor::saveProgram(eU32 index) const
 {
     String path = pluginLocation +
     File::separatorString + String("tf4programs") + File::separatorString +
@@ -463,7 +458,7 @@ bool Tunefish4AudioProcessor::saveProgram(eU32 index)
     return true;
 }
 
-bool Tunefish4AudioProcessor::saveProgramAll()
+bool Tunefish4AudioProcessor::saveProgramAll() const
 {
     for(int i=0;i<TF_PLUG_NUM_PROGRAMS;i++)
     {
@@ -476,18 +471,16 @@ bool Tunefish4AudioProcessor::saveProgramAll()
 
 bool Tunefish4AudioProcessor::copyProgram()
 {
-    copiedProgram = programs[currentProgramIndex];
+    copiedProgram.loadFromSynth(tf);
+    copiedProgram.setName(programs[currentProgramIndex].getName());
     return true;
 }
 
 bool Tunefish4AudioProcessor::pasteProgram()
 {
-    eTfSynthProgram *ap = &copiedProgram;
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        tf->params[i] = ap->getParam(i);
-
-    programs[currentProgramIndex].setName(ap->getName());
-
+    programs[currentProgramIndex] = copiedProgram;
+    programs[currentProgramIndex].applyToSynth(tf);
+    saveProgram();
     return true;
 }
 
@@ -496,7 +489,7 @@ bool Tunefish4AudioProcessor::isParamDirty(eU32 index)
     return paramDirty[index];
 }
 
-bool Tunefish4AudioProcessor::isParamDirtyAny()
+bool Tunefish4AudioProcessor::isParamDirtyAny() const
 {
     return paramDirtyAny;
 }

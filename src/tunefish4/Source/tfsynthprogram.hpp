@@ -37,6 +37,8 @@ public:
     eF32            getParam(eU32 index) const;
     String          getName() const;
     void            setName(String newname);
+    void            loadFromSynth(eTfInstrument *tf);
+    void            applyToSynth(eTfInstrument *tf) const;
 
 private:
 	eF32            params[TF_PARAM_COUNT];

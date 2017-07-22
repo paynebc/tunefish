@@ -19,7 +19,10 @@
  ---------------------------------------------------------------------
  */
 
+#define eVSTI
+
 #include "runtime/system.hpp"
+#include "synth/tf4.hpp"
 #include "tfsynthprogram.hpp"
 #include <stdio.h>
 #include <string.h>
@@ -49,6 +52,8 @@ eTfSynthProgram& eTfSynthProgram::operator= (const eTfSynthProgram& copy)
 void eTfSynthProgram::loadDefault(int i)
 {
     name = String("INIT ") + String(i);
+    for (int i = 0; i < TF_PARAM_COUNT; i++)
+        params[i] = TF_DEFAULTPROG[i];
 }
 
 void eTfSynthProgram::setParam(eU32 index, eF32 value)
@@ -69,4 +74,16 @@ String eTfSynthProgram::getName() const
 void eTfSynthProgram::setName(String newname)
 {
     name = newname;
+}
+
+void eTfSynthProgram::loadFromSynth(eTfInstrument* tf)
+{
+    for (int i = 0; i < TF_PARAM_COUNT; i++)
+        setParam(i, tf->params[i]);
+}
+
+void eTfSynthProgram::applyToSynth(eTfInstrument* tf) const
+{
+    for (int i = 0; i < TF_PARAM_COUNT; i++)
+        tf->params[i] = getParam(i);
 }
