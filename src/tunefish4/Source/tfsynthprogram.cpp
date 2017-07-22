@@ -26,41 +26,47 @@
 
 eTfSynthProgram::eTfSynthProgram()
 {
-    params.reserve(TF_MIN_PARAM_CAPACITY);
+
+}
+
+eTfSynthProgram::eTfSynthProgram(const eTfSynthProgram& copy) noexcept
+    : name(copy.getName())
+{
+    for (auto i = 0; i < TF_PARAM_COUNT; i++)
+        params[i] = copy.getParam(i);
+}
+
+eTfSynthProgram& eTfSynthProgram::operator= (const eTfSynthProgram& copy)
+{
+    name = copy.getName();
+
+    for (auto i = 0; i < TF_PARAM_COUNT; i++)
+        params[i] = copy.getParam(i);
+
+    return *this;
 }
 
 void eTfSynthProgram::loadDefault(int i)
 {
-    sprintf(name, "INIT %i", i);
+    name = String("INIT ") + String(i);
 }
 
 void eTfSynthProgram::setParam(eU32 index, eF32 value)
 {
-    _ensureSize(index);
     params[index] = value;
 }
 
-eF32 eTfSynthProgram::getParam(eU32 index)
+eF32 eTfSynthProgram::getParam(eU32 index) const
 {
-    _ensureSize(index);
     return params[index];
 }
 
-eChar * eTfSynthProgram::getName()
+String eTfSynthProgram::getName() const
 {
     return name;
 }
 
-void eTfSynthProgram::setName(const char *newname)
+void eTfSynthProgram::setName(String newname)
 {
-    strncpy(name, newname, TF_MAX_PROGRAMNAME_LEN-1);
-    name[TF_MAX_PROGRAMNAME_LEN-1] = 0;
-}
-
-void eTfSynthProgram::_ensureSize(eU32 size)
-{
-    if (size >= params.size())
-    {
-        params.resize(size);
-    }
+    name = newname;
 }

@@ -476,12 +476,7 @@ bool Tunefish4AudioProcessor::saveProgramAll()
 
 bool Tunefish4AudioProcessor::copyProgram()
 {
-    eTfSynthProgram *ap = &copiedProgram;
-    for(int i=0;i<TF_PARAM_COUNT;i++)
-        ap->setParam(i, tf->params[i]);
-
-    eStrCopy(ap->getName(), programs[currentProgramIndex].getName());
-
+    copiedProgram = programs[currentProgramIndex];
     return true;
 }
 
@@ -491,7 +486,7 @@ bool Tunefish4AudioProcessor::pasteProgram()
     for(int i=0;i<TF_PARAM_COUNT;i++)
         tf->params[i] = ap->getParam(i);
 
-    eStrCopy(programs[currentProgramIndex].getName(), ap->getName());
+    programs[currentProgramIndex].setName(ap->getName());
 
     return true;
 }

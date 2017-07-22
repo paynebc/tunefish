@@ -47,6 +47,9 @@ Credits:
 Synth and UI design:
 Payne / Brain Control		(http://www.tunefish-synth.com / http://www.braincontrol.org)
 
+Thanks to Cognitone for extending and fixing Tunefish4. Some changes have been backported:
+https://github.com/cognitone/sprike
+
 Sound design:
 J.Ruegg				(https://soundcloud.com/jruegg)
 Payne				(https://soundcloud.com/payne-music)

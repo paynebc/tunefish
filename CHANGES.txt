@@ -4,6 +4,8 @@
 
 - Patches are continued to be loaded, if one of the files is missing
 - Comboboxes are now switching correctly when selecting a new entry
+- LFO sync fixed.
+- unneeded areas in the synth become disabled so less confusing what is currently relevant.
 
 
 - v4.0.1  -  May 5th, 2014

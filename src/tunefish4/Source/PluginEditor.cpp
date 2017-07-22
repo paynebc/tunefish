@@ -174,7 +174,7 @@ const eU32 PIXHEIGHT = 14;
 //==============================================================================
 Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProcessor* ownerFilter, eTfSynth *synth)
     : AudioProcessorEditor (ownerFilter),
-    m_wasWindowHidden(false),
+    m_wasWindowHidden(true),
     m_btnLFO1ShapeSine("lfo1shapesine", DrawableButton::ImageOnButtonBackground),
     m_btnLFO1ShapeSawUp("lfo1shapesawup", DrawableButton::ImageOnButtonBackground),
     m_btnLFO1ShapeSawDown("lfo1shapesawdown", DrawableButton::ImageOnButtonBackground),
@@ -449,6 +449,8 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
 
 Tunefish4AudioProcessorEditor::~Tunefish4AudioProcessorEditor()
 {
+    TfLookAndFeel::deleteInstance();
+    Fonts::deleteInstance();
 }
 
 void Tunefish4AudioProcessorEditor::_addRotarySlider(Component *parent, Slider &slider, Label &label, String text, eU32 x, eU32 y, Colour colour)
@@ -629,7 +631,6 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         if (m_wasWindowHidden)
         {
             processor->resetParamDirty(eTRUE);
-            m_wasWindowHidden = false;
         }
         
         if (processor->wasProgramSwitched())
@@ -917,7 +918,7 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
         m_freqView.repaint();
     }
 
-    if (parametersChanged)
+    if (parametersChanged || m_wasWindowHidden)
     {
         m_grpLPFilter.setEnabled(processor->getParameter(TF_LP_FILTER_ON) > 0.5);
         m_grpHPFilter.setEnabled(processor->getParameter(TF_HP_FILTER_ON) > 0.5);
@@ -934,6 +935,7 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
     }
 
     processor->resetParamDirty();
+    m_wasWindowHidden = false;
 }
 
 void Tunefish4AudioProcessorEditor::_setParameterNotifyingHost(Slider *slider, eTfParam param)

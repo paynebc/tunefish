@@ -22,25 +22,25 @@
 #ifndef TF_SYNTHPROGRAM_HPP
 #define TF_SYNTHPROGRAM_HPP
 
-const eU32 TF_MIN_PARAM_CAPACITY = 256;
-const eU32 TF_MAX_PROGRAMNAME_LEN = 64;
+#include "../JuceLibraryCode/JuceHeader.h"
+#include "synth/tf4.hpp"
 
 class eTfSynthProgram
 {
 public:
     eTfSynthProgram();
+    eTfSynthProgram(const eTfSynthProgram& copy) noexcept; 
+    eTfSynthProgram& operator=(const eTfSynthProgram& copy); 
 
 	void            loadDefault(int i);
     void            setParam(eU32 index, eF32 value);
-    eF32            getParam(eU32 index);
-    eChar *         getName();
-    void            setName(const char *newname);
+    eF32            getParam(eU32 index) const;
+    String          getName() const;
+    void            setName(String newname);
 
 private:
-    void            _ensureSize(eU32 size);
-
-	eArray<eF32>    params;
-	eChar           name[TF_MAX_PROGRAMNAME_LEN];
+	eF32            params[TF_PARAM_COUNT];
+	String          name;
 };
 
 #endif
