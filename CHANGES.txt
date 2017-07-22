@@ -1,5 +1,5 @@
 
-- v4.1.0  -  July 22th, 2017
+- v4.1.0  -  July 22nd, 2017
 -----------------------------------------------------
 
 - Patches are continued to be loaded, if one of the files is missing

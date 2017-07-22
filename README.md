@@ -1,6 +1,10 @@
 # Tunefish Synthesizer
 This document describes compiling, installing and using the tunefish synth.
 
+## Screenshot
+
+![Screenshot](https://github.com/paynebc/tunefish/blob/master/media/tunefish4.jpg)
+
 ### Compiling on Windows
 
 Compile using Visual Studio 2015. Solution can be found in
