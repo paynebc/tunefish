@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_LIVECONSTANTEDITOR_H_INCLUDED
-#define JUCE_LIVECONSTANTEDITOR_H_INCLUDED
+#pragma once
 
 #if JUCE_ENABLE_LIVE_CONSTANT_EDITOR && ! DOXYGEN
 
@@ -52,6 +53,7 @@ namespace LiveConstantEditor
     inline void setFromString (uint64& v,         const String& s)    { v = (uint64)         parseInt (s); }
     inline void setFromString (double& v,         const String& s)    { v = parseDouble (s); }
     inline void setFromString (float& v,          const String& s)    { v = (float) parseDouble (s); }
+    inline void setFromString (bool& v,           const String& s)    { v = (s == "true"); }
     inline void setFromString (String& v,         const String& s)    { v = s; }
     inline void setFromString (Colour& v,         const String& s)    { v = Colour ((uint32) parseInt (s)); }
 
@@ -63,6 +65,7 @@ namespace LiveConstantEditor
     inline String getAsString (unsigned short v, bool preferHex) { return intToString ((int) v, preferHex); }
     inline String getAsString (int v, bool preferHex)            { return intToString ((int) v, preferHex); }
     inline String getAsString (unsigned int v, bool preferHex)   { return intToString ((int) v, preferHex); }
+    inline String getAsString (bool v, bool)                     { return v ? "true" : "false"; }
     inline String getAsString (int64 v, bool preferHex)          { return intToString ((int64) v, preferHex); }
     inline String getAsString (uint64 v, bool preferHex)         { return intToString ((int64) v, preferHex); }
     inline String getAsString (Colour v, bool)                   { return intToString ((int) v.getARGB(), true); }
@@ -135,6 +138,7 @@ namespace LiveConstantEditor
     Component* createColourEditor (LivePropertyEditorBase&);
     Component* createIntegerSlider (LivePropertyEditorBase&);
     Component* createFloatSlider (LivePropertyEditorBase&);
+    Component* createBoolSlider (LivePropertyEditorBase&);
 
     template <typename Type> struct CustomEditor    { static Component* create (LivePropertyEditorBase&)   { return nullptr; } };
     template<> struct CustomEditor<char>            { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
@@ -148,6 +152,7 @@ namespace LiveConstantEditor
     template<> struct CustomEditor<float>           { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
     template<> struct CustomEditor<double>          { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
     template<> struct CustomEditor<Colour>          { static Component* create (LivePropertyEditorBase& e) { return createColourEditor (e); } };
+    template<> struct CustomEditor<bool>            { static Component* create (LivePropertyEditorBase& e) { return createBoolSlider (e); } };
 
     template <typename Type>
     struct LivePropertyEditor  : public LivePropertyEditorBase
@@ -233,6 +238,12 @@ namespace LiveConstantEditor
     template <typename Type>
     inline LiveValue<Type>& getValue (const char* file, int line, const Type& initialValue)
     {
+        // If you hit this assertion then the __FILE__ macro is providing a
+        // relative path instead of an absolute path. On Windows this will be
+        // a path relative to the build directory rather than the currently
+        // running application. To fix this you must compile with the /FC flag.
+        jassert (File::isAbsolutePath (file));
+
         return ValueList::getInstance()->getValue (file, line, initialValue);
     }
 
@@ -298,6 +309,3 @@ namespace LiveConstantEditor
  #define JUCE_LIVE_CONSTANT(initialValue) \
     (initialValue)
 #endif
-
-
-#endif   // JUCE_LIVECONSTANTEDITOR_H_INCLUDED

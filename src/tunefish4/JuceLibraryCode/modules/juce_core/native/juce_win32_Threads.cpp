@@ -1,27 +1,21 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -36,37 +30,11 @@ void* getUser32Function (const char* functionName)
 }
 
 //==============================================================================
-#if ! JUCE_USE_MSVC_INTRINSICS
-// In newer compilers, the inline versions of these are used (in juce_Atomic.h), but in
-// older ones we have to actually call the ops as win32 functions..
-long juce_InterlockedExchange (volatile long* a, long b) noexcept                { return InterlockedExchange (a, b); }
-long juce_InterlockedIncrement (volatile long* a) noexcept                       { return InterlockedIncrement (a); }
-long juce_InterlockedDecrement (volatile long* a) noexcept                       { return InterlockedDecrement (a); }
-long juce_InterlockedExchangeAdd (volatile long* a, long b) noexcept             { return InterlockedExchangeAdd (a, b); }
-long juce_InterlockedCompareExchange (volatile long* a, long b, long c) noexcept { return InterlockedCompareExchange (a, b, c); }
-
-__int64 juce_InterlockedCompareExchange64 (volatile __int64* value, __int64 newValue, __int64 valueToCompare) noexcept
-{
-    jassertfalse; // This operation isn't available in old MS compiler versions!
-
-    __int64 oldValue = *value;
-    if (oldValue == valueToCompare)
-        *value = newValue;
-
-    return oldValue;
-}
-
-#endif
-
-//==============================================================================
 CriticalSection::CriticalSection() noexcept
 {
     // (just to check the MS haven't changed this structure and broken things...)
-   #if JUCE_VC7_OR_EARLIER
-    static_jassert (sizeof (CRITICAL_SECTION) <= 24);
-   #else
-    static_jassert (sizeof (CRITICAL_SECTION) <= sizeof (lock));
-   #endif
+    static_assert (sizeof (CRITICAL_SECTION) <= sizeof (lock),
+                   "win32 lock array too small to hold CRITICAL_SECTION: please report this JUCE bug!");
 
     InitializeCriticalSection ((CRITICAL_SECTION*) lock);
 }
@@ -109,7 +77,8 @@ static unsigned int __stdcall threadEntryProc (void* userData)
 void Thread::launchThread()
 {
     unsigned int newThreadId;
-    threadHandle = (void*) _beginthreadex (0, 0, &threadEntryProc, this, 0, &newThreadId);
+    threadHandle = (void*) _beginthreadex (0, (unsigned int) threadStackSize,
+                                           &threadEntryProc, this, 0, &newThreadId);
     threadId = (ThreadID) (pointer_sized_int) newThreadId;
 }
 
@@ -154,7 +123,7 @@ void JUCE_CALLTYPE Thread::setCurrentThreadName (const String& name)
     __except (EXCEPTION_CONTINUE_EXECUTION)
     {}
    #else
-    (void) name;
+    ignoreUnused (name);
    #endif
 }
 
@@ -259,14 +228,9 @@ void JUCE_CALLTYPE Process::setPriority (ProcessPriority prior)
     }
 }
 
-JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger()
+JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger() noexcept
 {
     return IsDebuggerPresent() != FALSE;
-}
-
-bool JUCE_CALLTYPE Process::isRunningUnderDebugger()
-{
-    return juce_isRunningUnderDebugger();
 }
 
 static void* currentModuleHandle = nullptr;
@@ -314,27 +278,17 @@ bool juce_isRunningInWine()
 bool DynamicLibrary::open (const String& name)
 {
     close();
-
-    JUCE_TRY
-    {
-        handle = LoadLibrary (name.toWideCharPointer());
-    }
-    JUCE_CATCH_ALL
-
+    handle = LoadLibrary (name.toWideCharPointer());
     return handle != nullptr;
 }
 
 void DynamicLibrary::close()
 {
-    JUCE_TRY
+    if (handle != nullptr)
     {
-        if (handle != nullptr)
-        {
-            FreeLibrary ((HMODULE) handle);
-            handle = nullptr;
-        }
+        FreeLibrary ((HMODULE) handle);
+        handle = nullptr;
     }
-    JUCE_CATCH_ALL
 }
 
 void* DynamicLibrary::getFunction (const String& functionName) noexcept

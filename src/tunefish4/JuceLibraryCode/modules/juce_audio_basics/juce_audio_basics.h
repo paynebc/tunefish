@@ -2,32 +2,55 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_AUDIO_BASICS_H_INCLUDED
+/*******************************************************************************
+ The block below describes the properties of this module, and is read by
+ the Projucer to automatically generate project code that uses it.
+ For details about the syntax and how to create or use a module, see the
+ JUCE Module Format.txt file.
+
+
+ BEGIN_JUCE_MODULE_DECLARATION
+
+  ID:               juce_audio_basics
+  vendor:           juce
+  version:          5.0.2
+  name:             JUCE audio and MIDI data classes
+  description:      Classes for audio buffer manipulation, midi message handling, synthesis, etc.
+  website:          http://www.juce.com/juce
+  license:          ISC
+
+  dependencies:     juce_core
+  OSXFrameworks:    Accelerate
+  iOSFrameworks:    Accelerate
+
+ END_JUCE_MODULE_DECLARATION
+
+*******************************************************************************/
+
+
+#pragma once
 #define JUCE_AUDIO_BASICS_H_INCLUDED
 
-#include "../juce_core/juce_core.h"
+#include <juce_core/juce_core.h>
 
-//=============================================================================
 namespace juce
 {
 
@@ -37,9 +60,11 @@ namespace juce
 #include "buffers/juce_AudioDataConverters.h"
 #include "buffers/juce_FloatVectorOperations.h"
 #include "buffers/juce_AudioSampleBuffer.h"
+#include "buffers/juce_AudioChannelSet.h"
 #include "effects/juce_Decibels.h"
 #include "effects/juce_IIRFilter.h"
 #include "effects/juce_LagrangeInterpolator.h"
+#include "effects/juce_CatmullRomInterpolator.h"
 #include "effects/juce_FFT.h"
 #include "effects/juce_LinearSmoothedValue.h"
 #include "effects/juce_Reverb.h"
@@ -68,7 +93,6 @@ namespace juce
 #include "sources/juce_ReverbAudioSource.h"
 #include "sources/juce_ToneGeneratorAudioSource.h"
 #include "synthesisers/juce_Synthesiser.h"
+#include "audio_play_head/juce_AudioPlayHead.h"
 
 }
-
-#endif   // JUCE_AUDIO_BASICS_H_INCLUDED

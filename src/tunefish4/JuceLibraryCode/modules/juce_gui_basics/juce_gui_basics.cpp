@@ -2,27 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#if defined (JUCE_GUI_BASICS_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
+#ifdef JUCE_GUI_BASICS_H_INCLUDED
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -31,18 +33,16 @@
  #error "Incorrect use of JUCE cpp file"
 #endif
 
-// Your project must contain an AppConfig.h file with your project-specific settings in it,
-// and your header search path must make it accessible to the module's files.
-#include "AppConfig.h"
-
 #define NS_FORMAT_FUNCTION(F,A) // To avoid spurious warnings from GCC
 
-#include "../juce_core/native/juce_BasicNativeHeaders.h"
-#include "juce_gui_basics.h"
+#define JUCE_CORE_INCLUDE_OBJC_HELPERS 1
+#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
+#define JUCE_CORE_INCLUDE_JNI_HELPERS 1
+#define JUCE_CORE_INCLUDE_NATIVE_HEADERS 1
+#define JUCE_EVENTS_INCLUDE_WIN32_MESSAGE_WINDOW 1
+#define JUCE_GRAPHICS_INCLUDE_COREGRAPHICS_HELPERS 1
 
-#if JUCE_MODULE_AVAILABLE_juce_opengl
- #include "../juce_opengl/juce_opengl.h"
-#endif
+#include "juce_gui_basics.h"
 
 //==============================================================================
 #if JUCE_MAC
@@ -50,11 +50,7 @@
  #import <IOKit/pwr_mgt/IOPMLib.h>
 
  #if JUCE_SUPPORT_CARBON
-  #define Point CarbonDummyPointName
-  #define Component CarbonDummyCompName
   #import <Carbon/Carbon.h> // still needed for SetSystemUIMode()
-  #undef Point
-  #undef Component
  #endif
 
 //==============================================================================
@@ -212,6 +208,7 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "lookandfeel/juce_LookAndFeel_V2.cpp"
 #include "lookandfeel/juce_LookAndFeel_V1.cpp"
 #include "lookandfeel/juce_LookAndFeel_V3.cpp"
+#include "lookandfeel/juce_LookAndFeel_V4.cpp"
 #include "menus/juce_MenuBarComponent.cpp"
 #include "menus/juce_MenuBarModel.cpp"
 #include "menus/juce_PopupMenu.cpp"
@@ -258,15 +255,23 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "application/juce_Application.cpp"
 #include "misc/juce_BubbleComponent.cpp"
 #include "misc/juce_DropShadower.cpp"
+#include "misc/juce_JUCESplashScreen.cpp"
+
+// these classes are C++11-only
+#if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS && JUCE_COMPILER_SUPPORTS_LAMBDAS
+ #include "layout/juce_FlexBox.cpp"
+#endif
 
 #if JUCE_IOS || JUCE_WINDOWS
  #include "native/juce_MultiTouchMapper.h"
 #endif
 
 #if JUCE_MAC || JUCE_IOS
- #include "../juce_core/native/juce_osx_ObjCHelpers.h"
- #include "../juce_graphics/native/juce_mac_CoreGraphicsHelpers.h"
- #include "../juce_graphics/native/juce_mac_CoreGraphicsContext.h"
+
+ #if JUCE_CLANG
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wundeclared-selector"
+ #endif
 
  #if JUCE_IOS
   #include "native/juce_ios_UIViewComponentPeer.mm"
@@ -277,23 +282,25 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
   #include "native/juce_mac_MainMenu.mm"
  #endif
 
+ #if JUCE_CLANG
+  #pragma clang diagnostic pop
+ #endif
+
  #include "native/juce_mac_MouseCursor.mm"
  #include "native/juce_mac_FileChooser.mm"
 
 #elif JUCE_WINDOWS
- #include "../juce_core/native/juce_win32_ComSmartPtr.h"
- #include "../juce_events/native/juce_win32_HiddenMessageWindow.h"
  #include "native/juce_win32_Windowing.cpp"
  #include "native/juce_win32_DragAndDrop.cpp"
  #include "native/juce_win32_FileChooser.cpp"
 
 #elif JUCE_LINUX
- #include "native/juce_linux_Clipboard.cpp"
- #include "native/juce_linux_Windowing.cpp"
+ #include "native/juce_linux_X11.cpp"
+ #include "native/juce_linux_X11_Clipboard.cpp"
+ #include "native/juce_linux_X11_Windowing.cpp"
  #include "native/juce_linux_FileChooser.cpp"
 
 #elif JUCE_ANDROID
- #include "../juce_core/native/juce_android_JNIHelpers.h"
  #include "native/juce_android_Windowing.cpp"
  #include "native/juce_android_FileChooser.cpp"
 

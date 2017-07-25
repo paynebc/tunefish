@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -32,6 +34,7 @@ DrawableShape::DrawableShape()
 DrawableShape::DrawableShape (const DrawableShape& other)
     : Drawable (other),
       strokeType (other.strokeType),
+      dashLengths (other.dashLengths),
       mainFill (other.mainFill),
       strokeFill (other.strokeFill)
 {
@@ -132,6 +135,15 @@ void DrawableShape::setStrokeType (const PathStrokeType& newStrokeType)
     }
 }
 
+void DrawableShape::setDashLengths (const Array<float>& newDashLengths)
+{
+    if (dashLengths != newDashLengths)
+    {
+        dashLengths = newDashLengths;
+        strokeChanged();
+    }
+}
+
 void DrawableShape::setStrokeThickness (const float newThickness)
 {
     setStrokeType (PathStrokeType (newThickness, strokeType.getJointStyle(), strokeType.getEndStyle()));
@@ -178,7 +190,13 @@ void DrawableShape::pathChanged()
 void DrawableShape::strokeChanged()
 {
     strokePath.clear();
-    strokeType.createStrokedPath (strokePath, path, AffineTransform::identity, 4.0f);
+    const float extraAccuracy = 4.0f;
+
+    if (dashLengths.isEmpty())
+        strokeType.createStrokedPath (strokePath, path, AffineTransform(), extraAccuracy);
+    else
+        strokeType.createDashedStroke (strokePath, path, dashLengths.getRawDataPointer(),
+                                       dashLengths.size(), AffineTransform(), extraAccuracy);
 
     setBoundsToEnclose (getDrawableBounds());
     repaint();
@@ -224,7 +242,7 @@ DrawableShape::RelativeFillType::RelativeFillType (const FillType& fill_)
         gradientPoint3 = Point<float> (g.point1.x + g.point2.y - g.point1.y,
                                        g.point1.y + g.point1.x - g.point2.x)
                             .transformedBy (fill.transform);
-        fill.transform = AffineTransform::identity;
+        fill.transform = AffineTransform();
     }
 }
 
@@ -375,7 +393,7 @@ bool DrawableShape::RelativeFillType::readFrom (const ValueTree& v, ComponentBui
         if (imageProvider != nullptr)
             im = imageProvider->getImageForIdentifier (v [FillAndStrokeState::imageId]);
 
-        fill.setTiledImage (im, AffineTransform::identity);
+        fill.setTiledImage (im, AffineTransform());
         fill.setOpacity ((float) v.getProperty (FillAndStrokeState::imageOpacity, 1.0f));
         return true;
     }

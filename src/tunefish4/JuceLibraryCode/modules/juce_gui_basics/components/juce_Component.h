@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_COMPONENT_H_INCLUDED
-#define JUCE_COMPONENT_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -253,7 +254,7 @@ public:
         bounds will no longer be a direct reflection of the position at which it appears within
         its parent, as the transform will be applied to its bounding box.
     */
-    int getX() const noexcept                               { return bounds.getX(); }
+    int getX() const noexcept                               { return boundsRelativeToParent.getX(); }
 
     /** Returns the y coordinate of the top of this component.
         This is a distance in pixels from the top edge of the component's parent.
@@ -262,13 +263,13 @@ public:
         bounds will no longer be a direct reflection of the position at which it appears within
         its parent, as the transform will be applied to its bounding box.
     */
-    int getY() const noexcept                               { return bounds.getY(); }
+    int getY() const noexcept                               { return boundsRelativeToParent.getY(); }
 
     /** Returns the component's width in pixels. */
-    int getWidth() const noexcept                           { return bounds.getWidth(); }
+    int getWidth() const noexcept                           { return boundsRelativeToParent.getWidth(); }
 
     /** Returns the component's height in pixels. */
-    int getHeight() const noexcept                          { return bounds.getHeight(); }
+    int getHeight() const noexcept                          { return boundsRelativeToParent.getHeight(); }
 
     /** Returns the x coordinate of the component's right-hand edge.
         This is a distance in pixels from the left edge of the component's parent.
@@ -277,10 +278,10 @@ public:
         bounds will no longer be a direct reflection of the position at which it appears within
         its parent, as the transform will be applied to its bounding box.
     */
-    int getRight() const noexcept                           { return bounds.getRight(); }
+    int getRight() const noexcept                           { return boundsRelativeToParent.getRight(); }
 
     /** Returns the component's top-left position as a Point. */
-    Point<int> getPosition() const noexcept                 { return bounds.getPosition(); }
+    Point<int> getPosition() const noexcept                 { return boundsRelativeToParent.getPosition(); }
 
     /** Returns the y coordinate of the bottom edge of this component.
         This is a distance in pixels from the top edge of the component's parent.
@@ -289,7 +290,7 @@ public:
         bounds will no longer be a direct reflection of the position at which it appears within
         its parent, as the transform will be applied to its bounding box.
     */
-    int getBottom() const noexcept                          { return bounds.getBottom(); }
+    int getBottom() const noexcept                          { return boundsRelativeToParent.getBottom(); }
 
     /** Returns this component's bounding box.
         The rectangle returned is relative to the top-left of the component's parent.
@@ -298,7 +299,7 @@ public:
         bounds will no longer be a direct reflection of the position at which it appears within
         its parent, as the transform will be applied to its bounding box.
     */
-    const Rectangle<int>& getBounds() const noexcept        { return bounds; }
+    Rectangle<int> getBounds() const noexcept               { return boundsRelativeToParent; }
 
     /** Returns the component's bounds, relative to its own origin.
         This is like getBounds(), but returns the rectangle in local coordinates, In practice, it'll
@@ -365,7 +366,7 @@ public:
         the smallest rectangle that fully contains the transformed area.
     */
     Rectangle<int> getLocalArea (const Component* sourceComponent,
-                                 const Rectangle<int>& areaRelativeToSourceComponent) const;
+                                 Rectangle<int> areaRelativeToSourceComponent) const;
 
     /** Converts a point relative to this component's top-left into a screen coordinate.
         @see getLocalPoint, localAreaToGlobal
@@ -384,7 +385,7 @@ public:
         the smallest rectangle that fully contains the transformed area.
         @see getLocalPoint, localPointToGlobal
     */
-    Rectangle<int> localAreaToGlobal (const Rectangle<int>& localArea) const;
+    Rectangle<int> localAreaToGlobal (Rectangle<int> localArea) const;
 
     //==============================================================================
     /** Moves the component to a new position.
@@ -470,29 +471,7 @@ public:
 
         @see setBounds
     */
-    void setBounds (const Rectangle<int>& newBounds);
-
-    /** Changes the component's position and size.
-
-        This is similar to the other setBounds() methods, but uses RelativeRectangle::applyToComponent()
-        to set the position, This uses a Component::Positioner to make sure that any dynamic
-        expressions are used in the RelativeRectangle will be automatically re-applied to the
-        component's bounds when the source values change. See RelativeRectangle::applyToComponent()
-        for more details.
-
-        For the syntax of the expressions that are allowed in the string, see the notes
-        for the RelativeCoordinate class.
-
-        @see RelativeCoordinate, setBounds, RelativeRectangle::applyToComponent(), Expression
-    */
-    void setBounds (const RelativeRectangle& newBounds);
-
-    /** Sets the component's bounds with an expression.
-        The string is parsed as a RelativeRectangle expression - see the notes for
-        Component::setBounds (const RelativeRectangle&) for more information. This method is
-        basically just a shortcut for writing setBounds (RelativeRectangle ("..."))
-    */
-    void setBounds (const String& newBoundsExpression);
+    void setBounds (Rectangle<int> newBounds);
 
     /** Changes the component's position and size in terms of fractions of its parent's size.
 
@@ -513,7 +492,7 @@ public:
 
         @see setBounds
     */
-    void setBoundsInset (const BorderSize<int>& borders);
+    void setBoundsInset (BorderSize<int> borders);
 
     /** Positions the component within a given rectangle, keeping its proportions
         unchanged.
@@ -544,9 +523,17 @@ public:
 
     /** Changes the position of the component's centre.
 
-        Leaves the position unchanged, but positions its centre relative to its
-        parent's size. E.g. setCentreRelative (0.5f, 0.5f) would place it centrally in
-        its parent.
+        Leaves the component's size unchanged, but sets the position of its centre
+        relative to its parent's top-left.
+
+        @see setBounds
+    */
+    void setCentrePosition (Point<int> newCentrePosition);
+
+    /** Changes the position of the component's centre.
+
+        Leaves the size unchanged, but positions its centre relative to its parent's size.
+        E.g. setCentreRelative (0.5f, 0.5f) would place it centrally in its parent.
     */
     void setCentreRelative (float x, float y);
 
@@ -574,7 +561,7 @@ public:
         Currently, transforms are not supported for desktop windows, so the transform will be ignored if you
         put a component on the desktop.
 
-        To remove a component's transform, simply pass AffineTransform::identity as the parameter to this method.
+        To remove a component's transform, simply pass AffineTransform() as the parameter to this method.
     */
     void setTransform (const AffineTransform& transform);
 
@@ -975,7 +962,7 @@ public:
 
         @see repaint()
     */
-    void repaint (const Rectangle<int>& area);
+    void repaint (Rectangle<int> area);
 
     //==============================================================================
     /** Makes the component use an internal buffer to optimise its redrawing.
@@ -1007,7 +994,7 @@ public:
 
         @see paintEntireComponent
     */
-    Image createComponentSnapshot (const Rectangle<int>& areaToGrab,
+    Image createComponentSnapshot (Rectangle<int> areaToGrab,
                                    bool clipImageToComponentBounds = true,
                                    float scaleFactor = 1.0f);
 
@@ -1209,6 +1196,11 @@ public:
         - if none of its children want focus at all, it will pass it up to its
           parent instead, unless it's a top-level component without a parent,
           in which case it just takes the focus itself.
+
+        Important note! It's obviously not possible for a component to be focused
+        unless it's actually visible, on-screen, and inside a window that is also
+        visible. So there's no point trying to call this in the component's own
+        constructor or before all of its parent hierarchy has been fully instantiated.
 
         @see setWantsKeyboardFocus, getWantsKeyboardFocus, hasKeyboardFocus,
              getCurrentlyFocusedComponent, focusGained, focusLost,
@@ -1768,7 +1760,7 @@ public:
         This is a handy equivalent to (isMouseOver() || isMouseButtonDown()).
         @see isMouseOver, isMouseButtonDown, isMouseButtonDownAnywhere
     */
-    bool isMouseOverOrDragging() const;
+    bool isMouseOverOrDragging (bool includeChildren = false) const;
 
     /** Returns true if a mouse button is currently down.
 
@@ -1953,12 +1945,14 @@ public:
     /** Returns true if this component is the modal one.
 
         It's possible to have nested modal components, e.g. a pop-up dialog box
-        that launches another pop-up, but this will only return true for
-        the one at the top of the stack.
+        that launches another pop-up. If onlyConsiderForemostModalComponent is
+        true then isCurrentlyModal will only return true for the one at the top
+        of the stack. If onlyConsiderForemostModalComponent is false then
+        isCurrentlyModal will return true for any modal component in the stack.
 
         @see getCurrentlyModalComponent
     */
-    bool isCurrentlyModal() const noexcept;
+    bool isCurrentlyModal (bool onlyConsiderForemostModalComponent = true) const noexcept;
 
     /** Returns the number of components that are currently in a modal state.
         @see getCurrentlyModalComponent
@@ -2037,7 +2031,7 @@ public:
         look-and-feel either, it will just return black.
 
         The colour IDs for various purposes are stored as enums in the components that
-        they are relevent to - for an example, see Slider::ColourIds,
+        they are relevant to - for an example, see Slider::ColourIds,
         Label::ColourIds, TextEditor::ColourIds, TreeView::ColourIds, etc.
 
         @see setColour, isColourSpecified, colourChanged, LookAndFeel::findColour, LookAndFeel::setColour
@@ -2223,13 +2217,28 @@ public:
     /** Returns the object that was set by setCachedComponentImage().
         @see setCachedComponentImage
     */
-    CachedComponentImage* getCachedComponentImage() const noexcept  { return cachedImage; }
+    CachedComponentImage* getCachedComponentImage() const noexcept      { return cachedImage; }
+
+    /** Sets a flag to indicate whether mouse drag events on this Component should be ignored when it is inside a
+        Viewport with drag-to-scroll functionality enabled. This is useful for Components such as sliders that
+        should not move their parent Viewport when dragged.
+    */
+    void setViewportIgnoreDragFlag (bool ignoreDrag) noexcept           { flags.viewportIgnoreDragFlag = ignoreDrag; }
+
+    /** Retrieves the current state of the Viewport drag-to-scroll functionality flag.
+        @see setViewportIgnoreDragFlag
+    */
+    bool getViewportIgnoreDragFlag() const noexcept                     { return flags.viewportIgnoreDragFlag; }
 
     //==============================================================================
     // These methods are deprecated - use localPointToGlobal, getLocalPoint, getLocalPoint, etc instead.
     JUCE_DEPRECATED (Point<int> relativePositionToGlobal (Point<int>) const);
     JUCE_DEPRECATED (Point<int> globalPositionToRelative (Point<int>) const);
     JUCE_DEPRECATED (Point<int> relativePositionToOtherComponent (const Component*, Point<int>) const);
+
+    // RelativeCoordinates are eventually going to be deprecated
+    JUCE_DEPRECATED (void setBounds (const RelativeRectangle&));
+    JUCE_DEPRECATED (void setBounds (const String&));
 
 private:
     //==============================================================================
@@ -2243,7 +2252,7 @@ private:
     //==============================================================================
     String componentName, componentID;
     Component* parentComponent;
-    Rectangle<int> bounds;
+    Rectangle<int> boundsRelativeToParent;
     ScopedPointer<Positioner> positioner;
     ScopedPointer<AffineTransform> affineTransform;
     Array<Component*> childComponentList;
@@ -2277,13 +2286,13 @@ private:
         bool bufferToImageFlag          : 1;
         bool bringToFrontOnClickFlag    : 1;
         bool repaintOnMouseActivityFlag : 1;
-        bool currentlyModalFlag         : 1;
         bool isDisabledFlag             : 1;
         bool childCompFocusedFlag       : 1;
         bool dontClipGraphicsFlag       : 1;
         bool mouseDownWasBlocked        : 1;
         bool isMoveCallbackPending      : 1;
         bool isResizeCallbackPending    : 1;
+        bool viewportIgnoreDragFlag     : 1;
        #if JUCE_DEBUG
         bool isInsidePaintCall          : 1;
        #endif
@@ -2300,9 +2309,9 @@ private:
     //==============================================================================
     void internalMouseEnter (MouseInputSource, Point<float>, Time);
     void internalMouseExit  (MouseInputSource, Point<float>, Time);
-    void internalMouseDown  (MouseInputSource, Point<float>, Time, float);
-    void internalMouseUp    (MouseInputSource, Point<float>, Time, const ModifierKeys oldModifiers);
-    void internalMouseDrag  (MouseInputSource, Point<float>, Time, float);
+    void internalMouseDown  (MouseInputSource, Point<float>, Time, float, float, float, float, float);
+    void internalMouseUp    (MouseInputSource, Point<float>, Time, const ModifierKeys oldModifiers, float, float, float, float, float);
+    void internalMouseDrag  (MouseInputSource, Point<float>, Time, float, float, float, float, float);
     void internalMouseMove  (MouseInputSource, Point<float>, Time);
     void internalMouseWheel (MouseInputSource, Point<float>, Time, const MouseWheelDetails&);
     void internalMagnifyGesture (MouseInputSource, Point<float>, Time, float);
@@ -2358,6 +2367,3 @@ protected:
     virtual ComponentPeer* createNewPeer (int styleFlags, void* nativeWindowToAttachTo);
    #endif
 };
-
-
-#endif   // JUCE_COMPONENT_H_INCLUDED

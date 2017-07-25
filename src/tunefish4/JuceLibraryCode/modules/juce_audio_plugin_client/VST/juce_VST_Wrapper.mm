@@ -2,32 +2,33 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-// Your project must contain an AppConfig.h file with your project-specific settings in it,
-// and your header search path must make it accessible to the module's files.
-#include "AppConfig.h"
+#include "../../juce_core/system/juce_TargetPlatform.h"
+
+#if JUCE_MAC
 
 #include "../utility/juce_CheckSettingMacros.h"
-#include "../../juce_core/native/juce_mac_ClangBugWorkaround.h"
 
 #if JucePlugin_Build_VST || JucePlugin_Build_VST3
 
@@ -38,15 +39,12 @@
 #include "../utility/juce_FakeMouseMoveGenerator.h"
 #include "../utility/juce_CarbonVisibility.h"
 
-#undef Component
-#undef Point
-
 //==============================================================================
 namespace juce
 {
 
 #if ! JUCE_64BIT
-void updateEditorCompBoundsVST (Component*);
+JUCE_API void updateEditorCompBoundsVST (Component*);
 void updateEditorCompBoundsVST (Component* comp)
 {
     HIViewRef dummyView = (HIViewRef) (void*) (pointer_sized_int)
@@ -70,10 +68,15 @@ static pascal OSStatus viewBoundsChangedEvent (EventHandlerCallRef, EventRef, vo
     updateEditorCompBoundsVST ((Component*) user);
     return noErr;
 }
+
+static bool shouldManuallyCloseHostWindow()
+{
+    return getHostType().isCubase7orLater() || getHostType().isRenoise() || ((SystemStats::getOperatingSystemType() & 0xff) >= 12);
+}
 #endif
 
 //==============================================================================
-void initialiseMacVST();
+JUCE_API void initialiseMacVST();
 void initialiseMacVST()
 {
    #if ! JUCE_64BIT
@@ -81,7 +84,7 @@ void initialiseMacVST()
    #endif
 }
 
-void* attachComponentToWindowRefVST (Component* comp, void* parentWindowOrView, bool isNSView);
+JUCE_API void* attachComponentToWindowRefVST (Component* comp, void* parentWindowOrView, bool isNSView);
 void* attachComponentToWindowRefVST (Component* comp, void* parentWindowOrView, bool isNSView)
 {
     JUCE_AUTORELEASEPOOL
@@ -91,7 +94,7 @@ void* attachComponentToWindowRefVST (Component* comp, void* parentWindowOrView, 
         {
             NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: parentWindowOrView];
 
-            if (getHostType().isCubase7orLater())
+            if (shouldManuallyCloseHostWindow())
             {
                 [hostWindow setReleasedWhenClosed: NO];
             }
@@ -186,7 +189,7 @@ void* attachComponentToWindowRefVST (Component* comp, void* parentWindowOrView, 
     }
 }
 
-void detachComponentFromWindowRefVST (Component* comp, void* window, bool isNSView);
+JUCE_API void detachComponentFromWindowRefVST (Component* comp, void* window, bool isNSView);
 void detachComponentFromWindowRefVST (Component* comp, void* window, bool isNSView)
 {
     JUCE_AUTORELEASEPOOL
@@ -216,7 +219,7 @@ void detachComponentFromWindowRefVST (Component* comp, void* window, bool isNSVi
             comp->removeFromDesktop();
             [pluginView release];
 
-            if (getHostType().isCubase7orLater())
+            if (shouldManuallyCloseHostWindow())
                 [hostWindow close];
             else
                 [hostWindow release];
@@ -244,7 +247,7 @@ void detachComponentFromWindowRefVST (Component* comp, void* window, bool isNSVi
     }
 }
 
-void setNativeHostWindowSizeVST (void* window, Component* component, int newWidth, int newHeight, bool isNSView);
+JUCE_API void setNativeHostWindowSizeVST (void* window, Component* component, int newWidth, int newHeight, bool isNSView);
 void setNativeHostWindowSizeVST (void* window, Component* component, int newWidth, int newHeight, bool isNSView)
 {
     JUCE_AUTORELEASEPOOL
@@ -282,7 +285,7 @@ void setNativeHostWindowSizeVST (void* window, Component* component, int newWidt
     }
 }
 
-void checkWindowVisibilityVST (void* window, Component* comp, bool isNSView);
+JUCE_API void checkWindowVisibilityVST (void* window, Component* comp, bool isNSView);
 void checkWindowVisibilityVST (void* window, Component* comp, bool isNSView)
 {
     ignoreUnused (window, comp, isNSView);
@@ -293,7 +296,7 @@ void checkWindowVisibilityVST (void* window, Component* comp, bool isNSView)
    #endif
 }
 
-bool forwardCurrentKeyEventToHostVST (Component* comp, bool isNSView);
+JUCE_API bool forwardCurrentKeyEventToHostVST (Component* comp, bool isNSView);
 bool forwardCurrentKeyEventToHostVST (Component* comp, bool isNSView)
 {
    #if ! JUCE_64BIT
@@ -312,4 +315,5 @@ bool forwardCurrentKeyEventToHostVST (Component* comp, bool isNSView)
 
 } // (juce namespace)
 
+#endif
 #endif

@@ -1,33 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_UNITTEST_H_INCLUDED
-#define JUCE_UNITTEST_H_INCLUDED
+#pragma once
 
 class UnitTestRunner;
 
@@ -136,25 +129,80 @@ public:
         If testResult is true, a pass is logged; if it's false, a failure is logged.
         If the failure message is specified, it will be written to the log if the test fails.
     */
-    void expect (bool testResult, const String& failureMessage = String::empty);
+    void expect (bool testResult, const String& failureMessage = String());
 
-    /** Compares two values, and if they don't match, prints out a message containing the
-        expected and actual result values.
+    //==============================================================================
+    /** Compares a value to an expected value.
+        If they are not equal, prints out a message containing the expected and actual values.
     */
     template <class ValueType>
-    void expectEquals (ValueType actual, ValueType expected, String failureMessage = String::empty)
+    void expectEquals (ValueType actual, ValueType expected, String failureMessage = String())
     {
-        const bool result = (actual == expected);
+        bool result = actual == expected;
+        expectResultAndPrint (actual, expected, result, "", failureMessage);
+    }
 
-        if (! result)
-        {
-            if (failureMessage.isNotEmpty())
-                failureMessage << " -- ";
+    /** Checks whether a value is not equal to a comparison value.
+        If this check fails, prints out a message containing the actual and comparison values.
+    */
+    template <class ValueType>
+    void expectNotEquals (ValueType value, ValueType valueToCompareTo, String failureMessage = String())
+    {
+        bool result = value != valueToCompareTo;
+        expectResultAndPrint (value, valueToCompareTo, result, "unequal to", failureMessage);
+    }
 
-            failureMessage << "Expected value: " << expected << ", Actual value: " << actual;
-        }
+    /** Checks whether a value is greater than a comparison value.
+        If this check fails, prints out a message containing the actual and comparison values.
+    */
+    template <class ValueType>
+    void expectGreaterThan (ValueType value, ValueType valueToCompareTo, String failureMessage = String())
+    {
+        bool result = value > valueToCompareTo;
+        expectResultAndPrint (value, valueToCompareTo, result, "greater than", failureMessage);
+    }
 
-        expect (result, failureMessage);
+    /** Checks whether a value is less than a comparison value.
+        If this check fails, prints out a message containing the actual and comparison values.
+    */
+    template <class ValueType>
+    void expectLessThan (ValueType value, ValueType valueToCompareTo, String failureMessage = String())
+    {
+        bool result = value < valueToCompareTo;
+        expectResultAndPrint (value, valueToCompareTo, result, "less than", failureMessage);
+    }
+
+    /** Checks whether a value is greater or equal to a comparison value.
+        If this check fails, prints out a message containing the actual and comparison values.
+    */
+    template <class ValueType>
+    void expectGreaterOrEqual (ValueType value, ValueType valueToCompareTo, String failureMessage = String())
+    {
+        bool result = value >= valueToCompareTo;
+        expectResultAndPrint (value, valueToCompareTo, result, "greater or equal to", failureMessage);
+    }
+
+    /** Checks whether a value is less or equal to a comparison value.
+        If this check fails, prints out a message containing the actual and comparison values.
+    */
+    template <class ValueType>
+    void expectLessOrEqual (ValueType value, ValueType valueToCompareTo, String failureMessage = String())
+    {
+        bool result = value <= valueToCompareTo;
+        expectResultAndPrint (value, valueToCompareTo, result, "less or equal to", failureMessage);
+    }
+
+    /** Computes the difference between a value and a comparison value, and if it is larger than a
+        specified maximum value, prints out a message containing the actual and comparison values
+        and the maximum allowed error.
+    */
+    template <class ValueType>
+    void expectWithinAbsoluteError (ValueType actual, ValueType expected, ValueType maxAbsoluteError, String failureMessage = String())
+    {
+        const ValueType diff = std::abs (actual - expected);
+        const bool result = diff <= maxAbsoluteError;
+
+        expectResultAndPrint (actual, expected, result, " within " + String (maxAbsoluteError) + " of" , failureMessage);
     }
 
     //==============================================================================
@@ -221,6 +269,24 @@ public:
     Random getRandom() const;
 
 private:
+    //==============================================================================
+    template <class ValueType>
+    void expectResultAndPrint (ValueType value, ValueType valueToCompareTo, bool result,
+                               String compDescription, String failureMessage)
+    {
+        if (! result)
+        {
+            if (failureMessage.isNotEmpty())
+                failureMessage << " -- ";
+
+            failureMessage << "Expected value" << (compDescription.isEmpty() ? "" : " ")
+                           << compDescription << ": " << valueToCompareTo
+                           << ", Actual value: " << value;
+        }
+
+        expect (result, failureMessage);
+    }
+
     //==============================================================================
     const String name;
     UnitTestRunner* runner;
@@ -347,6 +413,3 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE (UnitTestRunner)
 };
-
-
-#endif   // JUCE_UNITTEST_H_INCLUDED

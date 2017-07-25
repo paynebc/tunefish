@@ -2,28 +2,25 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MPENOTE_H_INCLUDED
-#define JUCE_MPENOTE_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -39,7 +36,7 @@
 */
 struct JUCE_API  MPENote
 {
-    //==========================================================================
+    //==============================================================================
     enum KeyState
     {
         off                  = 0,
@@ -48,7 +45,7 @@ struct JUCE_API  MPENote
         keyDownAndSustained  = 3
     };
 
-    //==========================================================================
+    //==============================================================================
     /** Constructor.
 
         @param midiChannel    The MIDI channel of the note, between 2 and 16.
@@ -88,7 +85,7 @@ struct JUCE_API  MPENote
     /** Checks whether the MPE note is valid. */
     bool isValid() const noexcept;
 
-    //==========================================================================
+    //==============================================================================
     // Invariants that define the note.
 
     /** A unique ID. Useful to distinguish the note from other simultaneously
@@ -107,7 +104,7 @@ struct JUCE_API  MPENote
     */
     uint8 initialNote;
 
-    //==========================================================================
+    //==============================================================================
     // The five dimensions of continuous expressive control
 
     /** The velocity ("strike") of the note-on.
@@ -146,7 +143,7 @@ struct JUCE_API  MPENote
     */
     MPEValue noteOffVelocity;
 
-    //==========================================================================
+    //==============================================================================
     /** Current effective pitchbend of the note in units of semitones, relative
         to initialNote. You should use this to compute the actual effective pitch
         of the note. This value is computed and set by an MPEInstrument to the
@@ -163,7 +160,7 @@ struct JUCE_API  MPENote
     */
     KeyState keyState;
 
-    //==========================================================================
+    //==============================================================================
     /** Returns the current frequency of the note in Hertz. This is the a sum of
         the initialNote and the totalPitchbendInSemitones, converted to Hertz.
     */
@@ -175,6 +172,3 @@ struct JUCE_API  MPENote
     /** Returns true if two notes are different notes, determined by their unique ID. */
     bool operator!= (const MPENote& other) const noexcept;
 };
-
-
-#endif // JUCE_MPENOTE_H_INCLUDED

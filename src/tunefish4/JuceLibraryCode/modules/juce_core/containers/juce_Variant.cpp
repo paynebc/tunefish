@@ -1,27 +1,21 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -49,7 +43,7 @@ public:
     virtual int toInt (const ValueUnion&) const noexcept                        { return 0; }
     virtual int64 toInt64 (const ValueUnion&) const noexcept                    { return 0; }
     virtual double toDouble (const ValueUnion&) const noexcept                  { return 0; }
-    virtual String toString (const ValueUnion&) const                           { return String(); }
+    virtual String toString (const ValueUnion&) const                           { return {}; }
     virtual bool toBool (const ValueUnion&) const noexcept                      { return false; }
     virtual ReferenceCountedObject* toObject (const ValueUnion&) const noexcept { return nullptr; }
     virtual Array<var>* toArray (const ValueUnion&) const noexcept              { return nullptr; }
@@ -111,8 +105,8 @@ public:
     VariantType_Int() noexcept {}
     static const VariantType_Int instance;
 
-    int toInt (const ValueUnion& data) const noexcept override       { return data.intValue; };
-    int64 toInt64 (const ValueUnion& data) const noexcept override   { return (int64) data.intValue; };
+    int toInt (const ValueUnion& data) const noexcept override       { return data.intValue; }
+    int64 toInt64 (const ValueUnion& data) const noexcept override   { return (int64) data.intValue; }
     double toDouble (const ValueUnion& data) const noexcept override { return (double) data.intValue; }
     String toString (const ValueUnion& data) const override          { return String (data.intValue); }
     bool toBool (const ValueUnion& data) const noexcept override     { return data.intValue != 0; }
@@ -141,8 +135,8 @@ public:
     VariantType_Int64() noexcept {}
     static const VariantType_Int64 instance;
 
-    int toInt (const ValueUnion& data) const noexcept override       { return (int) data.int64Value; };
-    int64 toInt64 (const ValueUnion& data) const noexcept override   { return data.int64Value; };
+    int toInt (const ValueUnion& data) const noexcept override       { return (int) data.int64Value; }
+    int64 toInt64 (const ValueUnion& data) const noexcept override   { return data.int64Value; }
     double toDouble (const ValueUnion& data) const noexcept override { return (double) data.int64Value; }
     String toString (const ValueUnion& data) const override          { return String (data.int64Value); }
     bool toBool (const ValueUnion& data) const noexcept override     { return data.int64Value != 0; }
@@ -171,11 +165,11 @@ public:
     VariantType_Double() noexcept {}
     static const VariantType_Double instance;
 
-    int toInt (const ValueUnion& data) const noexcept override       { return (int) data.doubleValue; };
-    int64 toInt64 (const ValueUnion& data) const noexcept override   { return (int64) data.doubleValue; };
+    int toInt (const ValueUnion& data) const noexcept override       { return (int) data.doubleValue; }
+    int64 toInt64 (const ValueUnion& data) const noexcept override   { return (int64) data.doubleValue; }
     double toDouble (const ValueUnion& data) const noexcept override { return data.doubleValue; }
     String toString (const ValueUnion& data) const override          { return String (data.doubleValue, 20); }
-    bool toBool (const ValueUnion& data) const noexcept override     { return data.doubleValue != 0; }
+    bool toBool (const ValueUnion& data) const noexcept override     { return data.doubleValue != 0.0; }
     bool isDouble() const noexcept override                          { return true; }
 
     bool equals (const ValueUnion& data, const ValueUnion& otherData, const VariantType& otherType) const noexcept override
@@ -198,8 +192,8 @@ public:
     VariantType_Bool() noexcept {}
     static const VariantType_Bool instance;
 
-    int toInt (const ValueUnion& data) const noexcept override       { return data.boolValue ? 1 : 0; };
-    int64 toInt64 (const ValueUnion& data) const noexcept override   { return data.boolValue ? 1 : 0; };
+    int toInt (const ValueUnion& data) const noexcept override       { return data.boolValue ? 1 : 0; }
+    int64 toInt64 (const ValueUnion& data) const noexcept override   { return data.boolValue ? 1 : 0; }
     double toDouble (const ValueUnion& data) const noexcept override { return data.boolValue ? 1.0 : 0.0; }
     String toString (const ValueUnion& data) const override          { return String::charToString (data.boolValue ? (juce_wchar) '1' : (juce_wchar) '0'); }
     bool toBool (const ValueUnion& data) const noexcept override     { return data.boolValue; }
@@ -228,8 +222,8 @@ public:
     void createCopy (ValueUnion& dest, const ValueUnion& source) const override   { new (dest.stringValue) String (*getString (source)); }
 
     bool isString() const noexcept override                          { return true; }
-    int toInt (const ValueUnion& data) const noexcept override       { return getString (data)->getIntValue(); };
-    int64 toInt64 (const ValueUnion& data) const noexcept override   { return getString (data)->getLargeIntValue(); };
+    int toInt (const ValueUnion& data) const noexcept override       { return getString (data)->getIntValue(); }
+    int64 toInt64 (const ValueUnion& data) const noexcept override   { return getString (data)->getLargeIntValue(); }
     double toDouble (const ValueUnion& data) const noexcept override { return getString (data)->getDoubleValue(); }
     String toString (const ValueUnion& data) const override          { return *getString (data); }
     bool toBool (const ValueUnion& data) const noexcept override     { return getString (data)->getIntValue() != 0
@@ -289,7 +283,7 @@ public:
             return d->clone().get();
 
         jassertfalse; // can only clone DynamicObjects!
-        return var();
+        return {};
     }
 
     void writeToStream (const ValueUnion&, OutputStream& output) const override
@@ -312,7 +306,7 @@ public:
 
     Array<var>* toArray (const ValueUnion& data) const noexcept override
     {
-        if (RefCountedArray* a = dynamic_cast<RefCountedArray*> (data.objectValue))
+        if (auto* a = dynamic_cast<RefCountedArray*> (data.objectValue))
             return &(a->array);
 
         return nullptr;
@@ -329,7 +323,7 @@ public:
     {
         Array<var> arrayCopy;
 
-        if (const Array<var>* array = toArray (original.value))
+        if (auto* array = toArray (original.value))
             for (int i = 0; i < array->size(); ++i)
                 arrayCopy.add (array->getReference(i).clone());
 
@@ -338,7 +332,7 @@ public:
 
     void writeToStream (const ValueUnion& data, OutputStream& output) const override
     {
-        if (const Array<var>* array = toArray (data))
+        if (auto* array = toArray (data))
         {
             MemoryOutputStream buffer (512);
             const int numItems = array->size();
@@ -356,9 +350,7 @@ public:
     struct RefCountedArray  : public ReferenceCountedObject
     {
         RefCountedArray (const Array<var>& a)  : array (a)  { incReferenceCount(); }
-       #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
         RefCountedArray (Array<var>&& a)  : array (static_cast<Array<var>&&> (a)) { incReferenceCount(); }
-       #endif
         Array<var> array;
     };
 };
@@ -399,6 +391,9 @@ public:
     VariantType_Method() noexcept {}
     static const VariantType_Method instance;
 
+    void cleanUp (ValueUnion& data) const noexcept override                      { if (data.methodValue != nullptr ) delete data.methodValue; }
+    void createCopy (ValueUnion& dest, const ValueUnion& source) const override  { dest.methodValue = new NativeFunction (*source.methodValue); }
+
     String toString (const ValueUnion&) const override               { return "Method"; }
     bool toBool (const ValueUnion& data) const noexcept override     { return data.methodValue != nullptr; }
     bool isMethod() const noexcept override                          { return true; }
@@ -434,7 +429,9 @@ var::var() noexcept : type (&VariantType_Void::instance) {}
 var::var (const VariantType& t) noexcept  : type (&t) {}
 var::~var() noexcept  { type->cleanUp (value); }
 
+#if JUCE_ALLOW_STATIC_NULL_VARIABLES
 const var var::null;
+#endif
 
 //==============================================================================
 var::var (const var& valueToCopy)  : type (valueToCopy.type)
@@ -446,13 +443,24 @@ var::var (const int v) noexcept       : type (&VariantType_Int::instance)    { v
 var::var (const int64 v) noexcept     : type (&VariantType_Int64::instance)  { value.int64Value = v; }
 var::var (const bool v) noexcept      : type (&VariantType_Bool::instance)   { value.boolValue = v; }
 var::var (const double v) noexcept    : type (&VariantType_Double::instance) { value.doubleValue = v; }
-var::var (NativeFunction m) noexcept  : type (&VariantType_Method::instance) { value.methodValue = m; }
+var::var (NativeFunction m) noexcept  : type (&VariantType_Method::instance) { value.methodValue = new NativeFunction (m); }
 var::var (const Array<var>& v)        : type (&VariantType_Array::instance)  { value.objectValue = new VariantType_Array::RefCountedArray(v); }
 var::var (const String& v)            : type (&VariantType_String::instance) { new (value.stringValue) String (v); }
 var::var (const char* const v)        : type (&VariantType_String::instance) { new (value.stringValue) String (v); }
 var::var (const wchar_t* const v)     : type (&VariantType_String::instance) { new (value.stringValue) String (v); }
 var::var (const void* v, size_t sz)   : type (&VariantType_Binary::instance) { value.binaryValue = new MemoryBlock (v, sz); }
 var::var (const MemoryBlock& v)       : type (&VariantType_Binary::instance) { value.binaryValue = new MemoryBlock (v); }
+
+var::var (const StringArray& v)       : type (&VariantType_Array::instance)
+{
+    Array<var> strings;
+
+    const int n = v.size();
+    for (int i = 0; i < n; ++i)
+        strings.add (var (v[i]));
+
+    value.objectValue = new VariantType_Array::RefCountedArray(strings);
+}
 
 var::var (ReferenceCountedObject* const object)  : type (&VariantType_Object::instance)
 {
@@ -504,11 +512,11 @@ var& var::operator= (const double v)             { type->cleanUp (value); type =
 var& var::operator= (const char* const v)        { type->cleanUp (value); type = &VariantType_String::instance; new (value.stringValue) String (v); return *this; }
 var& var::operator= (const wchar_t* const v)     { type->cleanUp (value); type = &VariantType_String::instance; new (value.stringValue) String (v); return *this; }
 var& var::operator= (const String& v)            { type->cleanUp (value); type = &VariantType_String::instance; new (value.stringValue) String (v); return *this; }
+var& var::operator= (const MemoryBlock& v)       { type->cleanUp (value); type = &VariantType_Binary::instance; value.binaryValue = new MemoryBlock (v); return *this; }
 var& var::operator= (const Array<var>& v)        { var v2 (v); swapWith (v2); return *this; }
 var& var::operator= (ReferenceCountedObject* v)  { var v2 (v); swapWith (v2); return *this; }
 var& var::operator= (NativeFunction v)           { var v2 (v); swapWith (v2); return *this; }
 
-#if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 var::var (var&& other) noexcept
     : type (other.type),
       value (other.value)
@@ -544,7 +552,6 @@ var& var::operator= (String&& v)
     new (value.stringValue) String (static_cast<String&&> (v));
     return *this;
 }
-#endif
 
 //==============================================================================
 bool var::equals (const var& other) const noexcept
@@ -578,10 +585,10 @@ var var::clone() const noexcept
 //==============================================================================
 const var& var::operator[] (const Identifier& propertyName) const
 {
-    if (DynamicObject* const o = getDynamicObject())
+    if (auto* o = getDynamicObject())
         return o->getProperty (propertyName);
 
-    return var::null;
+    return getNullVarRef();
 }
 
 const var& var::operator[] (const char* const propertyName) const
@@ -591,7 +598,7 @@ const var& var::operator[] (const char* const propertyName) const
 
 var var::getProperty (const Identifier& propertyName, const var& defaultReturnValue) const
 {
-    if (DynamicObject* const o = getDynamicObject())
+    if (auto* o = getDynamicObject())
         return o->getProperties().getWithDefault (propertyName, defaultReturnValue);
 
     return defaultReturnValue;
@@ -599,15 +606,15 @@ var var::getProperty (const Identifier& propertyName, const var& defaultReturnVa
 
 var::NativeFunction var::getNativeFunction() const
 {
-    return isMethod() ? value.methodValue : nullptr;
+    return isMethod() && (value.methodValue != nullptr) ? *value.methodValue : nullptr;
 }
 
 var var::invoke (const Identifier& method, const var* arguments, int numArguments) const
 {
-    if (DynamicObject* const o = getDynamicObject())
+    if (auto* o = getDynamicObject())
         return o->invokeMethod (method, var::NativeFunctionArgs (*this, arguments, numArguments));
 
-    return var();
+    return {};
 }
 
 var var::call (const Identifier& method) const
@@ -647,7 +654,7 @@ var var::call (const Identifier& method, const var& arg1, const var& arg2, const
 //==============================================================================
 int var::size() const
 {
-    if (const Array<var>* const array = getArray())
+    if (auto* array = getArray())
         return array->size();
 
     return 0;
@@ -655,7 +662,7 @@ int var::size() const
 
 const var& var::operator[] (int arrayIndex) const
 {
-    const Array<var>* const array = getArray();
+    auto* array = getArray();
 
     // When using this method, the var must actually be an array, and the index
     // must be in-range!
@@ -666,7 +673,7 @@ const var& var::operator[] (int arrayIndex) const
 
 var& var::operator[] (int arrayIndex)
 {
-    const Array<var>* const array = getArray();
+    auto* array = getArray();
 
     // When using this method, the var must actually be an array, and the index
     // must be in-range!
@@ -677,7 +684,7 @@ var& var::operator[] (int arrayIndex)
 
 Array<var>* var::convertToArray()
 {
-    if (Array<var>* array = getArray())
+    if (auto* array = getArray())
         return array;
 
     Array<var> tempVar;
@@ -695,7 +702,7 @@ void var::append (const var& n)
 
 void var::remove (const int index)
 {
-    if (Array<var>* const array = getArray())
+    if (auto* const array = getArray())
         array->remove (index);
 }
 
@@ -711,7 +718,7 @@ void var::resize (const int numArrayElementsWanted)
 
 int var::indexOf (const var& n) const
 {
-    if (const Array<var>* const array = getArray())
+    if (auto* const array = getArray())
         return array->indexOf (n);
 
     return -1;
@@ -759,7 +766,7 @@ var var::readFromStream (InputStream& input)
             case varMarker_Array:
             {
                 var v;
-                Array<var>* const destArray = v.convertToArray();
+                auto* destArray = v.convertToArray();
 
                 for (int i = input.readCompressedInt(); --i >= 0;)
                     destArray->add (readFromStream (input));
@@ -772,7 +779,7 @@ var var::readFromStream (InputStream& input)
         }
     }
 
-    return var();
+    return {};
 }
 
 var::NativeFunctionArgs::NativeFunctionArgs (const var& t, const var* args, int numArgs) noexcept

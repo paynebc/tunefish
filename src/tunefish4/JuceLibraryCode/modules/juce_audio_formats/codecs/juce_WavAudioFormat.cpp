@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -300,32 +302,29 @@ namespace WavFileHelpers
             MemoryBlock data;
             const int numLoops = jmin (64, values.getValue ("NumSampleLoops", "0").getIntValue());
 
-            if (numLoops > 0)
+            data.setSize (roundUpSize (sizeof (SMPLChunk) + (size_t) (jmax (0, numLoops - 1)) * sizeof (SampleLoop)), true);
+
+            auto s = static_cast<SMPLChunk*> (data.getData());
+
+            s->manufacturer      = getValue (values, "Manufacturer", "0");
+            s->product           = getValue (values, "Product", "0");
+            s->samplePeriod      = getValue (values, "SamplePeriod", "0");
+            s->midiUnityNote     = getValue (values, "MidiUnityNote", "60");
+            s->midiPitchFraction = getValue (values, "MidiPitchFraction", "0");
+            s->smpteFormat       = getValue (values, "SmpteFormat", "0");
+            s->smpteOffset       = getValue (values, "SmpteOffset", "0");
+            s->numSampleLoops    = ByteOrder::swapIfBigEndian ((uint32) numLoops);
+            s->samplerData       = getValue (values, "SamplerData", "0");
+
+            for (int i = 0; i < numLoops; ++i)
             {
-                data.setSize (roundUpSize (sizeof (SMPLChunk) + (size_t) (numLoops - 1) * sizeof (SampleLoop)), true);
-
-                SMPLChunk* const s = static_cast<SMPLChunk*> (data.getData());
-
-                s->manufacturer      = getValue (values, "Manufacturer", "0");
-                s->product           = getValue (values, "Product", "0");
-                s->samplePeriod      = getValue (values, "SamplePeriod", "0");
-                s->midiUnityNote     = getValue (values, "MidiUnityNote", "60");
-                s->midiPitchFraction = getValue (values, "MidiPitchFraction", "0");
-                s->smpteFormat       = getValue (values, "SmpteFormat", "0");
-                s->smpteOffset       = getValue (values, "SmpteOffset", "0");
-                s->numSampleLoops    = ByteOrder::swapIfBigEndian ((uint32) numLoops);
-                s->samplerData       = getValue (values, "SamplerData", "0");
-
-                for (int i = 0; i < numLoops; ++i)
-                {
-                    SampleLoop& loop = s->loops[i];
-                    loop.identifier = getValue (values, i, "Identifier", "0");
-                    loop.type       = getValue (values, i, "Type", "0");
-                    loop.start      = getValue (values, i, "Start", "0");
-                    loop.end        = getValue (values, i, "End", "0");
-                    loop.fraction   = getValue (values, i, "Fraction", "0");
-                    loop.playCount  = getValue (values, i, "PlayCount", "0");
-                }
+                auto& loop = s->loops[i];
+                loop.identifier = getValue (values, i, "Identifier", "0");
+                loop.type       = getValue (values, i, "Type", "0");
+                loop.start      = getValue (values, i, "Start", "0");
+                loop.end        = getValue (values, i, "End", "0");
+                loop.fraction   = getValue (values, i, "Fraction", "0");
+                loop.playCount  = getValue (values, i, "PlayCount", "0");
             }
 
             return data;
@@ -656,7 +655,10 @@ namespace WavFileHelpers
 
                 if (infoLength > 0)
                 {
-                    infoLength = jlimit ((int64) 0, infoLength, (int64) input.readInt());
+                    infoLength = jmin (infoLength, (int64) input.readInt());
+
+                    if (infoLength <= 0)
+                        return;
 
                     for (int i = 0; i < numElementsInArray (types); ++i)
                     {
@@ -664,7 +666,8 @@ namespace WavFileHelpers
                         {
                             MemoryBlock mb;
                             input.readIntoMemoryBlock (mb, (ssize_t) infoLength);
-                            values.set (types[i], mb.toString());
+                            values.set (types[i], String::createStringFromData ((const char*) mb.getData(),
+                                                                                (int) mb.getSize()));
                             break;
                         }
                     }
@@ -845,7 +848,7 @@ namespace WavFileHelpers
 
         static MemoryBlock createFrom (const StringPairArray& values)
         {
-            const String ISRC (values.getValue (WavAudioFormat::ISRC, String::empty));
+            const String ISRC (values.getValue (WavAudioFormat::ISRC, String()));
             MemoryOutputStream xml;
 
             if (ISRC.isNotEmpty())
@@ -1258,7 +1261,7 @@ public:
         if (writeFailed)
             return false;
 
-        const size_t bytes = numChannels * (unsigned int) numSamples * bitsPerSample / 8;
+        const size_t bytes = numChannels * (size_t) numSamples * bitsPerSample / 8;
         tempBlock.ensureSize (bytes, false);
 
         switch (bitsPerSample)
@@ -1591,12 +1594,17 @@ AudioFormatReader* WavAudioFormat::createReaderFor (InputStream* sourceStream,
 
 MemoryMappedAudioFormatReader* WavAudioFormat::createMemoryMappedReader (const File& file)
 {
-    if (FileInputStream* fin = file.createInputStream())
+    return createMemoryMappedReader (file.createInputStream());
+}
+
+MemoryMappedAudioFormatReader* WavAudioFormat::createMemoryMappedReader (FileInputStream* fin)
+{
+    if (fin != nullptr)
     {
         WavAudioFormatReader reader (fin);
 
         if (reader.lengthInSamples > 0)
-            return new MemoryMappedWavReader (file, reader);
+            return new MemoryMappedWavReader (fin->getFile(), reader);
     }
 
     return nullptr;
@@ -1606,7 +1614,7 @@ AudioFormatWriter* WavAudioFormat::createWriterFor (OutputStream* out, double sa
                                                     unsigned int numChannels, int bitsPerSample,
                                                     const StringPairArray& metadataValues, int /*qualityOptionIndex*/)
 {
-    if (getPossibleBitDepths().contains (bitsPerSample))
+    if (out != nullptr && getPossibleBitDepths().contains (bitsPerSample))
         return new WavAudioFormatWriter (out, sampleRate, (unsigned int) numChannels,
                                          (unsigned int) bitsPerSample, metadataValues);
 
@@ -1716,6 +1724,8 @@ public:
         if (metadataValues.size() > 0)
             metadataValues.set ("MetaDataSource", "WAV");
 
+        metadataValues.addArray (createDefaultSMPLMetadata());
+
         WavAudioFormat format;
         MemoryBlock memoryBlock;
 
@@ -1749,6 +1759,23 @@ private:
         numTestAudioBufferChannels = 2,
         numTestAudioBufferSamples = 256
     };
+
+    StringPairArray createDefaultSMPLMetadata() const
+    {
+        StringPairArray m;
+
+        m.set ("Manufacturer", "0");
+        m.set ("Product", "0");
+        m.set ("SamplePeriod", "0");
+        m.set ("MidiUnityNote", "60");
+        m.set ("MidiPitchFraction", "0");
+        m.set ("SmpteFormat", "0");
+        m.set ("SmpteOffset", "0");
+        m.set ("NumSampleLoops", "0");
+        m.set ("SamplerData", "0");
+
+        return m;
+    }
 
     JUCE_DECLARE_NON_COPYABLE (WaveAudioFormatTests)
 };

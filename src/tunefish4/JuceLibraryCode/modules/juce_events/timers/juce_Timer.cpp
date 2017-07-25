@@ -2,22 +2,20 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -92,6 +90,9 @@ public:
 
     void callTimers()
     {
+        // avoid getting stuck in a loop if a timer callback repeatedly takes too long
+        const uint32 timeout = Time::getMillisecondCounter() + 100;
+
         const LockType::ScopedLockType sl (lock);
 
         while (firstTimer != nullptr && firstTimer->timerCountdownMs <= 0)
@@ -109,6 +110,9 @@ public:
                 t->timerCallback();
             }
             JUCE_CATCH_EXCEPTION
+
+            if (Time::getMillisecondCounter() > timeout)
+                break;
         }
 
         callbackArrived.signal();
@@ -294,6 +298,10 @@ Timer::~Timer()
 
 void Timer::startTimer (const int interval) noexcept
 {
+    // If you're calling this before (or after) the MessageManager is
+    // running, then you're not going to get any timer callbacks!
+    jassert (MessageManager::getInstanceWithoutCreating() != nullptr);
+
     const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
 
     if (timerPeriodMs == 0)
@@ -331,4 +339,28 @@ void JUCE_CALLTYPE Timer::callPendingTimersSynchronously()
 {
     if (TimerThread::instance != nullptr)
         TimerThread::instance->callTimersSynchronously();
+}
+
+struct LambdaInvoker  : private Timer
+{
+    LambdaInvoker (int milliseconds, std::function<void()> f)  : function (f)
+    {
+        startTimer (milliseconds);
+    }
+
+    void timerCallback() override
+    {
+        auto f = function;
+        delete this;
+        f();
+    }
+
+    std::function<void()> function;
+
+    JUCE_DECLARE_NON_COPYABLE (LambdaInvoker)
+};
+
+void JUCE_CALLTYPE Timer::callAfterDelay (int milliseconds, std::function<void()> f)
+{
+    new LambdaInvoker (milliseconds, f);
 }

@@ -1,27 +1,21 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -33,14 +27,28 @@
 //==============================================================================
 namespace WindowsFileHelpers
 {
-    DWORD getAtts (const String& path)
+    DWORD getAtts (const String& path) noexcept
     {
         return GetFileAttributes (path.toWideCharPointer());
     }
 
-    int64 fileTimeToTime (const FILETIME* const ft)
+    bool changeAtts (const String& path, DWORD bitsToSet, DWORD bitsToClear) noexcept
     {
-        static_jassert (sizeof (ULARGE_INTEGER) == sizeof (FILETIME)); // tell me if this fails!
+        auto oldAtts = getAtts (path);
+
+        if (oldAtts == INVALID_FILE_ATTRIBUTES)
+            return false;
+
+        auto newAtts = ((oldAtts | bitsToSet) & ~bitsToClear);
+
+        return newAtts == oldAtts
+                || SetFileAttributes (path.toWideCharPointer(), newAtts) != FALSE;
+    }
+
+    int64 fileTimeToTime (const FILETIME* const ft) noexcept
+    {
+        static_assert (sizeof (ULARGE_INTEGER) == sizeof (FILETIME),
+                       "ULARGE_INTEGER is too small to hold FILETIME: please report!");
 
         return (int64) ((reinterpret_cast<const ULARGE_INTEGER*> (ft)->QuadPart - 116444736000000000LL) / 10000);
     }
@@ -93,7 +101,7 @@ namespace WindowsFileHelpers
         if (SHGetSpecialFolderPath (0, path, type, FALSE))
             return File (String (path));
 
-        return File();
+        return {};
     }
 
     File getModuleFileName (HINSTANCE moduleHandle)
@@ -146,7 +154,7 @@ bool File::hasWriteAccess() const
     if (fullPath.isEmpty())
         return true;
 
-    const DWORD attr = WindowsFileHelpers::getAtts (fullPath);
+    auto attr = WindowsFileHelpers::getAtts (fullPath);
 
     // NB: According to MS, the FILE_ATTRIBUTE_READONLY attribute doesn't work for
     // folders, and can be incorrectly set for some special folders, so we'll just say
@@ -156,17 +164,11 @@ bool File::hasWriteAccess() const
             || (attr & FILE_ATTRIBUTE_READONLY) == 0;
 }
 
-bool File::setFileReadOnlyInternal (const bool shouldBeReadOnly) const
+bool File::setFileReadOnlyInternal (bool shouldBeReadOnly) const
 {
-    const DWORD oldAtts = WindowsFileHelpers::getAtts (fullPath);
-
-    if (oldAtts == INVALID_FILE_ATTRIBUTES)
-        return false;
-
-    const DWORD newAtts = shouldBeReadOnly ? (oldAtts |  FILE_ATTRIBUTE_READONLY)
-                                           : (oldAtts & ~FILE_ATTRIBUTE_READONLY);
-    return newAtts == oldAtts
-            || SetFileAttributes (fullPath.toWideCharPointer(), newAtts) != FALSE;
+    return WindowsFileHelpers::changeAtts (fullPath,
+                                           shouldBeReadOnly ? FILE_ATTRIBUTE_READONLY : 0,
+                                           shouldBeReadOnly ? 0 : FILE_ATTRIBUTE_READONLY);
 }
 
 bool File::setFileExecutableInternal (bool /*shouldBeExecutable*/) const
@@ -218,6 +220,15 @@ bool File::copyInternal (const File& dest) const
 bool File::moveInternal (const File& dest) const
 {
     return MoveFile (fullPath.toWideCharPointer(), dest.getFullPathName().toWideCharPointer()) != 0;
+}
+
+bool File::replaceInternal (const File& dest) const
+{
+    void* lpExclude = 0;
+    void* lpReserved = 0;
+
+    return ReplaceFile (dest.getFullPathName().toWideCharPointer(), fullPath.toWideCharPointer(),
+                        0, REPLACEFILE_IGNORE_MERGE_ERRORS, lpExclude, lpReserved) != 0;
 }
 
 Result File::createDirectoryInternal (const String& fileName) const
@@ -325,7 +336,7 @@ Result FileOutputStream::truncate()
 }
 
 //==============================================================================
-void MemoryMappedFile::openInternal (const File& file, AccessMode mode)
+void MemoryMappedFile::openInternal (const File& file, AccessMode mode, bool exclusive)
 {
     jassert (mode == readOnly || mode == readWrite);
 
@@ -348,7 +359,8 @@ void MemoryMappedFile::openInternal (const File& file, AccessMode mode)
         access = FILE_MAP_ALL_ACCESS;
     }
 
-    HANDLE h = CreateFile (file.getFullPathName().toWideCharPointer(), accessMode, FILE_SHARE_READ, 0,
+    HANDLE h = CreateFile (file.getFullPathName().toWideCharPointer(), accessMode,
+                           exclusive ? 0 : (FILE_SHARE_READ | (mode == readWrite ? FILE_SHARE_WRITE : 0)), 0,
                            createType, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, 0);
 
     if (h != INVALID_HANDLE_VALUE)
@@ -524,7 +536,9 @@ bool File::isOnHardDisk() const
     if (fullPath.toLowerCase()[0] <= 'b' && fullPath[1] == ':')
         return n != DRIVE_REMOVABLE;
 
-    return n != DRIVE_CDROM && n != DRIVE_REMOTE;
+    return n != DRIVE_CDROM
+        && n != DRIVE_REMOTE
+        && n != DRIVE_NO_ROOT_DIR;
 }
 
 bool File::isOnRemovableDrive() const
@@ -554,6 +568,7 @@ File JUCE_CALLTYPE File::getSpecialLocation (const SpecialLocationType type)
         case commonApplicationDataDirectory:    csidlType = CSIDL_COMMON_APPDATA; break;
         case commonDocumentsDirectory:          csidlType = CSIDL_COMMON_DOCUMENTS; break;
         case globalApplicationsDirectory:       csidlType = CSIDL_PROGRAM_FILES; break;
+        case globalApplicationsDirectoryX86:    csidlType = CSIDL_PROGRAM_FILESX86; break;
         case userMusicDirectory:                csidlType = 0x0d; /*CSIDL_MYMUSIC*/ break;
         case userMoviesDirectory:               csidlType = 0x0e; /*CSIDL_MYVIDEO*/ break;
         case userPicturesDirectory:             csidlType = 0x27; /*CSIDL_MYPICTURES*/ break;
@@ -584,7 +599,7 @@ File JUCE_CALLTYPE File::getSpecialLocation (const SpecialLocationType type)
 
         default:
             jassertfalse; // unknown type?
-            return File();
+            return {};
     }
 
     return WindowsFileHelpers::getSpecialFolderPath (csidlType);
@@ -728,7 +743,7 @@ class DirectoryIterator::NativeIterator::Pimpl
 {
 public:
     Pimpl (const File& directory, const String& wildCard)
-        : directoryWithWildCard (File::addTrailingSeparator (directory.getFullPathName()) + wildCard),
+        : directoryWithWildCard (directory.getFullPathName().isNotEmpty() ? File::addTrailingSeparator (directory.getFullPathName()) + wildCard : String()),
           handle (INVALID_HANDLE_VALUE)
     {
     }
@@ -798,14 +813,8 @@ bool DirectoryIterator::NativeIterator::next (String& filenameFound,
 //==============================================================================
 bool JUCE_CALLTYPE Process::openDocument (const String& fileName, const String& parameters)
 {
-    HINSTANCE hInstance = 0;
-
-    JUCE_TRY
-    {
-        hInstance = ShellExecute (0, 0, fileName.toWideCharPointer(),
-                                  parameters.toWideCharPointer(), 0, SW_SHOWDEFAULT);
-    }
-    JUCE_CATCH_ALL
+    HINSTANCE hInstance = ShellExecute (0, 0, fileName.toWideCharPointer(),
+                                        parameters.toWideCharPointer(), 0, SW_SHOWDEFAULT);
 
     return hInstance > (HINSTANCE) 32;
 }

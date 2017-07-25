@@ -2,25 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+extern void (*clearOpenGLGlyphCache)(); // declared in juce_graphics
 
 namespace OpenGLRendering
 {
@@ -1131,7 +1135,7 @@ struct StateHelpers
 
         ~ShaderQuadQueue() noexcept
         {
-            static_jassert (sizeof (VertexInfo) == 8);
+            static_assert (sizeof (VertexInfo) == 8, "Sanity check VertexInfo size");
             context.extensions.glBindBuffer (GL_ARRAY_BUFFER, 0);
             context.extensions.glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
             context.extensions.glDeleteBuffers (2, buffers);
@@ -1198,15 +1202,15 @@ struct StateHelpers
 
         void add (const RectangleList<int>& list, const PixelARGB colour) noexcept
         {
-            for (const Rectangle<int>* i = list.begin(), * const e = list.end(); i != e; ++i)
-                add (*i, colour);
+            for (auto& i : list)
+                add (i, colour);
         }
 
         void add (const RectangleList<int>& list, const Rectangle<int>& clip, const PixelARGB colour) noexcept
         {
-            for (const Rectangle<int>* i = list.begin(), * const e = list.end(); i != e; ++i)
+            for (auto& i : list)
             {
-                const Rectangle<int> r (i->getIntersection (clip));
+                auto r = i.getIntersection (clip);
 
                 if (! r.isEmpty())
                     add (r, colour);
@@ -1589,7 +1593,7 @@ public:
         }
     }
 
-    typedef RenderingHelpers::GlyphCache <RenderingHelpers::CachedGlyphEdgeTable <SavedState>, SavedState> GlyphCacheType;
+    typedef RenderingHelpers::GlyphCache<RenderingHelpers::CachedGlyphEdgeTable<SavedState>, SavedState> GlyphCacheType;
 
     void drawGlyph (int glyphNumber, const AffineTransform& trans)
     {
@@ -1770,9 +1774,15 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NonShaderContext)
 };
 
-LowLevelGraphicsContext* createOpenGLContext (const Target&);
-LowLevelGraphicsContext* createOpenGLContext (const Target& target)
+static void clearOpenGLGlyphCacheCallback()
 {
+    SavedState::GlyphCacheType::getInstance().reset();
+}
+
+static LowLevelGraphicsContext* createOpenGLContext (const Target& target)
+{
+    clearOpenGLGlyphCache = clearOpenGLGlyphCacheCallback;
+
     if (target.context.areShadersAvailable())
         return new ShaderContext (target);
 
@@ -1795,16 +1805,8 @@ LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, Op
 
 LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, unsigned int frameBufferID, int width, int height)
 {
-    using namespace OpenGLRendering;
     return OpenGLRendering::createOpenGLContext (OpenGLRendering::Target (context, frameBufferID, width, height));
 }
-
-void clearOpenGLGlyphCache();
-void clearOpenGLGlyphCache()
-{
-    OpenGLRendering::SavedState::GlyphCacheType::getInstance().reset();
-}
-
 
 //==============================================================================
 struct CustomProgram  : public ReferenceCountedObject,
@@ -1853,7 +1855,7 @@ struct CustomProgram  : public ReferenceCountedObject,
 OpenGLGraphicsContextCustomShader::OpenGLGraphicsContextCustomShader (const String& fragmentShaderCode)
     : code (String (JUCE_DECLARE_VARYING_COLOUR
                     JUCE_DECLARE_VARYING_PIXELPOS
-                    "\n" JUCE_MEDIUMP " float pixelAlpha = frontColour.a;\n") + fragmentShaderCode),
+                    "\n#define pixelAlpha frontColour.a\n") + fragmentShaderCode),
       hashName (String::toHexString (fragmentShaderCode.hashCode64()) + "_shader")
 {
 }

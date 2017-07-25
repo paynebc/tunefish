@@ -1,42 +1,35 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_STANDARDHEADER_H_INCLUDED
-#define JUCE_STANDARDHEADER_H_INCLUDED
+#pragma once
 
 //==============================================================================
 /** Current JUCE version number.
 
     See also SystemStats::getJUCEVersion() for a string version.
 */
-#define JUCE_MAJOR_VERSION      4
-#define JUCE_MINOR_VERSION      1
-#define JUCE_BUILDNUMBER        0
+#define JUCE_MAJOR_VERSION      5
+#define JUCE_MINOR_VERSION      0
+#define JUCE_BUILDNUMBER        2
 
 /** Current Juce version number.
 
@@ -50,8 +43,15 @@
 
 
 //==============================================================================
-#include <vector>  // included before platform defs to provide a definition of _LIBCPP_VERSION
+#include <memory>
+#include <cmath>
+#include <vector>
+#include <iostream>
+#include <functional>
+#include <algorithm>
+#include <limits>
 
+//==============================================================================
 #include "juce_CompilerSupport.h"
 #include "juce_PlatformDefs.h"
 
@@ -60,23 +60,6 @@
 #if JUCE_MSVC
  #pragma warning (push)
  #pragma warning (disable: 4514 4245 4100)
-#endif
-
-#include <cstdlib>
-#include <cstdarg>
-#include <climits>
-#include <limits>
-#include <cmath>
-#include <cwchar>
-#include <stdexcept>
-#include <typeinfo>
-#include <cstring>
-#include <cstdio>
-#include <iostream>
-#include <algorithm>
-#include <functional>
-
-#if JUCE_USE_MSVC_INTRINSICS
  #include <intrin.h>
 #endif
 
@@ -85,6 +68,7 @@
 #endif
 
 #if JUCE_LINUX
+ #include <cstring>
  #include <signal.h>
 
  #if __INTEL_COMPILER
@@ -105,10 +89,12 @@
 #endif
 
 #if JUCE_MINGW
+ #include <cstring>
  #include <sys/types.h>
 #endif
 
 #if JUCE_ANDROID
+ #include <cstring>
  #include <atomic>
  #include <byteswap.h>
 #endif
@@ -120,6 +106,12 @@
 #undef major
 #undef minor
 #undef KeyPress
+
+// Include a replacement for std::function on older platforms and the live
+// build
+#if JUCE_PROJUCER_LIVE_BUILD || ! defined (JUCE_STDLIB_HAS_STD_FUNCTION_SUPPORT)
+ #include "../misc/juce_StdFunctionCompat.h"
+#endif
 
 //==============================================================================
 // DLL building settings on Windows
@@ -162,5 +154,3 @@
 #ifndef DOXYGEN
  #define JUCE_NAMESPACE juce  // This old macro is deprecated: you should just use the juce namespace directly.
 #endif
-
-#endif   // JUCE_STANDARDHEADER_H_INCLUDED

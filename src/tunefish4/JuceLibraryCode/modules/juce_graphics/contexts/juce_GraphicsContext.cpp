@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -25,7 +27,7 @@
 namespace
 {
     template <typename Type>
-    Rectangle<Type> coordsToRectangle (Type x, Type y, Type w, Type h)
+    Rectangle<Type> coordsToRectangle (Type x, Type y, Type w, Type h) noexcept
     {
        #if JUCE_DEBUG
         const int maxVal = 0x3fffffff;
@@ -77,7 +79,7 @@ bool Graphics::isVectorDevice() const
     return context.isVectorDevice();
 }
 
-bool Graphics::reduceClipRegion (const Rectangle<int>& area)
+bool Graphics::reduceClipRegion (Rectangle<int> area)
 {
     saveStateIfPending();
     return context.clipToRectangle (area);
@@ -85,7 +87,7 @@ bool Graphics::reduceClipRegion (const Rectangle<int>& area)
 
 bool Graphics::reduceClipRegion (const int x, const int y, const int w, const int h)
 {
-    return reduceClipRegion (Rectangle<int> (x, y, w, h));
+    return reduceClipRegion (coordsToRectangle (x, y, w, h));
 }
 
 bool Graphics::reduceClipRegion (const RectangleList<int>& clipRegion)
@@ -108,7 +110,7 @@ bool Graphics::reduceClipRegion (const Image& image, const AffineTransform& tran
     return ! context.isClipEmpty();
 }
 
-void Graphics::excludeClipRegion (const Rectangle<int>& rectangleToExclude)
+void Graphics::excludeClipRegion (Rectangle<int> rectangleToExclude)
 {
     saveStateIfPending();
     context.excludeClipRectangle (rectangleToExclude);
@@ -164,7 +166,7 @@ void Graphics::addTransform (const AffineTransform& transform)
     context.addTransform (transform);
 }
 
-bool Graphics::clipRegionIntersects (const Rectangle<int>& area) const
+bool Graphics::clipRegionIntersects (Rectangle<int> area) const
 {
     return context.clipRegionIntersects (area);
 }
@@ -281,7 +283,7 @@ void Graphics::drawMultiLineText (const String& text, const int startX,
     }
 }
 
-void Graphics::drawText (const String& text, const Rectangle<float>& area,
+void Graphics::drawText (const String& text, Rectangle<float> area,
                          Justification justificationType, bool useEllipsesIfTooBig) const
 {
     if (text.isNotEmpty() && context.clipRegionIntersects (area.getSmallestIntegerContainer()))
@@ -297,19 +299,19 @@ void Graphics::drawText (const String& text, const Rectangle<float>& area,
     }
 }
 
-void Graphics::drawText (const String& text, const Rectangle<int>& area,
+void Graphics::drawText (const String& text, Rectangle<int> area,
                          Justification justificationType, bool useEllipsesIfTooBig) const
 {
     drawText (text, area.toFloat(), justificationType, useEllipsesIfTooBig);
 }
 
-void Graphics::drawText (const String& text, const int x, const int y, const int width, const int height,
+void Graphics::drawText (const String& text, int x, int y, int width, int height,
                          Justification justificationType, const bool useEllipsesIfTooBig) const
 {
-    drawText (text, Rectangle<int> (x, y, width, height), justificationType, useEllipsesIfTooBig);
+    drawText (text, coordsToRectangle (x, y, width, height), justificationType, useEllipsesIfTooBig);
 }
 
-void Graphics::drawFittedText (const String& text, const Rectangle<int>& area,
+void Graphics::drawFittedText (const String& text, Rectangle<int> area,
                                Justification justification,
                                const int maximumNumberOfLines,
                                const float minimumHorizontalScale) const
@@ -328,7 +330,7 @@ void Graphics::drawFittedText (const String& text, const Rectangle<int>& area,
     }
 }
 
-void Graphics::drawFittedText (const String& text, const int x, const int y, const int width, const int height,
+void Graphics::drawFittedText (const String& text, int x, int y, int width, int height,
                                Justification justification,
                                const int maximumNumberOfLines,
                                const float minimumHorizontalScale) const
@@ -338,12 +340,12 @@ void Graphics::drawFittedText (const String& text, const int x, const int y, con
 }
 
 //==============================================================================
-void Graphics::fillRect (const Rectangle<int>& r) const
+void Graphics::fillRect (Rectangle<int> r) const
 {
     context.fillRect (r, false);
 }
 
-void Graphics::fillRect (const Rectangle<float>& r) const
+void Graphics::fillRect (Rectangle<float> r) const
 {
     context.fillRect (r);
 }
@@ -365,13 +367,13 @@ void Graphics::fillRectList (const RectangleList<float>& rectangles) const
 
 void Graphics::fillRectList (const RectangleList<int>& rects) const
 {
-    for (const Rectangle<int>* r = rects.begin(), * const e = rects.end(); r != e; ++r)
-        context.fillRect (*r, false);
+    for (auto& r : rects)
+        context.fillRect (r, false);
 }
 
 void Graphics::setPixel (int x, int y) const
 {
-    context.fillRect (Rectangle<int> (x, y, 1, 1), false);
+    context.fillRect (coordsToRectangle (x, y, 1, 1), false);
 }
 
 void Graphics::fillAll() const
@@ -394,9 +396,15 @@ void Graphics::fillAll (Colour colourToUse) const
 
 
 //==============================================================================
+void Graphics::fillPath (const Path& path) const
+{
+    if (! (context.isClipEmpty() || path.isEmpty()))
+        context.fillPath (path, AffineTransform());
+}
+
 void Graphics::fillPath (const Path& path, const AffineTransform& transform) const
 {
-    if ((! context.isClipEmpty()) && ! path.isEmpty())
+    if (! (context.isClipEmpty() || path.isEmpty()))
         context.fillPath (path, transform);
 }
 
@@ -420,7 +428,7 @@ void Graphics::drawRect (int x, int y, int width, int height, int lineThickness)
     drawRect (coordsToRectangle (x, y, width, height), lineThickness);
 }
 
-void Graphics::drawRect (const Rectangle<int>& r, int lineThickness) const
+void Graphics::drawRect (Rectangle<int> r, int lineThickness) const
 {
     drawRect (r.toFloat(), (float) lineThickness);
 }
@@ -438,7 +446,7 @@ void Graphics::drawRect (Rectangle<float> r, const float lineThickness) const
 }
 
 //==============================================================================
-void Graphics::fillEllipse (const Rectangle<float>& area) const
+void Graphics::fillEllipse (Rectangle<float> area) const
 {
     Path p;
     p.addEllipse (area);
@@ -447,19 +455,31 @@ void Graphics::fillEllipse (const Rectangle<float>& area) const
 
 void Graphics::fillEllipse (float x, float y, float w, float h) const
 {
-    fillEllipse (Rectangle<float> (x, y, w, h));
+    fillEllipse (coordsToRectangle (x, y, w, h));
 }
 
 void Graphics::drawEllipse (float x, float y, float width, float height, float lineThickness) const
 {
-    Path p;
-    p.addEllipse (x, y, width, height);
-    strokePath (p, PathStrokeType (lineThickness));
+    drawEllipse (coordsToRectangle (x, y, width, height), lineThickness);
 }
 
-void Graphics::drawEllipse (const Rectangle<float>& area, float lineThickness) const
+void Graphics::drawEllipse (Rectangle<float> area, float lineThickness) const
 {
-    drawEllipse (area.getX(), area.getY(), area.getWidth(), area.getHeight(), lineThickness);
+    Path p;
+
+    if (area.getWidth() == area.getHeight())
+    {
+        // For a circle, we can avoid having to generate a stroke
+        p.addEllipse (area.expanded (lineThickness * 0.5f));
+        p.addEllipse (area.reduced  (lineThickness * 0.5f));
+        p.setUsingNonZeroWinding (false);
+        fillPath (p);
+    }
+    else
+    {
+        p.addEllipse (area);
+        strokePath (p, PathStrokeType (lineThickness));
+    }
 }
 
 void Graphics::fillRoundedRectangle (float x, float y, float width, float height, float cornerSize) const
@@ -467,7 +487,7 @@ void Graphics::fillRoundedRectangle (float x, float y, float width, float height
     fillRoundedRectangle (coordsToRectangle (x, y, width, height), cornerSize);
 }
 
-void Graphics::fillRoundedRectangle (const Rectangle<float>& r, const float cornerSize) const
+void Graphics::fillRoundedRectangle (Rectangle<float> r, const float cornerSize) const
 {
     Path p;
     p.addRoundedRectangle (r, cornerSize);
@@ -480,7 +500,7 @@ void Graphics::drawRoundedRectangle (float x, float y, float width, float height
     drawRoundedRectangle (coordsToRectangle (x, y, width, height), cornerSize, lineThickness);
 }
 
-void Graphics::drawRoundedRectangle (const Rectangle<float>& r, float cornerSize, float lineThickness) const
+void Graphics::drawRoundedRectangle (Rectangle<float> r, float cornerSize, float lineThickness) const
 {
     Path p;
     p.addRoundedRectangle (r, cornerSize);
@@ -494,7 +514,7 @@ void Graphics::drawArrow (const Line<float>& line, float lineThickness, float ar
     fillPath (p);
 }
 
-void Graphics::fillCheckerBoard (const Rectangle<int>& area,
+void Graphics::fillCheckerBoard (Rectangle<int> area,
                                  const int checkWidth, const int checkHeight,
                                  Colour colour1, Colour colour2) const
 {
@@ -624,16 +644,20 @@ void Graphics::drawImageAt (const Image& imageToDraw, int x, int y, bool fillAlp
                           fillAlphaChannel);
 }
 
-void Graphics::drawImageWithin (const Image& imageToDraw,
-                                int dx, int dy, int dw, int dh,
-                                RectanglePlacement placementWithinTarget,
-                                const bool fillAlphaChannelWithCurrentBrush) const
+void Graphics::drawImage (const Image& imageToDraw, Rectangle<float> targetArea,
+                          RectanglePlacement placementWithinTarget, bool fillAlphaChannelWithCurrentBrush) const
 {
     if (imageToDraw.isValid())
         drawImageTransformed (imageToDraw,
-                              placementWithinTarget.getTransformToFit (imageToDraw.getBounds().toFloat(),
-                                                                       coordsToRectangle (dx, dy, dw, dh).toFloat()),
+                              placementWithinTarget.getTransformToFit (imageToDraw.getBounds().toFloat(), targetArea),
                               fillAlphaChannelWithCurrentBrush);
+}
+
+void Graphics::drawImageWithin (const Image& imageToDraw, int dx, int dy, int dw, int dh,
+                                RectanglePlacement placementWithinTarget, bool fillAlphaChannelWithCurrentBrush) const
+{
+    drawImage (imageToDraw, coordsToRectangle (dx, dy, dw, dh).toFloat(),
+               placementWithinTarget, fillAlphaChannelWithCurrentBrush);
 }
 
 void Graphics::drawImage (const Image& imageToDraw,

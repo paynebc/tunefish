@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -69,6 +71,8 @@ LookAndFeel_V2::LookAndFeel_V2()
         TextButton::textColourOffId,                0xff000000,
 
         ToggleButton::textColourId,                 0xff000000,
+        ToggleButton::tickColourId,                 0xff000000,
+        ToggleButton::tickDisabledColourId,         0xff808080,
 
         TextEditor::backgroundColourId,             0xffffffff,
         TextEditor::textColourId,                   0xff000000,
@@ -91,6 +95,8 @@ LookAndFeel_V2::LookAndFeel_V2()
         TreeView::backgroundColourId,               0x00000000,
         TreeView::dragAndDropIndicatorColourId,     0x80ff0000,
         TreeView::selectedItemBackgroundColourId,   0x00000000,
+        TreeView::oddItemsColourId,                 0x00000000,
+        TreeView::evenItemsColourId,                0x00000000,
 
         PopupMenu::backgroundColourId,              0xffffffff,
         PopupMenu::textColourId,                    0xff000000,
@@ -265,13 +271,12 @@ void LookAndFeel_V2::drawButtonText (Graphics& g, TextButton& button, bool /*isM
     const int fontHeight = roundToInt (font.getHeight() * 0.6f);
     const int leftIndent  = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
     const int rightIndent = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
+    const int textWidth = button.getWidth() - leftIndent - rightIndent;
 
-    g.drawFittedText (button.getButtonText(),
-                      leftIndent,
-                      yIndent,
-                      button.getWidth() - leftIndent - rightIndent,
-                      button.getHeight() - yIndent * 2,
-                      Justification::centred, 2);
+    if (textWidth > 0)
+        g.drawFittedText (button.getButtonText(),
+                          leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
+                          Justification::centred, 2);
 }
 
 void LookAndFeel_V2::drawTickBox (Graphics& g, Component& component,
@@ -296,10 +301,11 @@ void LookAndFeel_V2::drawTickBox (Graphics& g, Component& component,
         tick.lineTo (3.0f, 6.0f);
         tick.lineTo (6.0f, 0.0f);
 
-        g.setColour (isEnabled ? Colours::black : Colours::grey);
+        g.setColour (component.findColour (isEnabled ? ToggleButton::tickColourId
+                                                     : ToggleButton::tickDisabledColourId));
 
         const AffineTransform trans (AffineTransform::scale (w / 9.0f, h / 9.0f)
-                                         .translated (x, y));
+                                                     .translated (x, y));
 
         g.strokePath (tick, PathStrokeType (2.5f), trans);
     }
@@ -485,6 +491,19 @@ int LookAndFeel_V2::getAlertBoxWindowFlags()
             | ComponentPeer::windowHasDropShadow;
 }
 
+Array<int> LookAndFeel_V2::getWidthsForTextButtons (AlertWindow&, const Array<TextButton*>& buttons)
+{
+    const int n = buttons.size();
+    Array<int> buttonWidths;
+
+    const int buttonHeight = getAlertWindowButtonHeight();
+
+    for (int i = 0; i < n; ++i)
+        buttonWidths.add (getTextButtonWidthToFitText (*buttons.getReference (i), buttonHeight));
+
+    return buttonWidths;
+}
+
 int LookAndFeel_V2::getAlertWindowButtonHeight()
 {
     return 28;
@@ -588,6 +607,11 @@ void LookAndFeel_V2::drawSpinningWaitAnimation (Graphics& g, const Colour& colou
         g.fillPath (p, AffineTransform::rotation (i * (float_Pi / 6.0f))
                                        .translated (cx, cy));
     }
+}
+
+bool LookAndFeel_V2::isProgressBarOpaque (ProgressBar& progressBar)
+{
+    return progressBar.findColour (ProgressBar::backgroundColourId).isOpaque();
 }
 
 bool LookAndFeel_V2::areScrollbarButtonsVisible()
@@ -1073,6 +1097,13 @@ void LookAndFeel_V2::drawMenuBarItem (Graphics& g, int width, int height,
     g.drawFittedText (itemText, 0, 0, width, height, Justification::centred, 1);
 }
 
+Component* LookAndFeel_V2::getParentComponentForMenuOptions (const PopupMenu::Options& options)
+{
+    return options.getParentComponent();
+}
+
+void LookAndFeel_V2::preparePopupMenuWindow (Component&) {}
+
 //==============================================================================
 void LookAndFeel_V2::fillTextEditorBackground (Graphics& g, int /*width*/, int /*height*/, TextEditor& textEditor)
 {
@@ -1167,7 +1198,7 @@ Font LookAndFeel_V2::getComboBoxFont (ComboBox& box)
 
 Label* LookAndFeel_V2::createComboBoxTextBox (ComboBox&)
 {
-    return new Label (String::empty, String::empty);
+    return new Label (String(), String());
 }
 
 void LookAndFeel_V2::positionComboBoxText (ComboBox& box, Label& label)
@@ -1445,13 +1476,13 @@ void LookAndFeel_V2::drawRotarySlider (Graphics& g, int x, int y, int width, int
 
 Button* LookAndFeel_V2::createSliderButton (Slider&, const bool isIncrement)
 {
-    return new TextButton (isIncrement ? "+" : "-", String::empty);
+    return new TextButton (isIncrement ? "+" : "-", String());
 }
 
 class LookAndFeel_V2::SliderLabelComp  : public Label
 {
 public:
-    SliderLabelComp() : Label (String::empty, String::empty) {}
+    SliderLabelComp() : Label (String(), String()) {}
 
     void mouseWheelMove (const MouseEvent&, const MouseWheelDetails&) {}
 };
@@ -1719,6 +1750,9 @@ void LookAndFeel_V2::drawDocumentWindowTitleBar (DocumentWindow& window, Graphic
                                                  int w, int h, int titleSpaceX, int titleSpaceW,
                                                  const Image* icon, bool drawTitleTextOnLeft)
 {
+    if (w * h == 0)
+        return;
+
     const bool isActive = window.isActiveWindow();
 
     g.setGradientFill (ColourGradient (window.getBackgroundColour(),

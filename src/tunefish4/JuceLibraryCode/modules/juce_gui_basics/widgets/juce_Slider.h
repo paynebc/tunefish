@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_SLIDER_H_INCLUDED
-#define JUCE_SLIDER_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -138,22 +139,35 @@ public:
     SliderStyle getSliderStyle() const noexcept;
 
     //==============================================================================
-    /** Changes the properties of a rotary slider.
+    struct RotaryParameters
+    {
+        /** The angle (in radians, clockwise from the top) at which
+            the slider's minimum value is represented. */
+        float startAngleRadians;
 
-        @param startAngleRadians    the angle (in radians, clockwise from the top) at which
-                                    the slider's minimum value is represented
-        @param endAngleRadians      the angle (in radians, clockwise from the top) at which
-                                    the slider's maximum value is represented. This must be
-                                    greater than startAngleRadians
-        @param stopAtEnd            determines what happens when a circular drag action rotates beyond
-                                    the minimum or maximum angle. If true, the value will stop changing
-                                    until the mouse moves back the way it came; if false, the value
-                                    will snap back to the value nearest to the mouse. Note that this has
-                                    no effect if the drag mode is vertical or horizontal.
-    */
+        /** The angle (in radians, clockwise from the top) at which
+            the slider's maximum value is represented. This must be
+            greater than startAngleRadians. */
+        float endAngleRadians;
+
+        /** Determines what happens when a circular drag action rotates beyond
+            the minimum or maximum angle. If true, the value will stop changing
+            until the mouse moves back the way it came; if false, the value
+            will snap back to the value nearest to the mouse. Note that this has
+            no effect if the drag mode is vertical or horizontal.*/
+        bool stopAtEnd;
+    };
+
+    /** Changes the properties of a rotary slider. */
+    void setRotaryParameters (RotaryParameters newParameters) noexcept;
+
+    /** Changes the properties of a rotary slider. */
     void setRotaryParameters (float startAngleRadians,
                               float endAngleRadians,
-                              bool stopAtEnd);
+                              bool stopAtEnd) noexcept;
+
+    /** Changes the properties of a rotary slider. */
+    RotaryParameters getRotaryParameters() const noexcept;
 
     /** Sets the distance the mouse has to move to drag the slider across
         the full extent of its range.
@@ -231,27 +245,36 @@ public:
         slider's length; if the factor is > 1.0, the upper end of the range
         will be expanded instead. A factor of 1.0 doesn't skew it at all.
 
+        If symmetricSkew is true, the skew factor applies from the middle of the slider
+        to each of its ends.
+
         To set the skew position by using a mid-point, use the setSkewFactorFromMidPoint()
         method instead.
 
-        @see getSkewFactor, setSkewFactorFromMidPoint
+        @see getSkewFactor, setSkewFactorFromMidPoint, isSymmetricSkew
     */
-    void setSkewFactor (double factor);
+    void setSkewFactor (double factor, bool symmetricSkew = false);
 
     /** Sets up a skew factor to alter the way values are distributed.
 
         This allows you to specify the slider value that should appear in the
         centre of the slider's visible range.
 
-        @see setSkewFactor, getSkewFactor
+        @see setSkewFactor, getSkewFactor, isSymmetricSkew
      */
     void setSkewFactorFromMidPoint (double sliderValueToShowAtMidPoint);
 
     /** Returns the current skew factor.
         See setSkewFactor for more info.
-        @see setSkewFactor, setSkewFactorFromMidPoint
+        @see setSkewFactor, setSkewFactorFromMidPoint, isSymmetricSkew
     */
     double getSkewFactor() const noexcept;
+
+    /** Returns the whether the skew is symmetric from the midpoint to both sides.
+        See setSkewFactor for more info.
+        @see getSkewFactor, setSkewFactor, setSkewFactorFromMidPoint
+     */
+    bool isSymmetricSkew() const noexcept;
 
     //==============================================================================
     /** Used by setIncDecButtonsMode().
@@ -908,5 +931,3 @@ private:
 
 /** This typedef is just for compatibility with old code - newer code should use the Slider::Listener class directly. */
 typedef Slider::Listener SliderListener;
-
-#endif   // JUCE_SLIDER_H_INCLUDED

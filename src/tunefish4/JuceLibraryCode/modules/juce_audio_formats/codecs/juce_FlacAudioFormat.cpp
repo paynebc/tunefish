@@ -2,39 +2,103 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
 #if JUCE_USE_FLAC
 
+}
+
+#if defined _WIN32 && !defined __CYGWIN__
+ #include <io.h>
+#else
+ #include <unistd.h>
+#endif
+
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__
+ #include <sys/types.h> /* for off_t */
+#endif
+
+#if HAVE_INTTYPES_H
+ #define __STDC_FORMAT_MACROS
+ #include <inttypes.h>
+#endif
+
+#if defined _MSC_VER || defined __MINGW32__ || defined __CYGWIN__ || defined __EMX__
+ #include <io.h> /* for _setmode(), chmod() */
+ #include <fcntl.h> /* for _O_BINARY */
+#else
+ #include <unistd.h> /* for chown(), unlink() */
+#endif
+
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__
+ #if defined __BORLANDC__
+  #include <utime.h> /* for utime() */
+ #else
+  #include <sys/utime.h> /* for utime() */
+ #endif
+#else
+ #include <sys/types.h> /* some flavors of BSD (like OS X) require this to get time_t */
+ #include <utime.h> /* for utime() */
+#endif
+
+#if defined _MSC_VER
+ #if _MSC_VER >= 1600
+  #include <stdint.h>
+ #else
+  #include <limits.h>
+ #endif
+#endif
+
+#ifdef _WIN32
+ #include <stdio.h>
+ #include <sys/stat.h>
+ #include <stdarg.h>
+ #include <windows.h>
+#endif
+
+#ifdef DEBUG
+ #include <assert.h>
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+
+namespace juce
+{
+
 namespace FlacNamespace
 {
 #if JUCE_INCLUDE_FLAC_CODE || ! defined (JUCE_INCLUDE_FLAC_CODE)
 
  #undef VERSION
- #define VERSION "1.2.1"
+ #define VERSION "1.3.1"
 
  #define FLAC__NO_DLL 1
 
  #if JUCE_MSVC
   #pragma warning (disable: 4267 4127 4244 4996 4100 4701 4702 4013 4133 4206 4312 4505 4365 4005 4334 181 111)
+ #else
+  #define HAVE_LROUND 1
  #endif
 
  #if JUCE_MAC
@@ -66,6 +130,7 @@ namespace FlacNamespace
  #define __STDC_LIMIT_MACROS 1
  #define flac_max jmax
  #define flac_min jmin
+ #undef DEBUG // (some flac code dumps debug trace if the app defines this macro)
  #include "flac/all.h"
  #include "flac/libFLAC/bitmath.c"
  #include "flac/libFLAC/bitreader.c"
@@ -324,7 +389,8 @@ class FlacWriter  : public AudioFormatWriter
 {
 public:
     FlacWriter (OutputStream* const out, double rate, uint32 numChans, uint32 bits, int qualityOptionIndex)
-        : AudioFormatWriter (out, flacFormatName, rate, numChans, bits)
+        : AudioFormatWriter (out, flacFormatName, rate, numChans, bits),
+          streamStartPos (output != nullptr ? jmax (output->getPosition(), 0ll) : 0ll)
     {
         using namespace FlacNamespace;
         encoder = FLAC__stream_encoder_new();
@@ -432,8 +498,8 @@ public:
         packUint32 ((FLAC__uint32) info.total_samples, buffer + 14, 4);
         memcpy (buffer + 18, info.md5sum, 16);
 
-        const bool seekOk = output->setPosition (4);
-        (void) seekOk;
+        const bool seekOk = output->setPosition (streamStartPos + 4);
+        ignoreUnused (seekOk);
 
         // if this fails, you've given it an output stream that can't seek! It needs
         // to be able to seek back to write the header
@@ -482,6 +548,7 @@ public:
 
 private:
     FlacNamespace::FLAC__StreamEncoder* encoder;
+    int64 streamStartPos;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FlacWriter)
 };
@@ -536,7 +603,7 @@ AudioFormatWriter* FlacAudioFormat::createWriterFor (OutputStream* out,
                                                      const StringPairArray& /*metadataValues*/,
                                                      int qualityOptionIndex)
 {
-    if (getPossibleBitDepths().contains (bitsPerSample))
+    if (out != nullptr && getPossibleBitDepths().contains (bitsPerSample))
     {
         ScopedPointer<FlacWriter> w (new FlacWriter (out, sampleRate, numberOfChannels,
                                                      (uint32) bitsPerSample, qualityOptionIndex));

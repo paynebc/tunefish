@@ -2,29 +2,31 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_AUDIOPROCESSOR_H_INCLUDED
-#define JUCE_AUDIOPROCESSOR_H_INCLUDED
+#pragma once
 
+struct PluginBusUtilities;
 
 //==============================================================================
 /**
@@ -43,9 +45,40 @@
 class JUCE_API  AudioProcessor
 {
 protected:
+    struct BusesProperties;
+
     //==============================================================================
-    /** Constructor. */
+    /** Constructor.
+
+        This constructor will create a main input and output bus which are diabled
+        by default. If you need more fine grain control then use the other
+        constructors.
+    */
     AudioProcessor();
+
+    /** Constructor for multibus AudioProcessors
+
+        If your AudioProcessor supports multiple buses than use this constructor
+        to initialise the bus layouts and bus names of your plug-in.
+    */
+    AudioProcessor (const BusesProperties& ioLayouts);
+
+    /** Constructor for AudioProcessors which use layout maps
+
+        If your AudioProcessor uses layout maps then use this constructor.
+    */
+   #if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS
+    AudioProcessor (const std::initializer_list<const short[2]>& channelLayoutList)
+    {
+        initialise (busesPropertiesFromLayoutArray (layoutListToArray (channelLayoutList)));
+    }
+   #else
+    template <int numLayouts>
+    AudioProcessor (const short (&channelLayoutList) [numLayouts][2])
+    {
+        initialise (busesPropertiesFromLayoutArray (layoutListToArray (channelLayoutList)));
+    }
+   #endif
 
 public:
     //==============================================================================
@@ -70,18 +103,20 @@ public:
         playback stops.
 
         You can call getTotalNumInputChannels and getTotalNumOutputChannels
-        or query the busArrangement member variable to find out the number of
+        or query the busLayout member variable to find out the number of
         channels your processBlock callback must process.
 
-        The estimatedSamplesPerBlock value is a HINT about the typical number of
-        samples that will be processed for each callback, but isn't any kind
-        of guarantee. The actual block sizes that the host uses may be different
-        each time the callback happens, and may be more or less than this value.
+        The maximumExpectedSamplesPerBlock value is a strong hint about the maximum
+        number of samples that will be provided in each block. You may want to use
+        this value to resize internal buffers. You should program defensively in
+        case a buggy host exceeds this value. The actual block sizes that the host
+        uses may be different each time the callback happens: completely variable
+        block sizes can be expected from some hosts.
 
-       @see busArrangement, getTotalNumInputChannels, getTotalNumOutputChannels
+       @see busLayout, getTotalNumInputChannels, getTotalNumOutputChannels
     */
     virtual void prepareToPlay (double sampleRate,
-                                int estimatedSamplesPerBlock) = 0;
+                                int maximumExpectedSamplesPerBlock) = 0;
 
     /** Called after playback has stopped, to let the filter free up any resources it
         no longer needs.
@@ -107,7 +142,7 @@ public:
 
         If your plug-in has more than one input or output buses then the buffer passed
         to the processBlock methods will contain a bundle of all channels of each bus.
-        Use AudioBusArrangement::getBusBuffer to obtain an audio buffer for a
+        Use AudiobusLayout::getBusBuffer to obtain an audio buffer for a
         particular bus.
 
         Note that if you have more outputs than inputs, then only those channels that
@@ -144,7 +179,7 @@ public:
         processBlock() method to send out an asynchronous message. You could also use
         the AsyncUpdater class in a similar way.
 
-        @see AudioBusArrangement::getBusBuffer
+        @see AudiobusLayout::getBusBuffer
     */
 
     virtual void processBlock (AudioBuffer<float>& buffer,
@@ -169,7 +204,7 @@ public:
 
         If your plug-in has more than one input or output buses then the buffer passed
         to the processBlock methods will contain a bundle of all channels of
-        each bus. Use AudioBusArrangement::getBusBuffer to obtain a audio buffer
+        each bus. Use AudiobusLayout::getBusBuffer to obtain a audio buffer
         for a particular bus.
 
         Note that if you have more outputs than inputs, then only those channels that
@@ -182,8 +217,8 @@ public:
         but you should only read/write from the ones that your filter is supposed to
         be using.
 
-        If your plugin uses buses, then you should use AudioBusArrangement::getBusBuffer()
-        or AudioBusArrangement::getChannelIndexInProcessBlockBuffer() to find out which
+        If your plugin uses buses, then you should use AudiobusLayout::getBusBuffer()
+        or AudiobusLayout::getChannelIndexInProcessBlockBuffer() to find out which
         of the input and output channels correspond to which of the buses.
 
         The number of samples in these buffers is NOT guaranteed to be the same for every
@@ -210,12 +245,13 @@ public:
         processBlock() method to send out an asynchronous message. You could also use
         the AsyncUpdater class in a similar way.
 
-        @see AudioBusArrangement::getBusBuffer
+        @see AudiobusLayout::getBusBuffer
     */
     virtual void processBlock (AudioBuffer<double>& buffer,
                                MidiBuffer& midiMessages);
 
     /** Renders the next block when the processor is being bypassed.
+
         The default implementation of this method will pass-through any incoming audio, but
         you may override this method e.g. to add latency compensation to the data to match
         the processor's latency characteristics. This will avoid situations where bypassing
@@ -227,6 +263,7 @@ public:
                                        MidiBuffer& midiMessages);
 
     /** Renders the next block when the processor is being bypassed.
+
         The default implementation of this method will pass-through any incoming audio, but
         you may override this method e.g. to add latency compensation to the data to match
         the processor's latency characteristics. This will avoid situations where bypassing
@@ -237,95 +274,366 @@ public:
     virtual void processBlockBypassed (AudioBuffer<double>& buffer,
                                        MidiBuffer& midiMessages);
 
+
     //==============================================================================
-    /** Describes the layout and properties of an audio bus.
-        Effectively a bus description is a named set of channel types.
-        @see AudioChannelSet
+    /**
+        Represents the bus layout state of a plug-in
     */
-    struct AudioProcessorBus
+    struct BusesLayout
     {
-        /** Creates a bus from a name and set of channel types. */
-        AudioProcessorBus (const String& busName, const AudioChannelSet& channelTypes);
+        /** An array containing the list of input buses that this processor supports. */
+        Array<AudioChannelSet> inputBuses;
 
-        /** The bus's name. */
-        String name;
+        /** An array containing the list of output buses that this processor supports. */
+        Array<AudioChannelSet> outputBuses;
 
-        /** The set of channel types that the bus contains. */
-        AudioChannelSet channels;
+        /** Get the number of channels of a particular bus */
+        int getNumChannels (bool isInput, int busIndex) const noexcept
+        {
+            const Array<AudioChannelSet>& bus = (isInput ? inputBuses : outputBuses);
+            return isPositiveAndBelow (busIndex, bus.size()) ? bus.getReference (busIndex).size() : 0;
+        }
+
+        /** Get the channel set of a particular bus */
+        AudioChannelSet& getChannelSet (bool isInput, int busIndex)
+        {
+            return (isInput ? inputBuses : outputBuses).getReference (busIndex);
+        }
+
+        /** Get the channel set of a particular bus */
+        AudioChannelSet getChannelSet (bool isInput, int busIndex) const noexcept
+        {
+            return (isInput ? inputBuses : outputBuses) [busIndex];
+        }
+
+        /** Get the input channel layout on the main bus. */
+        AudioChannelSet getMainInputChannelSet()  const noexcept    { return getChannelSet (true,  0); }
+
+        /** Get the output channel layout on the main bus. */
+        AudioChannelSet getMainOutputChannelSet() const noexcept    { return getChannelSet (false, 0); }
+
+        /** Get the number of input channels on the main bus. */
+        int getMainInputChannels()  const noexcept                  { return getNumChannels (true, 0); }
+
+        /** Get the number of output channels on the main bus. */
+        int getMainOutputChannels() const noexcept                  { return getNumChannels (false, 0); }
+
+        bool operator== (const BusesLayout& other) const noexcept   { return inputBuses == other.inputBuses && outputBuses == other.outputBuses; }
+        bool operator!= (const BusesLayout& other) const noexcept   { return inputBuses != other.inputBuses || outputBuses != other.outputBuses; }
     };
 
     //==============================================================================
     /**
-        Represents a set of input and output buses for an AudioProcessor.
-    */
-    struct AudioBusArrangement
-    {
-        /** An array containing the list of input buses that this processor supports. */
-        Array<AudioProcessorBus> inputBuses;
+        Describes the layout and properties of an audio bus.
+        Effectively a bus description is a named set of channel types.
 
-        /** An array containing the list of output buses that this processor supports. */
-        Array<AudioProcessorBus> outputBuses;
+        @see AudioChannelSet, AudioProcessor::addBus
+     */
+    class Bus
+    {
+    public:
+        /** Returns true if this bus is an input bus. */
+        bool isInput() const;
+
+        /** Returns the index of this bus. */
+        int getBusIndex() const;
+
+        /** Returns true if the current bus is the main input or output bus. */
+        bool isMain() const                                             { return getBusIndex() == 0; }
+
+        //==============================================================================
+        /** The bus's name. */
+        const String &getName() const noexcept                          { return name; }
+
+        /** Get the default layout of this bus.
+            @see AudioChannelSet
+        */
+        const AudioChannelSet& getDefaultLayout() const noexcept        { return dfltLayout; }
+
+        //==============================================================================
+        /** The bus's current layout. This will be AudioChannelSet::disabled() if the current
+            layout is dfisabled.
+
+            @see AudioChannelSet
+        */
+        const AudioChannelSet& getCurrentLayout() const noexcept        { return layout; }
+
+        /** Return the bus's last active channel layout.
+            If the bus is currently enabled then the result will be identical to getCurrentLayout
+            otherwise it will return the last enabled layout.
+
+            @see AudioChannelSet
+        */
+        const AudioChannelSet& getLastEnabledLayout() const noexcept    { return lastLayout; }
+
+        /** Sets the bus's current layout.
+            If the AudioProcessor does not support this layout then this will return false.
+            @see AudioChannelSet
+        */
+        bool setCurrentLayout (const AudioChannelSet& layout);
+
+        /** Sets the bus's current layout without changing the enabled state.
+
+            If the AudioProcessor does not support this layout then this will return false.
+
+            @see AudioChannelSet
+         */
+        bool setCurrentLayoutWithoutEnabling (const AudioChannelSet& layout);
+
+        /** Return the number of channels of the current bus. */
+        inline int getNumberOfChannels() const noexcept                 { return cachedChannelCount; }
+
+        /** Set the number of channles of this bus. This will return false if the AudioProcessor
+            does not support this layout.
+        */
+        bool setNumberOfChannels (int channels);
+
+        //==============================================================================
+        /** Checks if a particular layout is supported.
+
+            @param set           The AudioChannelSet which is to be probed.
+            @param currentLayout If non-null, pretend that the current layout of the AudioProcessor is
+                                 currentLayout. On exit, currentLayout will be modified to
+                                 to represent the buses layouts of the AudioProcessor as if the layout
+                                 of the reciever had been succesfully changed. This is useful as changing
+                                 the layout of the reciever may change the bus layout of other buses.
+
+            @see AudioChannelSet
+        */
+        bool isLayoutSupported (const AudioChannelSet& set, BusesLayout* currentLayout = nullptr) const;
+
+        /** Checks if this bus can support a given number of channels. */
+        bool isNumberOfChannelsSupported (int channels) const;
+
+        /** Returns a ChannelSet that the bus supports with a given number of channels. */
+        AudioChannelSet supportedLayoutWithChannels (int channels) const;
+
+        /** Returns the maximum number of channels that this bus can support.
+            @param limit The maximum value to return.
+        */
+        int getMaxSupportedChannels (int limit = AudioChannelSet::maxChannelsOfNamedLayout) const;
+
+        /** Returns the resulting layouts of all buses after changing the layout of this bus.
+
+            Changing an individual layout of a bus may also change the layout of all the other
+            buses. This method returns what the layouts of all the buses of the audio processor
+            would be, if you were to change the layout of this bus to the given layout. If there
+            is no way to support the given layout then this method will return the next best
+            layout.
+        */
+        BusesLayout getBusesLayoutForLayoutChangeOfBus (const AudioChannelSet& set) const;
+
+        //==============================================================================
+        /** Returns true if the current bus is enabled. */
+        bool isEnabled() const noexcept                             { return ! layout.isDisabled(); }
+
+        /** Enable or disable this bus. This will return false if the AudioProcessor
+            does not support disabling this bus. */
+        bool enable (bool shouldEnable = true);
+
+        /** Returns if this bus is enabled by default. */
+        bool isEnabledByDefault() const noexcept                    { return enabledByDefault; }
 
         //==============================================================================
         /** Returns the position of a bus's channels within the processBlock buffer.
             This can be called in processBlock to figure out which channel of the master AudioSampleBuffer
             maps onto a specific bus's channel.
         */
-        int getChannelIndexInProcessBlockBuffer (bool isInput, int busIndex, int channelIndex) const noexcept;
+        int getChannelIndexInProcessBlockBuffer (int channelIndex) const noexcept;
+
 
         /** Returns an AudioBuffer containing a set of channel pointers for a specific bus.
             This can be called in processBlock to get a buffer containing a sub-group of the master
             AudioSampleBuffer which contains all the plugin channels.
         */
         template <typename FloatType>
-        AudioBuffer<FloatType> getBusBuffer (AudioBuffer<FloatType>& processBlockBuffer, bool isInput, int busIndex) const
+        AudioBuffer<FloatType> getBusBuffer (AudioBuffer<FloatType>& processBlockBuffer) const
         {
-            const int busNumChannels = (isInput ? inputBuses : outputBuses).getReference (busIndex).channels.size();
-            const int channelOffset = getChannelIndexInProcessBlockBuffer (isInput, busIndex, 0);
-
-            return AudioBuffer<FloatType> (processBlockBuffer.getArrayOfWritePointers() + channelOffset,
-                                           busNumChannels, processBlockBuffer.getNumSamples());
+            bool isIn;
+            int busIdx;
+            busDirAndIndex (isIn, busIdx);
+            return owner.getBusBuffer (processBlockBuffer, isIn, busIdx);
         }
 
-        /** Returns the total number of channels in all the input buses. */
-        int getTotalNumInputChannels() const noexcept;
+    private:
+        friend class AudioProcessor;
+        Bus (AudioProcessor&, const String&, const AudioChannelSet&, bool);
+        void busDirAndIndex (bool&, int&) const noexcept;
+        void updateChannelCount() noexcept;
 
-        /** Returns the total number of channels in all the output buses. */
-        int getTotalNumOutputChannels() const noexcept;
+        AudioProcessor& owner;
+        String name;
+        AudioChannelSet layout, dfltLayout, lastLayout;
+        bool enabledByDefault;
+        int cachedChannelCount;
+
+        JUCE_DECLARE_NON_COPYABLE (Bus)
     };
 
-    /** The processor's bus arrangement.
+    //==============================================================================
+    /** Returns the number of buses on the input or output side */
+    int getBusCount (bool isInput) const noexcept                   { return (isInput ? inputBuses : outputBuses).size(); }
 
-        Your plugin can modify this either
-          - in the plugin's constructor
-          - in the setPreferredBusArrangement() callback
-        Changing it at other times can result in undefined behaviour.
+    /** Returns the audio bus with a given index and direction.
 
-        The host will negotiate with the plugin over its bus configuration by making calls
-        to setPreferredBusArrangement().
-
-        @see setPreferredBusArrangement
+        If busIdx is invalid then this method will return a nullptr.
     */
-    AudioBusArrangement busArrangement;
+    Bus* getBus (bool isInput, int busIdx) noexcept                 { return (isInput ? inputBuses : outputBuses)[busIdx]; }
+
+    /** Returns the audio bus with a given index and direction.
+
+        If busIdx is invalid then this method will return a nullptr.
+    */
+    const Bus* getBus (bool isInput, int busIdx) const noexcept     { return const_cast<AudioProcessor*> (this)->getBus (isInput, busIdx); }
 
     //==============================================================================
-    /** Called by the host, this attempts to change the plugin's channel layout on a particular bus.
-        The base class implementation will perform some basic sanity-checking and then apply the
-        changes to the processor's busArrangement value.
-        You may override it and return false if you want to make your plugin smarter about refusing
-        certain layouts that you don't want to support. Your plug-in may also respond to this call by
-        changing the channel layout of other buses, for example, if your plug-in requires the same
-        number of input and output channels.
+    /**  Callback to query if a bus can currently be added.
 
-        Note, that you must not do any heavy allocations or calculations in this callback as it may
-        be called several hundred times during initialization. If you require any layout specific
-        allocations then defer these to prepareToPlay callback.
+         This callback probes if a bus can currently be added. You should override
+         this callback if you want to support dynamically adding/removing buses by
+         the host. This is useful for mixer audio processors.
 
-        @returns false if there is no way for the processor to support the given format on the specified bus.
+         The default implementation will always return false.
 
-        @see prepareToPlay, busArrangement, AudioBusArrangement::getBusBuffer, getTotalNumInputChannels, getTotalNumOutputChannels
+         @see addBus
     */
-    virtual bool setPreferredBusArrangement (bool isInputBus, int busIndex, const AudioChannelSet& preferredSet);
+    virtual bool canAddBus (bool isInput) const                     { ignoreUnused (isInput); return false; }
+
+    /**  Callback to query if the last bus can currently be removed.
+
+         This callback probes if the last bus can currently be removed. You should
+         override this callback if you want to support dynamically adding/removing
+         buses by the host. This is useful for mixer audio processors.
+
+         If you return true in this callback then the AudioProcessor will go ahead
+         and delete the bus.
+
+         The default implementation will always return false.
+    */
+    virtual bool canRemoveBus (bool isInput) const                  { ignoreUnused (isInput); return false; }
+
+    /** Dynamically request an additional bus.
+
+        Request an additional bus from the audio processor. If the audio processor
+        does not support adding additional buses then this method will return false.
+
+        Most audio processors will not allow you to dynamically add/remove
+        audio buses and will return false.
+
+        This method will invoke the canApplyBusCountChange callback to probe
+        if a bus can be added and, if yes, will use the supplied bus properties
+        of the canApplyBusCountChange callback to create a new bus.
+
+        @see canApplyBusCountChange, removeBus
+    */
+    bool addBus (bool isInput);
+
+    /** Dynamically remove the latest added bus.
+
+        Request the removal of the last bus from the audio processor. If the
+        audio processor does not support removing buses then this method will
+        return false.
+
+        Most audio processors will not allow you to dynamically add/remove
+        audio buses and will return false.
+
+        The default implementation will return false.
+
+        This method will invoke the canApplyBusCountChange callback to probe if
+        a bus can currently be removed and, if yes, will go ahead and remove it.
+
+        @see addBus, canRemoveBus
+    */
+    bool removeBus (bool isInput);
+
+    //==============================================================================
+    /** Set the channel layouts of this audio processor.
+
+        If the layout is not supported by this audio processor then
+        this method will return false. You can use the checkBusesLayoutSupported
+        and getNextBestLayout methods to probe which layouts this audio
+        processor supports.
+    */
+    bool setBusesLayout (const BusesLayout&);
+
+    /** Set the channel layouts of this audio processor without changing the
+        enablement state of the buses.
+
+        If the layout is not supported by this audio processor then
+        this method will return false. You can use the checkBusesLayoutSupported
+        methods to probe which layouts this audio processor supports.
+    */
+    bool setBusesLayoutWithoutEnabling (const BusesLayout&);
+
+    /** Provides the current channel layouts of this audio processor. */
+    BusesLayout getBusesLayout() const;
+
+    /** Provides the channel layout of the bus with a given index and direction.
+
+        If the index, direction combination is invalid then this will return an
+        AudioChannelSet with no channels.
+    */
+    AudioChannelSet getChannelLayoutOfBus (bool isInput, int busIndex) const noexcept;
+
+    /** Set the channel layout of the bus with a given index and direction.
+
+        If the index, direction combination is invalid or the layout is not
+        supported by the audio processor then this method will return false.
+    */
+    bool setChannelLayoutOfBus (bool isInput, int busIdx, const AudioChannelSet& layout);
+
+    /** Provides the number of channels of the bus with a given index and direction.
+
+        If the index, direction combination is invalid then this will return zero.
+    */
+    inline int getChannelCountOfBus (bool isInput, int busIdx) const noexcept
+    {
+        if (const Bus* bus = getBus (isInput, busIdx))
+            return bus->getNumberOfChannels();
+
+        return 0;
+    }
+
+    /** Enables all buses */
+    bool enableAllBuses();
+
+    /** Disables all non-main buses (aux and sidechains). */
+    bool disableNonMainBuses();
+
+    //==============================================================================
+    /** Returns the position of a bus's channels within the processBlock buffer.
+        This can be called in processBlock to figure out which channel of the master AudioSampleBuffer
+        maps onto a specific bus's channel.
+     */
+    int getChannelIndexInProcessBlockBuffer (bool isInput, int busIndex, int channelIndex) const noexcept;
+
+    /** Returns the offset in a bus's buffer from an absolute channel indes.
+
+        This method returns the offset in a bus's buffer given an absolute channel index.
+        It also provides the bus index. For example, this method would return one
+        for a processor with two stereo buses when given the absolute channel index.
+    */
+    int getOffsetInBusBufferForAbsoluteChannelIndex (bool isInput, int absoluteChannelIndex, /*out*/ int& busIdx) const noexcept;
+
+    /** Returns an AudioBuffer containing a set of channel pointers for a specific bus.
+        This can be called in processBlock to get a buffer containing a sub-group of the master
+        AudioSampleBuffer which contains all the plugin channels.
+     */
+    template <typename FloatType>
+    AudioBuffer<FloatType> getBusBuffer (AudioBuffer<FloatType>& processBlockBuffer, bool isInput, int busIndex) const
+    {
+        const int busNumChannels = getChannelCountOfBus (isInput, busIndex);
+        const int channelOffset = getChannelIndexInProcessBlockBuffer (isInput, busIndex, 0);
+
+        return AudioBuffer<FloatType> (processBlockBuffer.getArrayOfWritePointers() + channelOffset,
+                                       busNumChannels, processBlockBuffer.getNumSamples());
+    }
+
+    //==============================================================================
+    /** Returns true if the Audio processor is likely to support a given layout.
+        This can be called regardless if the processor is currently running.
+    */
+    bool checkBusesLayoutSupported (const BusesLayout&) const;
 
     //==============================================================================
     /** Returns true if the Audio processor supports double precision floating point processing.
@@ -362,7 +670,7 @@ public:
 
         @see getProcessingPrecision, supportsDoublePrecisionProcessing
     */
-    void setProcessingPrecision (ProcessingPrecision precision) noexcept;
+    void setProcessingPrecision (ProcessingPrecision newPrecision) noexcept;
 
     //==============================================================================
     /** Returns the current AudioPlayHead object that should be used to find
@@ -395,7 +703,7 @@ public:
         getMainBusNumInputChannels if your processor does not have any sidechains
         or aux buses.
      */
-    int getTotalNumInputChannels()  const noexcept              { return busArrangement.getTotalNumInputChannels(); }
+    int getTotalNumInputChannels()  const noexcept              { return cachedTotalIns; }
 
     /** Returns the total number of output channels.
 
@@ -409,13 +717,57 @@ public:
         getMainBusNumOutputChannels if your processor does not have any sidechains
         or aux buses.
      */
-    int getTotalNumOutputChannels() const noexcept              { return busArrangement.getTotalNumOutputChannels(); }
+    int getTotalNumOutputChannels() const noexcept              { return cachedTotalOuts; }
 
     /** Returns the number of input channels on the main bus. */
-    int getMainBusNumInputChannels()  const noexcept;
+    inline int getMainBusNumInputChannels()   const noexcept    { return getChannelCountOfBus (true,  0); }
 
     /** Returns the number of output channels on the main bus. */
-    int getMainBusNumOutputChannels() const noexcept;
+    inline int getMainBusNumOutputChannels()  const noexcept    { return getChannelCountOfBus (false, 0); }
+
+    //==============================================================================
+    /** Returns true if the channel layout map contains a certain layout.
+
+        You can use this method to help you implement the checkBusesLayoutSupported
+        method. For example
+
+        @code
+        bool checkBusesLayoutSupported (const BusesLayout& layouts) override
+        {
+            return containsLayout (layouts, {{1,1},{2,2}});
+        }
+        @endcode
+    */
+   #if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS
+    static bool containsLayout (const BusesLayout& layouts, const std::initializer_list<const short[2]>& channelLayoutList)
+    {
+        return containsLayout (layouts, layoutListToArray (channelLayoutList));
+    }
+   #endif
+
+    template <int numLayouts>
+    static bool containsLayout (const BusesLayout& layouts, const short (&channelLayoutList) [numLayouts][2])
+    {
+        return containsLayout (layouts, layoutListToArray (channelLayoutList));
+    }
+
+    /** Returns the next best layout which is contained in a channel layout map.
+
+        You can use this mehtod to help you implement getNextBestLayout. For example:
+
+        @code
+        BusesLayout getNextBestLayout (const BusesLayout& layouts) override
+        {
+            return getNextBestLayoutInLayoutList (layouts, {{1,1},{2,2}});
+        }
+        @endcode
+    */
+    template <int numLayouts>
+    BusesLayout getNextBestLayoutInLayoutList (const BusesLayout& layouts,
+                                               const short (&channelLayoutList) [numLayouts][2])
+    {
+        return getNextBestLayoutInList (layouts, layoutListToArray (channelLayoutList));
+    }
 
     //==============================================================================
     /** Returns the current sample rate.
@@ -423,7 +775,7 @@ public:
         This can be called from your processBlock() method - it's not guaranteed
         to be valid at any other time, and may return 0 if it's unknown.
     */
-    double getSampleRate() const noexcept                       { return sampleRate; }
+    double getSampleRate() const noexcept                       { return currentSampleRate; }
 
     /** Returns the current typical block size that is being used.
 
@@ -453,9 +805,6 @@ public:
     */
     void setLatencySamples (int newLatency);
 
-    /** Returns true if a silent input always produces a silent output. */
-    virtual bool silenceInProducesSilenceOut() const = 0;
-
     /** Returns the length of the filter's tail, in seconds. */
     virtual double getTailLengthSeconds() const = 0;
 
@@ -464,6 +813,12 @@ public:
 
     /** Returns true if the processor produces midi messages. */
     virtual bool producesMidi() const = 0;
+
+    /** Returns true if the processor supports MPE. */
+    virtual bool supportsMPE() const                            { return false; }
+
+    /** Returns true if this is a midi effect plug-in and does no audio processing. */
+    virtual bool isMidiEffect() const                           { return false; }
 
     //==============================================================================
     /** This returns a critical section that will automatically be locked while the host
@@ -601,6 +956,17 @@ public:
     */
     virtual const String getParameterName (int parameterIndex);
 
+    /** Returns the ID of a particular parameter.
+
+        The ID is used to communicate the value or mapping of a particular parameter with
+        the host. By default this method will simply return a string representation of
+        index.
+
+        NOTE! This method will eventually be deprecated! It's recommended that you use the
+        AudioProcessorParameterWithID class instead to manage your parameters.
+     */
+    virtual String getParameterID (int index);
+
     /** Called by the host to find out the value of one of the filter's parameters.
 
         The host will expect the value returned to be between 0 and 1.0.
@@ -618,7 +984,7 @@ public:
         If you want to provide customised short versions of your parameter names that
         will look better in constrained spaces (e.g. the displays on hardware controller
         devices or mixing desks) then you should implement this method.
-        If you don't override it, the default implementation will call getParameterText(int),
+        If you don't override it, the default implementation will call getParameterName(int),
         and truncate the result.
 
         NOTE! This method will eventually be deprecated! It's recommended that you use
@@ -739,6 +1105,14 @@ public:
     */
     virtual bool isMetaParameter (int parameterIndex) const;
 
+    /** Should return the parameter's category.
+        By default, this returns the "generic" category.
+
+        NOTE! This method will eventually be deprecated! It's recommended that you use
+        AudioProcessorParameter::isMetaParameter() instead.
+     */
+    virtual AudioProcessorParameter::Category getParameterCategory (int parameterIndex) const;
+
     /** Sends a signal to the host to tell it that the user is about to start changing this
         parameter.
 
@@ -854,8 +1228,14 @@ public:
     */
     virtual void setCurrentProgramStateInformation (const void* data, int sizeInBytes);
 
-    /** This method is called when the number of input or output channels is changed. */
+    /** This method is called when the total number of input or output channels is changed. */
     virtual void numChannelsChanged();
+
+    /** This method is called when the number of buses is changed. */
+    virtual void numBusesChanged();
+
+    /** This method is called when the layout of the audio processor changes. */
+    virtual void processorLayoutsChanged();
 
     //==============================================================================
     /** Adds a listener that will be called when an aspect of this processor changes. */
@@ -873,17 +1253,31 @@ public:
 
     //==============================================================================
     /** This is called by the processor to specify its details before being played. Use this
-        version of the function if you are not interested in any sidechain or aux buses
+        version of the function if you are not interested in any sidechain and/or aux buses
         and do not care about the layout of channels. Otherwise use setRateAndBufferSizeDetails.*/
     void setPlayConfigDetails (int numIns, int numOuts, double sampleRate, int blockSize);
 
     /** This is called by the processor to specify its details before being played. You
         should call this function after having informed the processor about the channel
-        and bus layouts via setPreferredBusArrangement.
+        and bus layouts via setBusesLayout.
 
-        @see setPreferredBusArrangement
+        @see setBusesLayout
     */
     void setRateAndBufferSizeDetails (double sampleRate, int blockSize) noexcept;
+
+    //==============================================================================
+    /** AAX plug-ins need to report a unique "plug-in id" for every audio layout
+        configuration that your AudioProcessor supports on the main bus. Override this
+        function if you want your AudioProcessor to use a custom "plug-in id" (for example
+        to stay backward compatible with older versions of JUCE).
+
+        The default implementation will compute a unique integer from the input and output
+        layout and add this value to the 4 character code 'jcaa' (for native AAX) or 'jyaa'
+        (for AudioSuite plug-ins).
+    */
+    virtual int32 getAAXPluginIDForMainBusConfig (const AudioChannelSet& mainInputLayout,
+                                                  const AudioChannelSet& mainOutputLayout,
+                                                  bool idForAudioSuite) const;
 
     //==============================================================================
     /** Not for public use - this is called before deleting an editor component. */
@@ -896,6 +1290,7 @@ public:
         wrapperType_VST,
         wrapperType_VST3,
         wrapperType_AudioUnit,
+        wrapperType_AudioUnitv3,
         wrapperType_RTAS,
         wrapperType_AAX,
         wrapperType_Standalone
@@ -907,7 +1302,7 @@ public:
     WrapperType wrapperType;
 
     //==============================================================================
-#ifndef DOXYGEN
+   #ifndef DOXYGEN
     /** Deprecated: use getTotalNumInputChannels instead. */
     JUCE_DEPRECATED_WITH_BODY (int getNumInputChannels()  const noexcept, { return getTotalNumInputChannels(); })
     JUCE_DEPRECATED_WITH_BODY (int getNumOutputChannels() const noexcept, { return getTotalNumOutputChannels(); })
@@ -916,13 +1311,13 @@ public:
         These functions are deprecated: use the methods provided in the AudioChannelSet
         class.
      */
-    JUCE_DEPRECATED_WITH_BODY (const String getInputSpeakerArrangement()  const noexcept, { return cachedInputSpeakerArrString; });
-    JUCE_DEPRECATED_WITH_BODY (const String getOutputSpeakerArrangement() const noexcept, { return cachedOutputSpeakerArrString; });
+    JUCE_DEPRECATED_WITH_BODY (const String getInputSpeakerArrangement()  const noexcept, { return cachedInputSpeakerArrString; })
+    JUCE_DEPRECATED_WITH_BODY (const String getOutputSpeakerArrangement() const noexcept, { return cachedOutputSpeakerArrString; })
 
     /** Returns the name of one of the processor's input channels.
 
         These functions are deprecated: your audio processor can inform the host
-        on channel layouts and names via the methods in the AudioBusArrangement class.
+        on channel layouts and names via the methods in the AudiobusLayout class.
      */
     JUCE_DEPRECATED (virtual const String getInputChannelName  (int channelIndex) const);
     JUCE_DEPRECATED (virtual const String getOutputChannelName (int channelIndex) const);
@@ -930,11 +1325,11 @@ public:
     /** Returns true if the specified channel is part of a stereo pair with its neighbour.
 
         These functions are deprecated: your audio processor should specify the audio
-        channel pairing information by modifying the busArrangement member variable in
+        channel pairing information by modifying the busLayout member variable in
         the constructor. */
     JUCE_DEPRECATED (virtual bool isInputChannelStereoPair  (int index) const);
     JUCE_DEPRECATED (virtual bool isOutputChannelStereoPair (int index) const);
-#endif
+   #endif
 
     //==============================================================================
     /** Helper function that just converts an xml element into a binary blob.
@@ -959,6 +1354,110 @@ public:
     static void JUCE_CALLTYPE setTypeOfNextNewPlugin (WrapperType);
 
 protected:
+    /** Callback to query if the AudioProcessor supports a specific layout.
+
+        This callback is called when the host probes the supported bus layouts via
+        the checkBusesLayoutSupported method. You should override this callback if you
+        would like to limit the layouts that your AudioProcessor supports. The default
+        implementation will accept any layout. JUCE does basic sanity checks so that
+        the provided layouts parameter will have the same number of buses as your
+        AudioProcessor.
+
+        @see checkBusesLayoutSupported
+    */
+    virtual bool isBusesLayoutSupported (const BusesLayout&) const          { return true; }
+
+    /** Callback to check if a certain bus layout can now be applied
+
+        Most subclasses will not need to override this method and should instead
+        override the isBusesLayoutSupported callback to reject certain layout changes.
+
+        This callback is called when the user requests a layout change. It will only be
+        called if processing of the AudioProcessor has been stopped by a previous call to
+        releaseResources or after the construction of the AudioProcessor. It will be called
+        just before the actual layout change. By returning false you will abort the layout
+        change and setBusesLayout will return false indicating that the layout change
+        was not successful.
+
+        The default implementation will simply call isBusesLayoutSupported.
+
+        You only need to override this method if there is a chance that your AudioProcessor
+        may not accept a layout although you have previously claimed to support it via the
+        isBusesLayoutSupported callback. This can occur if your AudioProcessor's supported
+        layouts depend on other plug-in parameters which may have changed since the last
+        call to isBusesLayoutSupported, such as the format of an audio file which can be
+        selected by the user in the AudioProcessor's editor. This callback gives the
+        AudioProcessor a last chance to reject a layout if conditions have changed as it
+        is always called just before the actual layout change.
+
+        As it is never called while the AudioProcessor is processing audio, it can also
+        be used for AudioProcessors which wrap other plug-in formats to apply the current
+        layout to the underlying plug-in. This callback gives such AudioProcessors a
+        chance to reject the layout change should an error occur with the underlying plug-in
+        during the layout change.
+
+        @see isBusesLayoutSupported, setBusesLayout
+    */
+    virtual bool canApplyBusesLayout (const BusesLayout& layouts) const     { return isBusesLayoutSupported (layouts); }
+
+    //==============================================================================
+    /** Structure used for AudioProcessor Callbacks */
+    struct BusProperties
+    {
+        /** The name of the bus */
+        String busName;
+
+        /** The default layout of the bus */
+        AudioChannelSet defaultLayout;
+
+        /** Is this bus activated by default? */
+        bool isActivatedByDefault;
+    };
+
+    struct BusesProperties
+    {
+        /** The layouts of the input buses */
+        Array<BusProperties> inputLayouts;
+
+        /** The layouts of the output buses */
+        Array<BusProperties> outputLayouts;
+
+        void addBus (bool isInput, const String& name, const AudioChannelSet& defaultLayout, bool isActivatedByDefault = true);
+
+        BusesProperties withInput  (const String& name, const AudioChannelSet& defaultLayout, bool isActivatedByDefault = true) const;
+        BusesProperties withOutput (const String& name, const AudioChannelSet& defaultLayout, bool isActivatedByDefault = true) const;
+    };
+
+    /** Callback to query if adding/removing buses currently possible.
+
+        This callback is called when the host calls addBus or removeBus.
+        Similar to canApplyBusesLayout, this callback is only called while
+        the AudioProcessor is stopped and gives the processor a last
+        chance to reject a requested bus change. It can also be used to apply
+        the bus count change to an underlying wrapped plug-in.
+
+        When adding a bus, isAddingBuses will be true and the plug-in is
+        expected to fill out outNewBusProperties with the properties of the
+        bus which will be created just after the succesful return of this callback.
+
+        Implementations of AudioProcessor will rarely need to override this
+        method. Only override this method if your processor supports adding
+        and removing buses and if it needs more fine grain control over the
+        naming of new buses or may reject bus number changes although canAddBus
+        or canRemoveBus returned true.
+
+        The default implementation will return false if canAddBus/canRemoveBus
+        returns false (the default behavior). Otherwise, this method returns
+        "Input #busIdx" for input buses and "Output #busIdx" for output buses
+        where busIdx is the index for newly created buses. The default layout
+        in this case will be the layout of the previous bus of the same direction.
+    */
+    virtual bool canApplyBusCountChange (bool isInput, bool isAddingBuses,
+                                         BusProperties& outNewBusProperties);
+
+    //==============================================================================
+    friend struct PluginBusUtilities;
+
     /** @internal */
     AudioPlayHead* playHead;
 
@@ -966,9 +1465,68 @@ protected:
     void sendParamChangeMessageToListeners (int parameterIndex, float newValue);
 
 private:
+    //==============================================================================
+    struct InOutChannelPair
+    {
+        int16 inChannels, outChannels;
+
+        InOutChannelPair() noexcept                           : inChannels (0), outChannels (0) {}
+        InOutChannelPair (const InOutChannelPair& o) noexcept : inChannels (o.inChannels), outChannels (o.outChannels) {}
+        InOutChannelPair (int16 inCh, int16 outCh) noexcept   : inChannels (inCh), outChannels (outCh) {}
+        InOutChannelPair (const int16 (&config)[2]) noexcept  : inChannels (config[0]), outChannels (config[1]) {}
+
+        InOutChannelPair& operator= (const InOutChannelPair& o) noexcept    { inChannels = o.inChannels; outChannels = o.outChannels; return *this; }
+
+        bool operator== (const InOutChannelPair& other) const noexcept
+        {
+            return other.inChannels == inChannels && other.outChannels == outChannels;
+        }
+    };
+
+    template <int numLayouts>
+    static Array<InOutChannelPair> layoutListToArray (const short (&configuration) [numLayouts][2])
+    {
+        Array<InOutChannelPair> layouts;
+
+        for (int i = 0; i < numLayouts; ++i)
+        {
+            InOutChannelPair pair (configuration [i]);
+            layouts.add (pair);
+        }
+
+        return layouts;
+    }
+
+   #if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS
+    static Array<InOutChannelPair> layoutListToArray (const std::initializer_list<const short[2]>& configuration)
+    {
+        Array<InOutChannelPair> layouts;
+
+        for (std::initializer_list<const short[2]>::const_iterator it = configuration.begin();
+             it != configuration.end(); ++it)
+        {
+            InOutChannelPair pair (*it);
+            layouts.add (pair);
+        }
+
+        return layouts;
+    }
+   #endif
+
+    //==============================================================================
+    static BusesProperties busesPropertiesFromLayoutArray (const Array<InOutChannelPair>&);
+
+    BusesLayout getNextBestLayoutInList (const BusesLayout&, const Array<InOutChannelPair>&) const;
+    static bool containsLayout (const BusesLayout&, const Array<InOutChannelPair>&);
+
+    //==============================================================================
+    void initialise (const BusesProperties&);
+    void createBus (bool isInput, const BusProperties&);
+
+    //==============================================================================
     Array<AudioProcessorListener*> listeners;
     Component::SafePointer<AudioProcessorEditor> activeEditor;
-    double sampleRate;
+    double currentSampleRate;
     int blockSize, latencySamples;
    #if JUCE_DEBUG
     bool textRecursionCheck;
@@ -977,8 +1535,13 @@ private:
     ProcessingPrecision processingPrecision;
     CriticalSection callbackLock, listenerLock;
 
+    friend class Bus;
+    mutable OwnedArray<Bus> inputBuses, outputBuses;
+
     String cachedInputSpeakerArrString;
     String cachedOutputSpeakerArrString;
+
+    int cachedTotalIns, cachedTotalOuts;
 
     OwnedArray<AudioProcessorParameter> managedParameters;
     AudioProcessorParameter* getParamChecked (int) const noexcept;
@@ -988,11 +1551,16 @@ private:
    #endif
 
     AudioProcessorListener* getListenerLocked (int) const noexcept;
-    void disableNonMainBuses (bool isInput);
     void updateSpeakerFormatStrings();
+    bool applyBusLayouts (const BusesLayout&);
+    void audioIOChanged (bool busNumberChanged, bool channelNumChanged);
+    void getNextBestLayout (const BusesLayout&, BusesLayout&) const;
+
+    template <typename floatType>
+    void processBypassed (AudioBuffer<floatType>&, MidiBuffer&);
+
+    // This method is no longer used - you can delete it from your AudioProcessor classes.
+    JUCE_DEPRECATED_WITH_BODY (virtual bool silenceInProducesSilenceOut() const, { return false; })
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioProcessor)
 };
-
-
-#endif   // JUCE_AUDIOPROCESSOR_H_INCLUDED

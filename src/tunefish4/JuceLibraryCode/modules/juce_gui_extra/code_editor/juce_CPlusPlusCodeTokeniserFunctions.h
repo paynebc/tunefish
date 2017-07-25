@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_CPLUSPLUSCODETOKENISERFUNCTIONS_H_INCLUDED
-#define JUCE_CPLUSPLUSCODETOKENISERFUNCTIONS_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -553,6 +554,7 @@ struct CppTokeniserFunctions
     {
         int charsOnLine = 0;
         bool lastWasHexEscapeCode = false;
+        bool trigraphDetected = false;
 
         for (int i = 0; i < numBytesToRead || numBytesToRead < 0; ++i)
         {
@@ -561,11 +563,29 @@ struct CppTokeniserFunctions
 
             switch (c)
             {
-                case '\t':  out << "\\t";  lastWasHexEscapeCode = false; charsOnLine += 2; break;
-                case '\r':  out << "\\r";  lastWasHexEscapeCode = false; charsOnLine += 2; break;
-                case '\n':  out << "\\n";  lastWasHexEscapeCode = false; charsOnLine += 2; startNewLine = breakAtNewLines; break;
-                case '\\':  out << "\\\\"; lastWasHexEscapeCode = false; charsOnLine += 2; break;
-                case '\"':  out << "\\\""; lastWasHexEscapeCode = false; charsOnLine += 2; break;
+
+                case '\t':  out << "\\t";  trigraphDetected = false; lastWasHexEscapeCode = false; charsOnLine += 2; break;
+                case '\r':  out << "\\r";  trigraphDetected = false; lastWasHexEscapeCode = false; charsOnLine += 2; break;
+                case '\n':  out << "\\n";  trigraphDetected = false; lastWasHexEscapeCode = false; charsOnLine += 2; startNewLine = breakAtNewLines; break;
+                case '\\':  out << "\\\\"; trigraphDetected = false; lastWasHexEscapeCode = false; charsOnLine += 2; break;
+                case '\"':  out << "\\\""; trigraphDetected = false; lastWasHexEscapeCode = false; charsOnLine += 2; break;
+
+                case '?':
+                    if (trigraphDetected)
+                    {
+                        out << "\\?";
+                        charsOnLine++;
+                        trigraphDetected = false;
+                    }
+                    else
+                    {
+                        out << "?";
+                        trigraphDetected = true;
+                    }
+
+                    lastWasHexEscapeCode = false;
+                    charsOnLine++;
+                    break;
 
                 case 0:
                     if (numBytesToRead < 0)
@@ -573,6 +593,7 @@ struct CppTokeniserFunctions
 
                     out << "\\0";
                     lastWasHexEscapeCode = true;
+                    trigraphDetected = false;
                     charsOnLine += 2;
                     break;
 
@@ -581,6 +602,7 @@ struct CppTokeniserFunctions
                     {
                         out << "\\\'";
                         lastWasHexEscapeCode = false;
+                        trigraphDetected = false;
                         charsOnLine += 2;
                         break;
                     }
@@ -593,18 +615,21 @@ struct CppTokeniserFunctions
                     {
                         out << (char) c;
                         lastWasHexEscapeCode = false;
+                        trigraphDetected = false;
                         ++charsOnLine;
                     }
                     else if (allowStringBreaks && lastWasHexEscapeCode && c >= 32 && c < 127)
                     {
                         out << "\"\"" << (char) c;
                         lastWasHexEscapeCode = false;
+                        trigraphDetected = false;
                         charsOnLine += 3;
                     }
                     else
                     {
                         out << (c < 16 ? "\\x0" : "\\x") << String::toHexString ((int) c);
                         lastWasHexEscapeCode = true;
+                        trigraphDetected = false;
                         charsOnLine += 4;
                     }
 
@@ -636,6 +661,3 @@ struct CppTokeniserFunctions
         return mo.toString();
     }
 };
-
-
-#endif   // JUCE_CPLUSPLUSCODETOKENISERFUNCTIONS_H_INCLUDED

@@ -2,28 +2,25 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_FLOATVECTOROPERATIONS_H_INCLUDED
-#define JUCE_FLOATVECTOROPERATIONS_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -66,10 +63,10 @@ public:
     static void JUCE_CALLTYPE add (double* dest, double amountToAdd, int numValues) noexcept;
 
     /** Adds a fixed value to each source value and stores it in the destination array. */
-    static void JUCE_CALLTYPE add (float* dest, float* src, float amount, int numValues) noexcept;
+    static void JUCE_CALLTYPE add (float* dest, const float* src, float amount, int numValues) noexcept;
 
     /** Adds a fixed value to each source value and stores it in the destination array. */
-    static void JUCE_CALLTYPE add (double* dest, double* src, double amount, int numValues) noexcept;
+    static void JUCE_CALLTYPE add (double* dest, const double* src, double amount, int numValues) noexcept;
 
     /** Adds the source values to the destination values. */
     static void JUCE_CALLTYPE add (float* dest, const float* src, int numValues) noexcept;
@@ -198,7 +195,10 @@ public:
         Effectively, this is a wrapper around a call to _MM_SET_FLUSH_ZERO_MODE
     */
     static void JUCE_CALLTYPE enableFlushToZeroMode (bool shouldEnable) noexcept;
+
+    /** On Intel CPUs, this method enables the SSE flush-to-zero and denormalised-are-zero modes.
+        This effectively sets the DAZ and FZ bits of the MXCSR register. It's a convenient thing to
+        call before audio processing code where you really want to avoid denormalisation performance hits.
+    */
+    static void JUCE_CALLTYPE disableDenormalisedNumberSupport() noexcept;
 };
-
-
-#endif   // JUCE_FLOATVECTOROPERATIONS_H_INCLUDED

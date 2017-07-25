@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MODALCOMPONENTMANAGER_H_INCLUDED
-#define JUCE_MODALCOMPONENTMANAGER_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -50,7 +51,7 @@ public:
         For some quick ways of creating callback objects, see the ModalCallbackFunction class.
         @see ModalCallbackFunction
     */
-    class Callback
+    class JUCE_API  Callback
     {
     public:
         /** */
@@ -184,8 +185,17 @@ public:
     static ModalComponentManager::Callback* create (void (*functionToCall) (int, ParamType),
                                                     ParamType parameterValue)
     {
-        return new FunctionCaller1 <ParamType> (functionToCall, parameterValue);
+        return new FunctionCaller1<ParamType> (functionToCall, parameterValue);
     }
+
+    /** This is a utility function to create a ModalComponentManager::Callback that will
+        call a lambda function.
+        The lambda that you supply must take an integer parameter, which is the result code that
+        was returned when the modal component was dismissed.
+
+        @see ModalComponentManager::Callback
+    */
+    static ModalComponentManager::Callback* create (std::function<void(int)>);
 
     //==============================================================================
     /** This is a utility function to create a ModalComponentManager::Callback that will
@@ -214,7 +224,7 @@ public:
                                                        ParamType1 parameterValue1,
                                                        ParamType2 parameterValue2)
     {
-        return new FunctionCaller2 <ParamType1, ParamType2> (functionToCall, parameterValue1, parameterValue2);
+        return new FunctionCaller2<ParamType1, ParamType2> (functionToCall, parameterValue1, parameterValue2);
     }
 
     //==============================================================================
@@ -244,7 +254,7 @@ public:
     static ModalComponentManager::Callback* forComponent (void (*functionToCall) (int, ComponentType*),
                                                           ComponentType* component)
     {
-        return new ComponentCaller1 <ComponentType> (functionToCall, component);
+        return new ComponentCaller1<ComponentType> (functionToCall, component);
     }
 
     //==============================================================================
@@ -275,21 +285,20 @@ public:
                                                           ComponentType* component,
                                                           ParamType param)
     {
-        return new ComponentCaller2 <ComponentType, ParamType> (functionToCall, component, param);
+        return new ComponentCaller2<ComponentType, ParamType> (functionToCall, component, param);
     }
 
 private:
     //==============================================================================
     template <typename ParamType>
-    class FunctionCaller1  : public ModalComponentManager::Callback
+    struct FunctionCaller1  : public ModalComponentManager::Callback
     {
-    public:
         typedef void (*FunctionType) (int, ParamType);
 
         FunctionCaller1 (FunctionType& f, ParamType& p1)
             : function (f), param (p1) {}
 
-        void modalStateFinished (int returnValue)  { function (returnValue, param); }
+        void modalStateFinished (int returnValue) override  { function (returnValue, param); }
 
     private:
         const FunctionType function;
@@ -299,15 +308,14 @@ private:
     };
 
     template <typename ParamType1, typename ParamType2>
-    class FunctionCaller2  : public ModalComponentManager::Callback
+    struct FunctionCaller2  : public ModalComponentManager::Callback
     {
-    public:
         typedef void (*FunctionType) (int, ParamType1, ParamType2);
 
         FunctionCaller2 (FunctionType& f, ParamType1& p1, ParamType2& p2)
             : function (f), param1 (p1), param2 (p2) {}
 
-        void modalStateFinished (int returnValue)   { function (returnValue, param1, param2); }
+        void modalStateFinished (int returnValue) override  { function (returnValue, param1, param2); }
 
     private:
         const FunctionType function;
@@ -318,15 +326,14 @@ private:
     };
 
     template <typename ComponentType>
-    class ComponentCaller1  : public ModalComponentManager::Callback
+    struct ComponentCaller1  : public ModalComponentManager::Callback
     {
-    public:
         typedef void (*FunctionType) (int, ComponentType*);
 
         ComponentCaller1 (FunctionType& f, ComponentType* c)
             : function (f), comp (c) {}
 
-        void modalStateFinished (int returnValue)
+        void modalStateFinished (int returnValue) override
         {
             function (returnValue, static_cast<ComponentType*> (comp.get()));
         }
@@ -339,15 +346,14 @@ private:
     };
 
     template <typename ComponentType, typename ParamType1>
-    class ComponentCaller2  : public ModalComponentManager::Callback
+    struct ComponentCaller2  : public ModalComponentManager::Callback
     {
-    public:
         typedef void (*FunctionType) (int, ComponentType*, ParamType1);
 
         ComponentCaller2 (FunctionType& f, ComponentType* c, ParamType1 p1)
             : function (f), comp (c), param1 (p1) {}
 
-        void modalStateFinished (int returnValue)
+        void modalStateFinished (int returnValue) override
         {
             function (returnValue, static_cast<ComponentType*> (comp.get()), param1);
         }
@@ -364,6 +370,3 @@ private:
     ~ModalCallbackFunction();
     JUCE_DECLARE_NON_COPYABLE (ModalCallbackFunction)
 };
-
-
-#endif   // JUCE_MODALCOMPONENTMANAGER_H_INCLUDED

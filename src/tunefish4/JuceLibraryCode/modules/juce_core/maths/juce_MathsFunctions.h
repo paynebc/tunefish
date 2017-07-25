@@ -1,33 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MATHSFUNCTIONS_H_INCLUDED
-#define JUCE_MATHSFUNCTIONS_H_INCLUDED
+#pragma once
 
 //==============================================================================
 /*
@@ -93,7 +86,7 @@ typedef unsigned int                uint32;
 #endif
 
 //==============================================================================
-// Some indispensible min/max functions
+// Some indispensable min/max functions
 
 /** Returns the larger of two values. */
 template <typename Type>
@@ -299,7 +292,7 @@ void ignoreUnused (const Type1&, const Type2&, const Type3&, const Type4&) noexc
 template <typename Type, int N>
 int numElementsInArray (Type (&array)[N])
 {
-    (void) array; // (required to avoid a spurious warning in MS compilers)
+    ignoreUnused (array);
     (void) sizeof (0[array]); // This line should cause an error if you pass an object with a user-defined subscript operator
     return N;
 }
@@ -324,9 +317,9 @@ template <>
 inline float juce_hypot (float a, float b) noexcept
 {
    #if JUCE_MSVC
-    return (_hypotf (a, b));
+    return _hypotf (a, b);
    #else
-    return (hypotf (a, b));
+    return hypotf (a, b);
    #endif
 }
 #endif
@@ -356,12 +349,16 @@ const float   float_Pi   = 3.14159265358979323846f;
 
 
 /** Converts an angle in degrees to radians. */
-template <typename FloatType>
-FloatType degreesToRadians (FloatType degrees) noexcept  { return degrees * static_cast<FloatType> (double_Pi / 180.0); }
+inline float degreesToRadians (float degrees) noexcept     { return degrees * (float_Pi / 180.0f); }
+
+/** Converts an angle in degrees to radians. */
+inline double degreesToRadians (double degrees) noexcept   { return degrees * (double_Pi / 180.0); }
 
 /** Converts an angle in radians to degrees. */
-template <typename FloatType>
-FloatType radiansToDegrees (FloatType radians) noexcept  { return radians * static_cast<FloatType> (180.0 / double_Pi); }
+inline float radiansToDegrees (float radians) noexcept     { return radians * (180.0f / float_Pi); }
+
+/** Converts an angle in radians to degrees. */
+inline double radiansToDegrees (double radians) noexcept   { return radians * (180.0 / double_Pi); }
 
 
 //==============================================================================
@@ -446,7 +443,7 @@ inline int roundToInt (int value) noexcept
     This is a slightly slower and slightly more accurate version of roundDoubleToInt(). It works
     fine for values above zero, but negative numbers are rounded the wrong way.
 */
-inline int roundToIntAccurate (const double value) noexcept
+inline int roundToIntAccurate (double value) noexcept
 {
    #ifdef __INTEL_COMPILER
     #pragma float_control (pop)
@@ -466,7 +463,7 @@ inline int roundToIntAccurate (const double value) noexcept
     even numbers will be rounded up or down differently. For a more accurate conversion,
     see roundDoubleToIntAccurate().
 */
-inline int roundDoubleToInt (const double value) noexcept
+inline int roundDoubleToInt (double value) noexcept
 {
     return roundToInt (value);
 }
@@ -481,7 +478,7 @@ inline int roundDoubleToInt (const double value) noexcept
     rounding values whose floating point component is exactly 0.5, odd numbers and
     even numbers will be rounded up or down differently.
 */
-inline int roundFloatToInt (const float value) noexcept
+inline int roundFloatToInt (float value) noexcept
 {
     return roundToInt (value);
 }
@@ -505,6 +502,12 @@ inline int nextPowerOfTwo (int n) noexcept
     n |= (n >> 16);
     return n + 1;
 }
+
+/** Returns the index of the highest set bit in a (non-zero) number.
+    So for n=3 this would return 1, for n=7 it returns 2, etc.
+    An input value of 0 is illegal!
+*/
+int findHighestSetBit (uint32 n) noexcept;
 
 /** Returns the number of bits in a 32-bit integer. */
 inline int countNumberOfBits (uint32 n) noexcept
@@ -541,6 +544,25 @@ NumericType square (NumericType n) noexcept
     return n * n;
 }
 
+//==============================================================================
+/** Writes a number of bits into a memory buffer at a given bit index.
+    The buffer is treated as a sequence of 8-bit bytes, and the value is encoded in little-endian order,
+    so for example if startBit = 10, and numBits = 11 then the lower 6 bits of the value would be written
+    into bits 2-8 of targetBuffer[1], and the upper 5 bits of value into bits 0-5 of targetBuffer[2].
+
+    @see readLittleEndianBitsInBuffer
+*/
+void writeLittleEndianBitsInBuffer (void* targetBuffer, uint32 startBit, uint32 numBits, uint32 value) noexcept;
+
+/** Reads a number of bits from a buffer at a given bit index.
+    The buffer is treated as a sequence of 8-bit bytes, and the value is encoded in little-endian order,
+    so for example if startBit = 10, and numBits = 11 then the lower 6 bits of the result would be read
+    from bits 2-8 of sourceBuffer[1], and the upper 5 bits of the result from bits 0-5 of sourceBuffer[2].
+
+    @see writeLittleEndianBitsInBuffer
+*/
+uint32 readLittleEndianBitsInBuffer (const void* sourceBuffer, uint32 startBit, uint32 numBits) noexcept;
+
 
 //==============================================================================
 #if JUCE_INTEL || defined (DOXYGEN)
@@ -558,18 +580,12 @@ NumericType square (NumericType n) noexcept
 */
 namespace TypeHelpers
 {
-   #if JUCE_VC8_OR_EARLIER
-    #define PARAMETER_TYPE(type) const type&
-   #else
     /** The ParameterType struct is used to find the best type to use when passing some kind
         of object as a parameter.
 
         Of course, this is only likely to be useful in certain esoteric template situations.
 
-        Because "typename TypeHelpers::ParameterType<SomeClass>::type" is a bit of a mouthful, there's
-        a PARAMETER_TYPE(SomeClass) macro that you can use to get the same effect.
-
-        E.g. "myFunction (PARAMETER_TYPE (int), PARAMETER_TYPE (MyObject))"
+        E.g. "myFunction (typename TypeHelpers::ParameterType<int>::type, typename TypeHelpers::ParameterType<MyObject>::type)"
         would evaluate to "myfunction (int, const MyObject&)", keeping any primitive types as
         pass-by-value, but passing objects as a const reference, to avoid copying.
     */
@@ -593,21 +609,22 @@ namespace TypeHelpers
     template <>              struct ParameterType <double>          { typedef double type; };
    #endif
 
-    /** A helpful macro to simplify the use of the ParameterType template.
-        @see ParameterType
-    */
-    #define PARAMETER_TYPE(a)    typename TypeHelpers::ParameterType<a>::type
-   #endif
-
-
     /** These templates are designed to take a type, and if it's a double, they return a double
         type; for anything else, they return a float type.
     */
-    template <typename Type> struct SmallestFloatType             { typedef float  type; };
-    template <>              struct SmallestFloatType <double>    { typedef double type; };
+    template <typename Type> struct SmallestFloatType               { typedef float  type; };
+    template <>              struct SmallestFloatType <double>      { typedef double type; };
+
+
+    /** These templates are designed to take an integer type, and return an unsigned int
+        version with the same size.
+    */
+    template <int bytes>     struct UnsignedTypeWithSize            {};
+    template <>              struct UnsignedTypeWithSize<1>         { typedef uint8  type; };
+    template <>              struct UnsignedTypeWithSize<2>         { typedef uint16 type; };
+    template <>              struct UnsignedTypeWithSize<4>         { typedef uint32 type; };
+    template <>              struct UnsignedTypeWithSize<8>         { typedef uint64 type; };
 }
 
 
 //==============================================================================
-
-#endif   // JUCE_MATHSFUNCTIONS_H_INCLUDED

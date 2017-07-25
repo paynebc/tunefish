@@ -2,28 +2,25 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_IIRFILTER_H_INCLUDED
-#define JUCE_IIRFILTER_H_INCLUDED
+#pragma once
 
 class IIRFilter;
 
@@ -55,13 +52,52 @@ public:
     /** Destructor. */
     ~IIRCoefficients() noexcept;
 
+    //==============================================================================
     /** Returns the coefficients for a low-pass filter. */
     static IIRCoefficients makeLowPass (double sampleRate,
                                         double frequency) noexcept;
 
+    /** Returns the coefficients for a low-pass filter with variable Q. */
+    static IIRCoefficients makeLowPass (double sampleRate,
+                                        double frequency,
+                                        double Q) noexcept;
+
+    //==============================================================================
     /** Returns the coefficients for a high-pass filter. */
     static IIRCoefficients makeHighPass (double sampleRate,
                                          double frequency) noexcept;
+
+    /** Returns the coefficients for a high-pass filter with variable Q. */
+    static IIRCoefficients makeHighPass (double sampleRate,
+                                         double frequency,
+                                         double Q) noexcept;
+
+    //==============================================================================
+    /** Returns the coefficients for a band-pass filter. */
+    static IIRCoefficients makeBandPass (double sampleRate, double frequency) noexcept;
+
+    /** Returns the coefficients for a band-pass filter with variable Q. */
+    static IIRCoefficients makeBandPass (double sampleRate,
+                                         double frequency,
+                                         double Q) noexcept;
+
+    //==============================================================================
+    /** Returns the coefficients for a notch filter. */
+    static IIRCoefficients makeNotchFilter (double sampleRate, double frequency) noexcept;
+
+    /** Returns the coefficients for a notch filter with variable Q. */
+    static IIRCoefficients makeNotchFilter (double sampleRate,
+                                            double frequency,
+                                            double Q) noexcept;
+
+    //==============================================================================
+    /** Returns the coefficients for an all-pass filter. */
+    static IIRCoefficients makeAllPass (double sampleRate, double frequency) noexcept;
+
+    /** Returns the coefficients for an all-pass filter with variable Q. */
+    static IIRCoefficients makeAllPass (double sampleRate,
+                                        double frequency,
+                                        double Q) noexcept;
 
     //==============================================================================
     /** Returns the coefficients for a low-pass shelf filter with variable Q and gain.
@@ -169,6 +205,3 @@ protected:
     IIRFilter& operator= (const IIRFilter&);
     JUCE_LEAK_DETECTOR (IIRFilter)
 };
-
-
-#endif   // JUCE_IIRFILTER_H_INCLUDED

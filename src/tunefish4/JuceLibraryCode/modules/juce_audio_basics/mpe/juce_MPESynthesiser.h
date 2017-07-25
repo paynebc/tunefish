@@ -2,28 +2,25 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MPESynthesiser_H_INCLUDED
-#define JUCE_MPESynthesiser_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -55,7 +52,7 @@
 class JUCE_API  MPESynthesiser   : public MPESynthesiserBase
 {
 public:
-    //==========================================================================
+    //==============================================================================
     /** Constructor.
         You'll need to add some voices before it'll make any sound.
 
@@ -75,7 +72,7 @@ public:
     /** Destructor. */
     ~MPESynthesiser();
 
-    //==========================================================================
+    //==============================================================================
     /** Deletes all voices. */
     void clearVoices();
 
@@ -116,7 +113,7 @@ public:
     */
     virtual void turnOffAllVoices (bool allowTailOff);
 
-    //==========================================================================
+    //==============================================================================
     /** If set to true, then the synth will try to take over an existing voice if
         it runs out and needs to play another note.
 
@@ -128,7 +125,7 @@ public:
     /** Returns true if note-stealing is enabled. */
     bool isVoiceStealingEnabled() const noexcept                { return shouldStealVoices; }
 
-    //==========================================================================
+    //==============================================================================
     /** Tells the synthesiser what the sample rate is for the audio it's being used to render.
 
         This overrides the implementation in MPESynthesiserBase, to additionally
@@ -137,7 +134,7 @@ public:
     */
     void setCurrentPlaybackSampleRate (double newRate) override;
 
-    //==========================================================================
+    //==============================================================================
     /** Handle incoming MIDI events.
 
         This method will be called automatically according to the MIDI data passed
@@ -238,7 +235,7 @@ protected:
      */
     virtual void noteKeyStateChanged (MPENote changedNote) override;
 
-    //==========================================================================
+    //==============================================================================
     /** This will simply call renderNextBlock for each currently active
         voice and fill the buffer with the sum.
         Override this method if you need to do more work to render your audio.
@@ -255,7 +252,7 @@ protected:
                                      int startSample,
                                      int numSamples) override;
 
-    //==========================================================================
+    //==============================================================================
     /** Searches through the voices to find one that's not currently playing, and
         which can play the given MPE note.
 
@@ -298,16 +295,13 @@ protected:
     */
     void stopVoice (MPESynthesiserVoice* voice, MPENote noteToStop, bool allowTailOff);
 
-    //==========================================================================
+    //==============================================================================
     OwnedArray<MPESynthesiserVoice> voices;
 
 private:
-    //==========================================================================
+    //==============================================================================
     bool shouldStealVoices;
     CriticalSection voicesLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MPESynthesiser)
 };
-
-
-#endif // JUCE_MPESynthesiser_H_INCLUDED

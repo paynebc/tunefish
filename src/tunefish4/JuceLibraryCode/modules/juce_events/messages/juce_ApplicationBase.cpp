@@ -2,28 +2,30 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
 JUCEApplicationBase::CreateInstanceFunction JUCEApplicationBase::createInstance = 0;
 JUCEApplicationBase* JUCEApplicationBase::appInstance = nullptr;
+
+#if JUCE_IOS
+void* JUCEApplicationBase::iOSCustomDelegate = nullptr;
+#endif
 
 JUCEApplicationBase::JUCEApplicationBase()
     : appReturnValue (0),
@@ -71,7 +73,15 @@ void JUCEApplicationBase::sendUnhandledException (const std::exception* const e,
                                                   const int lineNumber)
 {
     if (JUCEApplicationBase* const app = JUCEApplicationBase::getInstance())
+    {
+        // If you hit this assertion then the __FILE__ macro is providing a
+        // relative path instead of an absolute path. On Windows this will be
+        // a path relative to the build directory rather than the currently
+        // running application. To fix this you must compile with the /FC flag.
+        jassert (File::isAbsolutePath (sourceFile));
+
         app->unhandledException (e, sourceFile, lineNumber);
+    }
 }
 
 //==============================================================================
@@ -133,8 +143,8 @@ struct JUCEApplicationBase::MultipleInstanceHandler {};
 //==============================================================================
 #if JUCE_ANDROID
 
-StringArray JUCEApplicationBase::getCommandLineParameterArray() { return StringArray(); }
-String JUCEApplicationBase::getCommandLineParameters()          { return String(); }
+StringArray JUCEApplicationBase::getCommandLineParameterArray() { return {}; }
+String JUCEApplicationBase::getCommandLineParameters()          { return {}; }
 
 #else
 
@@ -164,11 +174,15 @@ StringArray JUCE_CALLTYPE JUCEApplicationBase::getCommandLineParameterArray()
 #else
 
 #if JUCE_IOS
- extern int juce_iOSMain (int argc, const char* argv[]);
+ extern int juce_iOSMain (int argc, const char* argv[], void* classPtr);
 #endif
 
 #if JUCE_MAC
  extern void initialiseNSApplication();
+#endif
+
+#if JUCE_LINUX && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined(JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
+ extern int juce_gtkWebkitMain (int argc, const char* argv[]);
 #endif
 
 #if JUCE_WINDOWS
@@ -212,9 +226,15 @@ int JUCEApplicationBase::main (int argc, const char* argv[])
         initialiseNSApplication();
        #endif
 
+       #if JUCE_LINUX && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined(JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
+        if (argc >= 2 && String (argv[1]) == "--juce-gtkwebkitfork-child")
+            return juce_gtkWebkitMain (argc, argv);
+       #endif
+
        #if JUCE_IOS
-        return juce_iOSMain (argc, argv);
+        return juce_iOSMain (argc, argv, iOSCustomDelegate);
        #else
+
         return JUCEApplicationBase::main();
        #endif
     }
@@ -254,6 +274,20 @@ bool JUCEApplicationBase::initialiseApp()
     {
         DBG ("Another instance is running - quitting...");
         return false;
+    }
+   #endif
+
+   #if JUCE_WINDOWS && JUCE_STANDALONE_APPLICATION && (! defined (_CONSOLE)) && (! JUCE_MINGW)
+    if (AttachConsole (ATTACH_PARENT_PROCESS) != 0)
+    {
+        // if we've launched a GUI app from cmd.exe or PowerShell, we need this to enable printf etc.
+        // However, only reassign stdout, stderr, stdin if they have not been already opened by
+        // a redirect or similar.
+        FILE* ignore;
+
+        if (_fileno(stdout) < 0) freopen_s (&ignore, "CONOUT$", "w", stdout);
+        if (_fileno(stderr) < 0) freopen_s (&ignore, "CONOUT$", "w", stderr);
+        if (_fileno(stdin)  < 0) freopen_s (&ignore, "CONIN$",  "r", stdin);
     }
    #endif
 

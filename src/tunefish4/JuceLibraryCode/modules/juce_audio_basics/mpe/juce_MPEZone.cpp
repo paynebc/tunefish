@@ -2,22 +2,20 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -142,6 +140,20 @@ bool MPEZone::truncateToFit (MPEZone other) noexcept
 
     numNoteChannels = jmin (numNoteChannels, masterChannelDiff - 1);
     return true;
+}
+
+//==============================================================================
+bool MPEZone::operator== (const MPEZone& other) const noexcept
+{
+    return masterChannel         == other.masterChannel
+        && numNoteChannels       == other.numNoteChannels
+        && perNotePitchbendRange == other.perNotePitchbendRange
+        && masterPitchbendRange  == other.masterPitchbendRange;
+}
+
+bool MPEZone::operator!= (const MPEZone& other) const noexcept
+{
+    return ! operator== (other);
 }
 
 //==============================================================================
@@ -270,7 +282,7 @@ public:
     }
 
 private:
-    //==========================================================================
+    //==============================================================================
     void testOverlapsWith (int masterChannelFirst, int numNoteChannelsFirst,
                            int masterChannelSecond, int numNoteChannelsSecond,
                            bool expectedRetVal)
@@ -282,7 +294,7 @@ private:
         expect (second.overlapsWith (first) == expectedRetVal);
     }
 
-    //==========================================================================
+    //==============================================================================
     void testTruncateToFit (int masterChannelFirst, int numNoteChannelsFirst,
                             int masterChannelSecond, int numNoteChannelsSecond,
                             bool expectedRetVal,

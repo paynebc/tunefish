@@ -1,27 +1,21 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -38,47 +32,34 @@ void Logger::outputDebugString (const String& text)
 #endif
 
 //==============================================================================
-#if JUCE_USE_MSVC_INTRINSICS
-
-// CPU info functions using intrinsics...
-
 #pragma intrinsic (__cpuid)
 #pragma intrinsic (__rdtsc)
 
-static void callCPUID (int result[4], int infoType)
+#if JUCE_MINGW
+static void callCPUID (int result[4], uint32 type)
 {
-    __cpuid (result, infoType);
-}
+  uint32 la = result[0], lb = result[1], lc = result[2], ld = result[3];
 
+  asm ("mov %%ebx, %%esi \n\t"
+       "cpuid \n\t"
+       "xchg %%esi, %%ebx"
+       : "=a" (la), "=S" (lb), "=c" (lc), "=d" (ld) : "a" (type)
+        #if JUCE_64BIT
+     , "b" (lb), "c" (lc), "d" (ld)
+        #endif
+       );
+
+  result[0] = la; result[1] = lb; result[2] = lc; result[3] = ld;
+}
 #else
-
 static void callCPUID (int result[4], int infoType)
 {
-   #if ! JUCE_MINGW
-    __try
-   #endif
-    {
-       #if JUCE_GCC
-        __asm__ __volatile__ ("cpuid" : "=a" (result[0]), "=b" (result[1]), "=c" (result[2]),"=d" (result[3]) : "a" (infoType));
-       #else
-        __asm
-        {
-            mov    esi, result
-            mov    eax, infoType
-            xor    ecx, ecx
-            cpuid
-            mov    dword ptr [esi +  0], eax
-            mov    dword ptr [esi +  4], ebx
-            mov    dword ptr [esi +  8], ecx
-            mov    dword ptr [esi + 12], edx
-        }
-       #endif
-    }
-   #if ! JUCE_MINGW
-    __except (EXCEPTION_EXECUTE_HANDLER) {}
+   #if JUCE_PROJUCER_LIVE_BUILD
+    std::fill (result, result + 4, 0);
+   #else
+    __cpuid (result, infoType);
    #endif
 }
-
 #endif
 
 String SystemStats::getCpuVendor()
@@ -94,6 +75,49 @@ String SystemStats::getCpuVendor()
     return String (v, 12);
 }
 
+String SystemStats::getCpuModel()
+{
+    char name[65] = { 0 };
+    int info[4] = { 0 };
+
+    callCPUID (info, 0x80000000);
+
+    const int numExtIDs = info[0];
+
+    if (numExtIDs < 0x80000004)  // if brand string is unsupported
+        return {};
+
+    callCPUID (info, 0x80000002);
+    memcpy (name, info, sizeof (info));
+
+    callCPUID (info, 0x80000003);
+    memcpy (name + 16, info, sizeof (info));
+
+    callCPUID (info, 0x80000004);
+    memcpy (name + 32, info, sizeof (info));
+
+    return String (name).trim();
+}
+
+static int findNumberOfPhysicalCores() noexcept
+{
+    int numPhysicalCores = 0;
+    DWORD bufferSize = 0;
+    GetLogicalProcessorInformation (nullptr, &bufferSize);
+
+    if (auto numBuffers = (size_t) (bufferSize / sizeof (SYSTEM_LOGICAL_PROCESSOR_INFORMATION)))
+    {
+        HeapBlock<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> buffer (numBuffers);
+
+        if (GetLogicalProcessorInformation (buffer, &bufferSize))
+            for (size_t i = 0; i < numBuffers; ++i)
+                if (buffer[i].Relationship == RelationProcessorCore)
+                    ++numPhysicalCores;
+    }
+
+    return numPhysicalCores;
+}
+
 //==============================================================================
 void CPUInformation::initialise() noexcept
 {
@@ -107,11 +131,21 @@ void CPUInformation::initialise() noexcept
     hasSSE3  = (info[2] & (1 <<  0)) != 0;
     hasAVX   = (info[2] & (1 << 28)) != 0;
     hasSSSE3 = (info[2] & (1 <<  9)) != 0;
+    hasSSE41 = (info[2] & (1 << 19)) != 0;
+    hasSSE42 = (info[2] & (1 << 20)) != 0;
     has3DNow = (info[1] & (1 << 31)) != 0;
+
+    callCPUID (info, 7);
+
+    hasAVX2 = (info[1] & (1 << 5)) != 0;
 
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo (&systemInfo);
-    numCpus = (int) systemInfo.dwNumberOfProcessors;
+    numLogicalCPUs  = (int) systemInfo.dwNumberOfProcessors;
+    numPhysicalCPUs = findNumberOfPhysicalCores();
+
+    if (numPhysicalCPUs <= 0)
+        numPhysicalCPUs = numLogicalCPUs;
 }
 
 #if JUCE_MSVC && JUCE_CHECK_MEMORY_LEAKS
@@ -204,7 +238,7 @@ String SystemStats::getOperatingSystemName()
 
 String SystemStats::getDeviceDescription()
 {
-    return String();
+    return {};
 }
 
 bool SystemStats::isOperatingSystem64Bit()
@@ -275,7 +309,7 @@ public:
 
        #if JUCE_WIN32_TIMER_PERIOD > 0
         const MMRESULT res = timeBeginPeriod (JUCE_WIN32_TIMER_PERIOD);
-        (void) res;
+        ignoreUnused (res);
         jassert (res == TIMERR_NOERROR);
        #endif
 
@@ -289,17 +323,6 @@ public:
     {
         LARGE_INTEGER ticks;
         QueryPerformanceCounter (&ticks);
-
-        const int64 mainCounterAsHiResTicks = (juce_millisecondsSinceStartup() * hiResTicksPerSecond) / 1000;
-        const int64 newOffset = mainCounterAsHiResTicks - ticks.QuadPart;
-
-        // fix for a very obscure PCI hardware bug that can make the counter
-        // sometimes jump forwards by a few seconds..
-        const int64 offsetDrift = abs64 (newOffset - hiResTicksOffset);
-
-        if (offsetDrift > (hiResTicksPerSecond >> 1))
-            hiResTicksOffset = newOffset;
-
         return ticks.QuadPart + hiResTicksOffset;
     }
 
@@ -321,11 +344,11 @@ double Time::getMillisecondCounterHiRes() noexcept       { return hiResCounterHa
 //==============================================================================
 static int64 juce_getClockCycleCounter() noexcept
 {
-   #if JUCE_USE_MSVC_INTRINSICS
+   #if JUCE_MSVC
     // MS intrinsics version...
     return (int64) __rdtsc();
 
-   #elif JUCE_GCC
+   #elif JUCE_GCC || JUCE_CLANG
     // GNU inline asm version...
     unsigned int hi = 0, lo = 0;
 
@@ -342,19 +365,7 @@ static int64 juce_getClockCycleCounter() noexcept
 
     return (int64) ((((uint64) hi) << 32) | lo);
    #else
-    // MSVC inline asm version...
-    unsigned int hi = 0, lo = 0;
-
-    __asm
-    {
-        xor eax, eax
-        xor edx, edx
-        rdtsc
-        mov lo, eax
-        mov hi, edx
-    }
-
-    return (int64) ((((uint64) hi) << 32) | lo);
+    #error "unknown compiler?"
    #endif
 }
 
@@ -401,8 +412,10 @@ bool Time::setSystemTimeToThisTime() const
 
     // do this twice because of daylight saving conversion problems - the
     // first one sets it up, the second one kicks it in.
-    return SetLocalTime (&st) != 0
-            && SetLocalTime (&st) != 0;
+    // NB: the local variable is here to avoid analysers warning about having
+    // two identical sub-expressions in the return statement
+    bool firstCallToSetTimezone = SetLocalTime (&st) != 0;
+    return firstCallToSetTimezone && SetLocalTime (&st) != 0;
 }
 
 int SystemStats::getPageSize()

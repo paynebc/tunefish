@@ -2,38 +2,38 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MESSAGEMANAGER_H_INCLUDED
-#define JUCE_MESSAGEMANAGER_H_INCLUDED
+#pragma once
 
 class MessageManagerLock;
 class ThreadPoolJob;
 class ActionListener;
 class ActionBroadcaster;
 
+//==============================================================================
+#if JUCE_MODULE_AVAILABLE_juce_opengl
+class OpenGLContext;
+#endif
 
 //==============================================================================
-/** See MessageManager::callFunctionOnMessageThread() for use of this function type
-*/
+/** See MessageManager::callFunctionOnMessageThread() for use of this function type. */
 typedef void* (MessageCallbackFunction) (void* userData);
 
 
@@ -91,12 +91,12 @@ public:
    #endif
 
     //==============================================================================
-   #if JUCE_COMPILER_SUPPORTS_LAMBDAS
-    /** Asynchronously invokes a function or C++11 lambda on the message thread.
-        Internally this uses the CallbackMessage class to invoke the callback.
-    */
-    static void callAsync (std::function<void(void)>);
-   #endif
+    /** Asynchronously invokes a function or C++11 lambda on the message thread. */
+    template <typename FunctionType>
+    static void callAsync (FunctionType functionToCall)
+    {
+        new AsyncCallInvoker<FunctionType> (functionToCall);
+    }
 
     /** Calls a function using the message-thread.
 
@@ -203,9 +203,9 @@ private:
     friend class MessageManagerLock;
 
     ScopedPointer<ActionBroadcaster> broadcaster;
-    bool quitMessagePosted, quitMessageReceived;
+    bool quitMessagePosted = false, quitMessageReceived = false;
     Thread::ThreadID messageThreadId;
-    Thread::ThreadID volatile threadWithLock;
+    Thread::ThreadID volatile threadWithLock = {};
     CriticalSection lockingLock;
 
     static bool postMessageToSystemQueue (MessageBase*);
@@ -213,6 +213,16 @@ private:
     static void doPlatformSpecificInitialisation();
     static void doPlatformSpecificShutdown();
     static bool dispatchNextMessageOnSystemQueue (bool returnIfNoPendingMessages);
+
+    template <typename FunctionType>
+    struct AsyncCallInvoker  : public MessageBase
+    {
+        AsyncCallInvoker (FunctionType f) : callback (f)  { post(); }
+        void messageCallback() override                   { callback(); }
+        FunctionType callback;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AsyncCallInvoker)
+    };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageManager)
 };
@@ -308,6 +318,22 @@ public:
     */
     MessageManagerLock (ThreadPoolJob* jobToCheckForExitSignal);
 
+    //==============================================================================
+    struct BailOutChecker
+    {
+        virtual ~BailOutChecker() {}
+
+        /** Return true if acquiring the lock should be aborted. */
+        virtual bool shouldAbortAcquiringLock() = 0;
+    };
+
+    /** This is an abstraction of the other constructors. You can pass this constructor
+        a functor which is periodically checked if attempting the lock should be aborted.
+
+        See the MessageManagerLock (Thread*) constructor for details on how this works.
+     */
+     MessageManagerLock (BailOutChecker&);
+
 
     //==============================================================================
     /** Releases the current thread's lock on the message manager.
@@ -327,12 +353,26 @@ private:
     class BlockingMessage;
     friend class ReferenceCountedObjectPtr<BlockingMessage>;
     ReferenceCountedObjectPtr<BlockingMessage> blockingMessage;
+
+    struct ThreadChecker : BailOutChecker
+    {
+        ThreadChecker (Thread* const, ThreadPoolJob* const);
+
+        // Required to supress VS2013 compiler warnings
+        ThreadChecker& operator= (const ThreadChecker&) = delete;
+
+        bool shouldAbortAcquiringLock() override;
+
+        Thread* const threadToCheck;
+        ThreadPoolJob* const job;
+    };
+
+    //==============================================================================
+    ThreadChecker checker;
     bool locked;
 
-    bool attemptLock (Thread*, ThreadPoolJob*);
+    //==============================================================================
+    bool attemptLock (BailOutChecker*);
 
     JUCE_DECLARE_NON_COPYABLE (MessageManagerLock)
 };
-
-
-#endif   // JUCE_MESSAGEMANAGER_H_INCLUDED

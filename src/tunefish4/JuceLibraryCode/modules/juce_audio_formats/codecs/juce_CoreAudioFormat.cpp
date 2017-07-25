@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -112,19 +114,28 @@ struct CoreAudioFormatMetatdata
     };
 
     //==============================================================================
-    struct UserDefinedChunk
+    static StringPairArray parseUserDefinedChunk (InputStream& input, int64 size)
     {
-        UserDefinedChunk (InputStream& input, int64 size)
-        {
-            // a user defined chunk contains 16 bytes of a UUID first
-            uuid[1] = input.readInt64BigEndian();
-            uuid[0] = input.readInt64BigEndian();
+        StringPairArray infoStrings;
+        const int64 originalPosition = input.getPosition();
 
-            input.skipNextBytes (size - 16);
+        uint8 uuid[16];
+        input.read (uuid, sizeof (uuid));
+
+        if (memcmp (uuid, "\x29\x81\x92\x73\xB5\xBF\x4A\xEF\xB7\x8D\x62\xD1\xEF\x90\xBB\x2C", 16) == 0)
+        {
+            const uint32 numEntries = (uint32) input.readIntBigEndian();
+
+            for (uint32 i = 0; i < numEntries && input.getPosition() < originalPosition + size; ++i)
+            {
+                String keyName = input.readString();
+                infoStrings.set (keyName, input.readString());
+            }
         }
 
-        int64 uuid[2];
-    };
+        input.setPosition (originalPosition + size);
+        return infoStrings;
+    }
 
     //==============================================================================
     static StringPairArray parseMidiChunk (InputStream& input, int64 size)
@@ -288,7 +299,7 @@ struct CoreAudioFormatMetatdata
                 }
                 else if (chunkHeader.chunkType == chunkName ("uuid"))
                 {
-                    UserDefinedChunk userDefinedChunk (input, chunkHeader.chunkSize);
+                    metadataValues.addArray (parseUserDefinedChunk (input, chunkHeader.chunkSize));
                 }
                 else if (chunkHeader.chunkType == chunkName ("data"))
                 {

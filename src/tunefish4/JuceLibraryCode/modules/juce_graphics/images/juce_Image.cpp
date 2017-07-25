@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -58,10 +60,17 @@ Image ImageType::convert (const Image& source) const
     Image newImage (create (src.pixelFormat, src.width, src.height, false));
     Image::BitmapData dest (newImage, Image::BitmapData::writeOnly);
 
-    jassert (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat);
-
-    for (int y = 0; y < dest.height; ++y)
-        memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.lineStride);
+    if (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat)
+    {
+        for (int y = 0; y < dest.height; ++y)
+            memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.lineStride);
+    }
+    else
+    {
+        for (int y = 0; y < dest.height; ++y)
+            for (int x = 0; x < dest.width; ++x)
+                dest.setPixelColour (x, y, src.getPixelColour (x, y));
+    }
 
     return newImage;
 }
@@ -95,7 +104,7 @@ public:
             sendDataChangeMessage();
     }
 
-    ImagePixelData* clone() override
+    ImagePixelData::Ptr clone() override
     {
         SoftwarePixelData* s = new SoftwarePixelData (pixelFormat, width, height, false);
         memcpy (s->imageData, imageData, (size_t) (lineStride * height));
@@ -146,13 +155,13 @@ class SubsectionPixelData  : public ImagePixelData
 public:
     SubsectionPixelData (ImagePixelData* const im, const Rectangle<int>& r)
         : ImagePixelData (im->pixelFormat, r.getWidth(), r.getHeight()),
-          image (im), area (r)
+          sourceImage (im), area (r)
     {
     }
 
     LowLevelGraphicsContext* createLowLevelContext() override
     {
-        LowLevelGraphicsContext* g = image->createLowLevelContext();
+        LowLevelGraphicsContext* g = sourceImage->createLowLevelContext();
         g->clipToRectangle (area);
         g->setOrigin (area.getPosition());
         return g;
@@ -160,16 +169,16 @@ public:
 
     void initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode) override
     {
-        image->initialiseBitmapData (bitmap, x + area.getX(), y + area.getY(), mode);
+        sourceImage->initialiseBitmapData (bitmap, x + area.getX(), y + area.getY(), mode);
 
         if (mode != Image::BitmapData::readOnly)
             sendDataChangeMessage();
     }
 
-    ImagePixelData* clone() override
+    ImagePixelData::Ptr clone() override
     {
         jassert (getReferenceCount() > 0); // (This method can't be used on an unowned pointer, as it will end up self-deleting)
-        const ScopedPointer<ImageType> type (image->createType());
+        const ScopedPointer<ImageType> type (createType());
 
         Image newImage (type->create (pixelFormat, area.getWidth(), area.getHeight(), pixelFormat != Image::RGB));
 
@@ -178,18 +187,17 @@ public:
             g.drawImageAt (Image (this), 0, 0);
         }
 
-        newImage.getPixelData()->incReferenceCount();
         return newImage.getPixelData();
     }
 
-    ImageType* createType() const override          { return image->createType(); }
+    ImageType* createType() const override          { return sourceImage->createType(); }
 
     /* as we always hold a reference to image, don't double count */
-    int getSharedCount() const noexcept override    { return getReferenceCount() + image->getSharedCount() - 1; }
+    int getSharedCount() const noexcept override    { return getReferenceCount() + sourceImage->getSharedCount() - 1; }
 
 private:
     friend class Image;
-    const ImagePixelData::Ptr image;
+    const ImagePixelData::Ptr sourceImage;
     const Rectangle<int> area;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SubsectionPixelData)
@@ -236,7 +244,6 @@ Image& Image::operator= (const Image& other)
     return *this;
 }
 
-#if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 Image::Image (Image&& other) noexcept
     : image (static_cast<ImagePixelData::Ptr&&> (other.image))
 {
@@ -247,13 +254,14 @@ Image& Image::operator= (Image&& other) noexcept
     image = static_cast<ImagePixelData::Ptr&&> (other.image);
     return *this;
 }
-#endif
 
 Image::~Image()
 {
 }
 
+#if JUCE_ALLOW_STATIC_NULL_VARIABLES
 const Image Image::null;
+#endif
 
 int Image::getReferenceCount() const noexcept           { return image == nullptr ? 0 : image->getSharedCount(); }
 int Image::getWidth() const noexcept                    { return image == nullptr ? 0 : image->width; }
@@ -508,17 +516,13 @@ static void performPixelOp (const Image::BitmapData& data, const PixelOperation&
 
 struct AlphaMultiplyOp
 {
-    AlphaMultiplyOp (float alpha_) noexcept : alpha (alpha_) {}
-
-    const float alpha;
+    float alpha;
 
     template <class PixelType>
     void operator() (PixelType& pixel) const
     {
         pixel.multiplyAlpha (alpha);
     }
-
-    JUCE_DECLARE_NON_COPYABLE (AlphaMultiplyOp)
 };
 
 void Image::multiplyAllAlphas (const float amountToMultiplyBy)
@@ -526,7 +530,7 @@ void Image::multiplyAllAlphas (const float amountToMultiplyBy)
     jassert (hasAlphaChannel());
 
     const BitmapData destData (*this, 0, 0, getWidth(), getHeight(), BitmapData::readWrite);
-    performPixelOp (destData, AlphaMultiplyOp (amountToMultiplyBy));
+    performPixelOp (destData, AlphaMultiplyOp { amountToMultiplyBy });
 }
 
 struct DesaturateOp

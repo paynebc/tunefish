@@ -2,22 +2,20 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -193,27 +191,53 @@ public:
             numDeviceOutputChannels = 2;
             outputDevice = GlobalRef (env->NewObject (AudioTrack, AudioTrack.constructor,
                                                       STREAM_MUSIC, sampleRate, CHANNEL_OUT_STEREO, ENCODING_PCM_16BIT,
-                                                      (jint) (minBufferSizeOut * numDeviceOutputChannels * sizeof (int16)), MODE_STREAM));
+                                                      (jint) (minBufferSizeOut * numDeviceOutputChannels * static_cast<int> (sizeof (int16))), MODE_STREAM));
 
-            if (env->CallIntMethod (outputDevice, AudioTrack.getState) != STATE_UNINITIALIZED)
+            int outputDeviceState = env->CallIntMethod (outputDevice, AudioTrack.getState);
+            if (outputDeviceState > 0)
+            {
                 isRunning = true;
+            }
             else
-                outputDevice.clear(); // failed to open the device
+            {
+                 // failed to open the device
+                outputDevice.clear();
+                lastError = "Error opening audio output device: android.media.AudioTrack failed with state = " + String (outputDeviceState);
+            }
         }
 
         if (numClientInputChannels > 0 && numDeviceInputChannelsAvailable > 0)
         {
-            numDeviceInputChannels = jmin (numClientInputChannels, numDeviceInputChannelsAvailable);
-            inputDevice = GlobalRef (env->NewObject (AudioRecord, AudioRecord.constructor,
-                                                     0 /* (default audio source) */, sampleRate,
-                                                     numDeviceInputChannelsAvailable > 1 ? CHANNEL_IN_STEREO : CHANNEL_IN_MONO,
-                                                     ENCODING_PCM_16BIT,
-                                                     (jint) (minBufferSizeIn * numDeviceInputChannels * sizeof (int16))));
+            if (! RuntimePermissions::isGranted (RuntimePermissions::recordAudio))
+            {
+                // If you hit this assert, you probably forgot to get RuntimePermissions::recordAudio
+                // before trying to open an audio input device. This is not going to work!
+                jassertfalse;
 
-            if (env->CallIntMethod (inputDevice, AudioRecord.getState) != STATE_UNINITIALIZED)
-                isRunning = true;
+                inputDevice.clear();
+                lastError = "Error opening audio input device: the app was not granted android.permission.RECORD_AUDIO";
+            }
             else
-                inputDevice.clear(); // failed to open the device
+            {
+                numDeviceInputChannels = jmin (numClientInputChannels, numDeviceInputChannelsAvailable);
+                inputDevice = GlobalRef (env->NewObject (AudioRecord, AudioRecord.constructor,
+                                                         0 /* (default audio source) */, sampleRate,
+                                                         numDeviceInputChannelsAvailable > 1 ? CHANNEL_IN_STEREO : CHANNEL_IN_MONO,
+                                                         ENCODING_PCM_16BIT,
+                                                         (jint) (minBufferSizeIn * numDeviceInputChannels * static_cast<int> (sizeof (int16)))));
+
+                int inputDeviceState = env->CallIntMethod (inputDevice, AudioRecord.getState);
+                if (inputDeviceState > 0)
+                {
+                    isRunning = true;
+                }
+                else
+                {
+                     // failed to open the device
+                    inputDevice.clear();
+                    lastError = "Error opening audio input device: android.media.AudioRecord failed with state = " + String (inputDeviceState);
+                }
+            }
         }
 
         if (isRunning)
@@ -368,7 +392,7 @@ public:
     int minBufferSizeOut, minBufferSizeIn;
 
 private:
-    //==================================================================================================
+    //==============================================================================
     CriticalSection callbackLock;
     AudioIODeviceCallback* callback;
     jint sampleRate;
@@ -409,9 +433,9 @@ public:
 
     //==============================================================================
     void scanForDevices() {}
-    StringArray getDeviceNames (bool wantInputNames) const              { return StringArray (javaAudioTypeName); }
-    int getDefaultDeviceIndex (bool forInput) const                     { return 0; }
-    int getIndexOfDevice (AudioIODevice* device, bool asInput) const    { return device != nullptr ? 0 : -1; }
+    StringArray getDeviceNames (bool) const                             { return StringArray (javaAudioTypeName); }
+    int getDefaultDeviceIndex (bool) const                              { return 0; }
+    int getIndexOfDevice (AudioIODevice* device, bool) const            { return device != nullptr ? 0 : -1; }
     bool hasSeparateInputsAndOutputs() const                            { return false; }
 
     AudioIODevice* createDevice (const String& outputDeviceName,

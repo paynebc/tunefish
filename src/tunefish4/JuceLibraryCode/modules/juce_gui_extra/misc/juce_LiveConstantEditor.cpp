@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -141,6 +143,7 @@ LivePropertyEditorBase::LivePropertyEditorBase (LiveValueBase& v, CodeDocument& 
     valueEditor.setText (v.getStringValue (wasHex), dontSendNotification);
     valueEditor.addListener (this);
     sourceEditor.setReadOnly (true);
+    sourceEditor.setFont (sourceEditor.getFont().withHeight (13.0f));
     resetButton.addListener (this);
 }
 
@@ -433,10 +436,9 @@ Component* createColourEditor (LivePropertyEditorBase& editor)
 }
 
 //==============================================================================
-class SliderComp   : public Component,
-                     private Slider::Listener
+struct SliderComp   : public Component,
+                      private Slider::Listener
 {
-public:
     SliderComp (LivePropertyEditorBase& e, bool useFloat)
         : editor (e), isFloat (useFloat)
     {
@@ -446,7 +448,7 @@ public:
         slider.addListener (this);
     }
 
-    void updateRange()
+    virtual void updateRange()
     {
         double v = isFloat ? parseDouble (editor.value.getStringValue (false))
                            : (double) parseInt (editor.value.getStringValue (false));
@@ -457,30 +459,43 @@ public:
         slider.setValue (v, dontSendNotification);
     }
 
-private:
-    LivePropertyEditorBase& editor;
-    Slider slider;
-    bool isFloat;
-
-    void sliderValueChanged (Slider*)
+    void sliderValueChanged (Slider*) override
     {
         editor.applyNewValue (isFloat ? getAsString ((double) slider.getValue(), editor.wasHex)
                                       : getAsString ((int64)  slider.getValue(), editor.wasHex));
 
     }
 
-    void sliderDragStarted (Slider*)  {}
-    void sliderDragEnded (Slider*)    { updateRange(); }
+    void sliderDragStarted (Slider*) override  {}
+    void sliderDragEnded (Slider*) override    { updateRange(); }
 
-    void resized()
+    void resized() override
     {
         slider.setBounds (getLocalBounds().removeFromTop (25));
     }
+
+    LivePropertyEditorBase& editor;
+    Slider slider;
+    bool isFloat;
 };
 
+//==============================================================================
+struct BoolSliderComp  : public SliderComp
+{
+    BoolSliderComp (LivePropertyEditorBase& e) : SliderComp (e, false) {}
+
+    void updateRange() override
+    {
+        slider.setRange (0.0, 1.0, dontSendNotification);
+        slider.setValue (editor.value.getStringValue (false) == "true", dontSendNotification);
+    }
+
+    void sliderValueChanged (Slider*) override  { editor.applyNewValue (slider.getValue() > 0.5 ? "true" : "false"); }
+};
 
 Component* createIntegerSlider (LivePropertyEditorBase& editor) { return new SliderComp (editor, false); }
 Component* createFloatSlider   (LivePropertyEditorBase& editor) { return new SliderComp (editor, true);  }
+Component* createBoolSlider    (LivePropertyEditorBase& editor) { return new BoolSliderComp (editor); }
 
 }
 

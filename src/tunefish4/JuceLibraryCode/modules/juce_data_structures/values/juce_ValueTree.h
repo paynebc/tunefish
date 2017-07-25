@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_VALUETREE_H_INCLUDED
-#define JUCE_VALUETREE_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -75,8 +76,6 @@ public:
         A ValueTree that is created with this constructor can't actually be used for anything,
         it's just a default 'null' ValueTree that can be returned to indicate some sort of failure.
         To create a real one, use the constructor that takes a string.
-
-        @see ValueTree::invalid
     */
     ValueTree() noexcept;
 
@@ -92,9 +91,8 @@ public:
     /** Makes this object reference another node. */
     ValueTree& operator= (const ValueTree&);
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+    /** Move constructor */
     ValueTree (ValueTree&&) noexcept;
-   #endif
 
     /** Destructor. */
     ~ValueTree();
@@ -145,16 +143,22 @@ public:
     /** Returns the value of a named property.
         If no such property has been set, this will return a void variant.
         You can also use operator[] to get a property.
-        @see var, setProperty, hasProperty
+        @see var, setProperty, getPropertyPointer, hasProperty
     */
     const var& getProperty (const Identifier& name) const noexcept;
 
-    /** Returns the value of a named property, or a user-specified default if the property doesn't exist.
-        If no such property has been set, this will return the value of defaultReturnValue.
+    /** Returns the value of a named property, or the value of defaultReturnValue
+        if the property doesn't exist.
         You can also use operator[] and getProperty to get a property.
-        @see var, getProperty, setProperty, hasProperty
+        @see var, getProperty, getPropertyPointer, setProperty, hasProperty
     */
     var getProperty (const Identifier& name, const var& defaultReturnValue) const;
+
+    /** Returns a pointer to the value of a named property, or nullptr if the property
+        doesn't exist.
+        @see var, getProperty, setProperty, hasProperty
+    */
+    const var* getPropertyPointer (const Identifier& name) const noexcept;
 
     /** Returns the value of a named property.
         If no such property has been set, this will return a void variant. This is the same as
@@ -314,13 +318,37 @@ public:
     */
     ValueTree getParent() const noexcept;
 
+    /** Recusrively finds the highest-level parent node that contains this one.
+        If the node has no parent, this will return itself.
+    */
+    ValueTree getRoot() const noexcept;
+
     /** Returns one of this node's siblings in its parent's child list.
 
         The delta specifies how far to move through the list, so a value of 1 would return the node
         that follows this one, -1 would return the node before it, 0 will return this node itself, etc.
-        If the requested position is beyond the range of available nodes, this will return ValueTree::invalid.
+        If the requested position is beyond the range of available nodes, this will return an empty ValueTree().
     */
     ValueTree getSibling (int delta) const noexcept;
+
+    //==============================================================================
+    struct Iterator
+    {
+        Iterator (const ValueTree&, bool isEnd) noexcept;
+        Iterator& operator++() noexcept;
+
+        bool operator!= (const Iterator&) const noexcept;
+        ValueTree operator*() const;
+
+    private:
+        void* internal;
+    };
+
+    /** Returns a start iterator for the children in this tree. */
+    Iterator begin() const noexcept;
+
+    /** Returns an end iterator for the children in this tree. */
+    Iterator end() const noexcept;
 
     //==============================================================================
     /** Creates an XmlElement that holds a complete image of this node and all its children.
@@ -458,6 +486,13 @@ public:
     /** Removes a listener that was previously added with addListener(). */
     void removeListener (Listener* listener);
 
+    /** Changes a named property of the node, but will not notify a specified listener of the change.
+        @see setProperty
+    */
+    ValueTree& setPropertyExcludingListener (Listener* listenerToExclude,
+                                             const Identifier& name, const var& newValue,
+                                             UndoManager* undoManager);
+
     /** Causes a property-change callback to be triggered for the specified property,
         calling any listeners that are registered.
     */
@@ -498,10 +533,13 @@ public:
         }
     }
 
+   #if JUCE_ALLOW_STATIC_NULL_VARIABLES
     /** An invalid ValueTree that can be used if you need to return one as an error condition, etc.
-        This invalid object is equivalent to ValueTree created with its default constructor.
+        This invalid object is equivalent to ValueTree created with its default constructor, but
+        you should always prefer to avoid it and use ValueTree() or {} instead.
     */
     static const ValueTree invalid;
+   #endif
 
     /** Returns the total number of references to the shared underlying data structure that this
         ValueTree is using.
@@ -536,6 +574,3 @@ private:
 
     explicit ValueTree (SharedObject*) noexcept;
 };
-
-
-#endif   // JUCE_VALUETREE_H_INCLUDED

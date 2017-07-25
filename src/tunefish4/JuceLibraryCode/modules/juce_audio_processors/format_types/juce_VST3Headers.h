@@ -2,31 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_VST3HEADERS_H_INCLUDED
-#define JUCE_VST3HEADERS_H_INCLUDED
-
-#undef Point
-#undef Component
+#pragma once
 
 // Wow, those Steinberg guys really don't worry too much about compiler warnings.
 #if _MSC_VER
@@ -48,14 +46,19 @@
  #pragma clang diagnostic ignored "-Wsign-conversion"
  #pragma clang diagnostic ignored "-Wsign-compare"
  #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
+ #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+ #pragma clang diagnostic ignored "-Wextra-semi"
 #endif
+
+#undef DEVELOPMENT
+#define DEVELOPMENT 0  // This avoids a Clang warning in Steinberg code about unused values
 
 /*  These files come with the Steinberg VST3 SDK - to get them, you'll need to
     visit the Steinberg website and agree to whatever is currently required to
     get them.
 
     Then, you'll need to make sure your include path contains your "VST3 SDK"
-    directory (or whatever you've named it on your machine). The Introjucer has
+    directory (or whatever you've named it on your machine). The Projucer has
     a special box for setting this path.
 */
 #if JUCE_VST3HEADERS_INCLUDE_HEADERS_ONLY
@@ -81,16 +84,15 @@
  #include <pluginterfaces/vst/ivstunits.h>
  #include <pluginterfaces/vst/ivstmidicontrollers.h>
  #include <public.sdk/source/common/memorystream.h>
+ #include <public.sdk/source/vst/vsteditcontroller.h>
 #else
  #include <base/source/baseiids.cpp>
- #include <base/source/fatomic.cpp>
  #include <base/source/fbuffer.cpp>
  #include <base/source/fdebug.cpp>
  #include <base/source/fobject.cpp>
- #include <base/source/frect.cpp>
  #include <base/source/fstreamer.cpp>
  #include <base/source/fstring.cpp>
- #include <base/source/fthread.cpp>
+ #include <base/source/flock.cpp>
  #include <base/source/updatehandler.cpp>
  #include <pluginterfaces/base/conststringtable.cpp>
  #include <pluginterfaces/base/funknown.cpp>
@@ -126,6 +128,10 @@ namespace Steinberg
  #pragma warning (pop)
 #elif __clang__
  #pragma clang diagnostic pop
+#endif
+
+#if JUCE_WINDOWS
+ #include <windows.h>
 #endif
 
 //==============================================================================
@@ -171,7 +177,3 @@ namespace Steinberg
 #undef DEF_CLASS2
 #undef DEF_CLASS_W
 #undef END_FACTORY
-#undef Point
-#undef Component
-
-#endif   // JUCE_VST3HEADERS_H_INCLUDED

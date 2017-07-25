@@ -1,33 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_STRING_H_INCLUDED
-#define JUCE_STRING_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -52,9 +45,8 @@ public:
     /** Creates a copy of another string. */
     String (const String& other) noexcept;
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+    /** Move constructor */
     String (String&& other) noexcept;
-   #endif
 
     /** Creates a string from a zero-terminated ascii text string.
 
@@ -147,12 +139,15 @@ public:
     ~String() noexcept;
 
     //==============================================================================
-    /** This is an empty string that can be used whenever one is needed.
-
-        It's better to use this than String() because it explains what's going on
-        and is more efficient.
+   #if JUCE_ALLOW_STATIC_NULL_VARIABLES
+    /** This is a static empty string object that can be used if you need a reference to one.
+        The value of String::empty is exactly the same as String(), and in almost all cases
+        it's better to avoid String::empty and just use String() or {} instead, so that the compiler
+        only has to reason about locally-constructed objects, rather than taking into account
+        the fact that you're referencing a global shared static memory address.
     */
     static const String empty;
+   #endif
 
     /** This is the character encoding type used internally to store the string.
 
@@ -195,9 +190,8 @@ public:
     /** Replaces this string's contents with another string. */
     String& operator= (const String& other) noexcept;
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+    /** Moves the contents of another string to the receiver */
     String& operator= (String&& other) noexcept;
-   #endif
 
     /** Appends another string at the end of this one. */
     String& operator+= (const String& stringToAppend);
@@ -252,12 +246,12 @@ public:
 
         size_t extraBytesNeeded = 0, numChars = 1;
 
-        for (CharPointer t (startOfTextToAppend); t != endOfTextToAppend && ! t.isEmpty(); ++numChars)
+        for (auto t = startOfTextToAppend; t != endOfTextToAppend && ! t.isEmpty(); ++numChars)
             extraBytesNeeded += CharPointerType::getBytesRequiredFor (t.getAndAdvance());
 
         if (extraBytesNeeded > 0)
         {
-            const size_t byteOffsetOfNull = getByteOffsetOfEnd();
+            auto byteOffsetOfNull = getByteOffsetOfEnd();
 
             preallocateBytes (byteOffsetOfNull + extraBytesNeeded);
             CharPointerType (addBytesToPointer (text.getAddress(), (int) byteOffsetOfNull))
@@ -280,12 +274,12 @@ public:
         {
             size_t extraBytesNeeded = 0, numChars = 1;
 
-            for (CharPointer t (textToAppend); numChars <= maxCharsToTake && ! t.isEmpty(); ++numChars)
+            for (auto t = textToAppend; numChars <= maxCharsToTake && ! t.isEmpty(); ++numChars)
                 extraBytesNeeded += CharPointerType::getBytesRequiredFor (t.getAndAdvance());
 
             if (extraBytesNeeded > 0)
             {
-                const size_t byteOffsetOfNull = getByteOffsetOfEnd();
+                auto byteOffsetOfNull = getByteOffsetOfEnd();
 
                 preallocateBytes (byteOffsetOfNull + extraBytesNeeded);
                 CharPointerType (addBytesToPointer (text.getAddress(), (int) byteOffsetOfNull))
@@ -363,7 +357,7 @@ public:
         @returns     0 if the two strings are identical; negative if this string comes before
                      the other one alphabetically, or positive if it comes after it.
     */
-    int compareNatural (StringRef other) const noexcept;
+    int compareNatural (StringRef other, bool isCaseSensitive = false) const noexcept;
 
     /** Tests whether the string begins with another string.
         If the parameter is an empty string, this will always return true.
@@ -777,6 +771,17 @@ public:
                     StringRef stringToInsertInstead,
                     bool ignoreCase = false) const;
 
+    /** Replaces the first occurrence of a substring with another string.
+
+        Returns a copy of this string, with the first occurrence of stringToReplace
+        swapped for stringToInsertInstead.
+
+        Note that this is a const method, and won't alter the string itself.
+    */
+    String replaceFirstOccurrenceOf (StringRef stringToReplace,
+                                     StringRef stringToInsertInstead,
+                                     bool ignoreCase = false) const;
+
     /** Returns a string with all occurrences of a character replaced with a different one. */
     String replaceCharacter (juce_wchar characterToReplace,
                              juce_wchar characterToInsertInstead) const;
@@ -906,7 +911,8 @@ public:
         on the platform, it may be using wchar_t or char character types, so that even string
         literals can't be safely used as parameters if you're writing portable code.
     */
-    static String formatted (const String formatString, ... );
+    template <typename... Args>
+    static String formatted (const String& formatStr, Args... args)      { return formattedRaw (formatStr.toRawUTF8(), args...); }
 
     //==============================================================================
     // Numeric conversions..
@@ -1040,16 +1046,11 @@ public:
     */
     int64 getHexValue64() const noexcept;
 
-    /** Creates a string representing this 32-bit value in hexadecimal. */
-    static String toHexString (int number);
+    /** Returns a string representing this numeric value in hexadecimal. */
+    template <typename IntegerType>
+    static String toHexString (IntegerType number)      { return createHex (number); }
 
-    /** Creates a string representing this 64-bit value in hexadecimal. */
-    static String toHexString (int64 number);
-
-    /** Creates a string representing this 16-bit value in hexadecimal. */
-    static String toHexString (short number);
-
-    /** Creates a string containing a hex dump of a block of binary data.
+    /** Returns a string containing a hex dump of a block of binary data.
 
         @param data         the binary data to use as input
         @param size         how many bytes of data to use
@@ -1261,6 +1262,17 @@ private:
     // to bools (this is possible because the compiler can add an implicit cast
     // via a const char*)
     operator bool() const noexcept  { return false; }
+
+    //==============================================================================
+    static String formattedRaw (const char*, ...);
+
+    static String createHex (uint8);
+    static String createHex (uint16);
+    static String createHex (uint32);
+    static String createHex (uint64);
+
+    template <typename Type>
+    static String createHex (Type n)  { return createHex (static_cast<typename TypeHelpers::UnsignedTypeWithSize<sizeof (n)>::type> (n)); }
 };
 
 //==============================================================================
@@ -1317,6 +1329,8 @@ JUCE_API String& JUCE_CALLTYPE operator<< (String& string1, short number);
 JUCE_API String& JUCE_CALLTYPE operator<< (String& string1, int number);
 /** Appends a decimal number at the end of a string. */
 JUCE_API String& JUCE_CALLTYPE operator<< (String& string1, long number);
+/** Appends a decimal number at the end of a string. */
+JUCE_API String& JUCE_CALLTYPE operator<< (String& string1, unsigned long number);
 /** Appends a decimal number at the end of a string. */
 JUCE_API String& JUCE_CALLTYPE operator<< (String& string1, int64 number);
 /** Appends a decimal number at the end of a string. */
@@ -1386,6 +1400,3 @@ JUCE_API OutputStream& JUCE_CALLTYPE operator<< (OutputStream& stream, const Str
 
 /** Writes a string to an OutputStream as UTF8. */
 JUCE_API OutputStream& JUCE_CALLTYPE operator<< (OutputStream& stream, StringRef stringToWrite);
-
-
-#endif   // JUCE_STRING_H_INCLUDED

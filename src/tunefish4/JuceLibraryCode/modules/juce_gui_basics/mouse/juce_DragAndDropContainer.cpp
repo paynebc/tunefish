@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -40,8 +42,7 @@ public:
         : sourceDetails (desc, sourceComponent, Point<int>()),
           image (im), owner (ddc),
           mouseDragSource (mouseSource),
-          imageOffset (offset),
-          hasCheckedForExternalDrag (false)
+          imageOffset (offset)
     {
         updateSize();
 
@@ -70,7 +71,7 @@ public:
                     current->itemDragExit (sourceDetails);
         }
 
-        owner.dragOperationEnded();
+        owner.dragOperationEnded (sourceDetails);
     }
 
     void paint (Graphics& g) override
@@ -211,7 +212,7 @@ private:
     DragAndDropContainer& owner;
     WeakReference<Component> mouseDragSource, currentlyOverComp;
     const Point<int> imageOffset;
-    bool hasCheckedForExternalDrag;
+    bool hasCheckedForExternalDrag = false;
     Time lastTimeOverTarget;
 
     void updateSize()
@@ -294,22 +295,6 @@ private:
                 target->itemDragMove (details);
     }
 
-    struct ExternalDragAndDropMessage  : public CallbackMessage
-    {
-        ExternalDragAndDropMessage (const StringArray& f, bool canMove)
-            : files (f), canMoveFiles (canMove)
-        {}
-
-        void messageCallback() override
-        {
-            DragAndDropContainer::performExternalDragDropOfFiles (files, canMoveFiles);
-        }
-
-    private:
-        StringArray files;
-        bool canMoveFiles;
-    };
-
     void checkForExternalDrag (DragAndDropTarget::SourceDetails& details, Point<int> screenPos)
     {
         if (! hasCheckedForExternalDrag)
@@ -317,15 +302,27 @@ private:
             if (Desktop::getInstance().findComponentAt (screenPos) == nullptr)
             {
                 hasCheckedForExternalDrag = true;
-                StringArray files;
-                bool canMoveFiles = false;
 
-                if (owner.shouldDropFilesWhenDraggedExternally (details, files, canMoveFiles)
-                      && files.size() > 0
-                      && ModifierKeys::getCurrentModifiersRealtime().isAnyMouseButtonDown())
+                if (ModifierKeys::getCurrentModifiersRealtime().isAnyMouseButtonDown())
                 {
-                    (new ExternalDragAndDropMessage (files, canMoveFiles))->post();
-                    deleteSelf();
+                    StringArray files;
+                    bool canMoveFiles = false;
+
+                    if (owner.shouldDropFilesWhenDraggedExternally (details, files, canMoveFiles) && ! files.isEmpty())
+                    {
+                        MessageManager::callAsync ([=]()  { DragAndDropContainer::performExternalDragDropOfFiles (files, canMoveFiles); });
+                        deleteSelf();
+                        return;
+                    }
+
+                    String text;
+
+                    if (owner.shouldDropTextWhenDraggedExternally (details, text) && text.isNotEmpty())
+                    {
+                        MessageManager::callAsync ([=]()  { DragAndDropContainer::performExternalDragDropOfText (text); });
+                        deleteSelf();
+                        return;
+                    }
                 }
             }
         }
@@ -469,7 +466,7 @@ void DragAndDropContainer::startDragging (const var& sourceDescription,
             peer->performAnyPendingRepaintsNow();
        #endif
 
-        dragOperationStarted();
+        dragOperationStarted (dragImageComponent->sourceDetails);
     }
 }
 
@@ -500,8 +497,13 @@ bool DragAndDropContainer::shouldDropFilesWhenDraggedExternally (const DragAndDr
     return false;
 }
 
-void DragAndDropContainer::dragOperationStarted()  {}
-void DragAndDropContainer::dragOperationEnded()    {}
+bool DragAndDropContainer::shouldDropTextWhenDraggedExternally (const DragAndDropTarget::SourceDetails&, String&)
+{
+    return false;
+}
+
+void DragAndDropContainer::dragOperationStarted (const DragAndDropTarget::SourceDetails&)  {}
+void DragAndDropContainer::dragOperationEnded (const DragAndDropTarget::SourceDetails&)    {}
 
 //==============================================================================
 DragAndDropTarget::SourceDetails::SourceDetails (const var& desc, Component* comp, Point<int> pos) noexcept

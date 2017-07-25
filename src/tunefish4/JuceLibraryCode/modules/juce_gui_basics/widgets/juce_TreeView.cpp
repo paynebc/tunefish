@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -367,15 +369,11 @@ private:
 
     static bool isMouseDraggingInChildCompOf (Component* const comp)
     {
-        const Array<MouseInputSource>& mouseSources = Desktop::getInstance().getMouseSources();
-
-        for (MouseInputSource* mi = mouseSources.begin(), * const e = mouseSources.end(); mi != e; ++mi)
-        {
-            if (mi->isDragging())
-                if (Component* const underMouse = mi->getComponentUnderMouse())
+        for (auto& ms : Desktop::getInstance().getMouseSources())
+            if (ms.isDragging())
+                if (auto* underMouse = ms.getComponentUnderMouse())
                     if (comp == underMouse || comp->isParentOf (underMouse))
                         return true;
-        }
 
         return false;
     }
@@ -642,6 +640,9 @@ void TreeView::restoreOpennessState (const XmlElement& newState, const bool rest
     {
         rootItem->restoreOpennessState (newState);
 
+        needsRecalculating = true;
+        recalculateIfNeeded();
+
         if (newState.hasAttribute ("scrollPos"))
             viewport->setViewPosition (viewport->getViewPositionX(),
                                        newState.getIntAttribute ("scrollPos"));
@@ -861,7 +862,7 @@ void TreeView::recalculateIfNeeded()
         if (rootItem != nullptr)
         {
             viewport->getViewedComponent()
-                ->setSize (jmax (viewport->getMaximumVisibleWidth(), rootItem->totalWidth),
+                ->setSize (jmax (viewport->getMaximumVisibleWidth(), rootItem->totalWidth + 50),
                            rootItem->totalHeight - (rootItemVisible ? 0 : rootItem->itemHeight));
         }
         else
@@ -1091,7 +1092,7 @@ void TreeView::fileDragEnter (const StringArray& files, int x, int y)
 
 void TreeView::fileDragMove (const StringArray& files, int x, int y)
 {
-    handleDrag (files, SourceDetails (String::empty, this, Point<int> (x, y)));
+    handleDrag (files, SourceDetails (String(), this, Point<int> (x, y)));
 }
 
 void TreeView::fileDragExit (const StringArray&)
@@ -1101,7 +1102,7 @@ void TreeView::fileDragExit (const StringArray&)
 
 void TreeView::filesDropped (const StringArray& files, int x, int y)
 {
-    handleDrop (files, SourceDetails (String::empty, this, Point<int> (x, y)));
+    handleDrop (files, SourceDetails (String(), this, Point<int> (x, y)));
 }
 
 bool TreeView::isInterestedInDragSource (const SourceDetails& /*dragSourceDetails*/)
@@ -1156,7 +1157,7 @@ TreeViewItem::~TreeViewItem()
 
 String TreeViewItem::getUniqueName() const
 {
-    return String::empty;
+    return {};
 }
 
 void TreeViewItem::itemOpennessChanged (bool)
@@ -1378,7 +1379,7 @@ void TreeViewItem::itemSelectionChanged (bool)
 
 String TreeViewItem::getTooltip()
 {
-    return String::empty;
+    return {};
 }
 
 void TreeViewItem::ownerViewChanged (TreeView*)
@@ -1387,7 +1388,7 @@ void TreeViewItem::ownerViewChanged (TreeView*)
 
 var TreeViewItem::getDragSourceDescription()
 {
-    return var();
+    return {};
 }
 
 bool TreeViewItem::isInterestedInFileDrag (const StringArray&)
@@ -1559,6 +1560,9 @@ void TreeViewItem::paintRecursively (Graphics& g, int width)
         {
             if (isSelected())
                 g.fillAll (ownerView->findColour (TreeView::selectedItemBackgroundColourId));
+            else
+                g.fillAll ((getRowNumberInTree() % 2 == 0) ? ownerView->findColour (TreeView::oddItemsColourId)
+                                                           : ownerView->findColour (TreeView::evenItemsColourId));
 
             paintItem (g, itemWidth < 0 ? width - indent : itemWidth, itemHeight);
         }
@@ -1596,9 +1600,13 @@ void TreeViewItem::paintRecursively (Graphics& g, int width)
         }
 
         if (mightContainSubItems())
+        {
+            auto backgroundColour = ownerView->findColour (TreeView::backgroundColourId);
+
             paintOpenCloseButton (g, Rectangle<float> ((float) (depth * indentWidth), 0, (float) indentWidth, (float) itemHeight),
-                                  Colours::white,
+                                  backgroundColour.isTransparent() ? Colours::white : backgroundColour,
                                   ownerView->viewport->getContentComp()->isMouseOverButton (this));
+        }
     }
 
     if (isOpen())
@@ -1755,6 +1763,9 @@ int TreeViewItem::getRowNumberInTree() const noexcept
 {
     if (parentItem != nullptr && ownerView != nullptr)
     {
+        if (! parentItem->isOpen())
+            return parentItem->getRowNumberInTree();
+
         int n = 1 + parentItem->getRowNumberInTree();
 
         int ourIndex = parentItem->subItems.indexOf (this);

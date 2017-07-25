@@ -2,22 +2,24 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -125,7 +127,7 @@ public:
         if (lastHue != h)
         {
             lastHue = h;
-            colours = Image::null;
+            colours = Image();
             repaint();
         }
 
@@ -134,7 +136,7 @@ public:
 
     void resized() override
     {
-        colours = Image::null;
+        colours = Image();
         updateMarker();
     }
 
@@ -207,7 +209,7 @@ public:
         ColourGradient cg;
         cg.isRadial = false;
         cg.point1.setXY (0.0f, (float) edge);
-        cg.point2.setXY (0.0f, (float) (getHeight() - edge));
+        cg.point2.setXY (0.0f, (float) getHeight());
 
         for (float i = 0.0f; i <= 1.0f; i += 0.02f)
             cg.addColour (i, Colour (i, 1.0f, 1.0f, 1.0f));
@@ -336,7 +338,7 @@ ColourSelector::ColourSelector (const int sectionsToShow, const int edge, const 
         addAndMakeVisible (hueSelector = new HueSelectorComp (*this, h,  gapAroundColourSpaceComponent));
     }
 
-    update();
+    update (dontSendNotification);
 }
 
 ColourSelector::~ColourSelector()
@@ -351,14 +353,14 @@ Colour ColourSelector::getCurrentColour() const
     return ((flags & showAlphaChannel) != 0) ? colour : colour.withAlpha ((uint8) 0xff);
 }
 
-void ColourSelector::setCurrentColour (Colour c)
+void ColourSelector::setCurrentColour (Colour c, NotificationType notification)
 {
     if (c != colour)
     {
         colour = ((flags & showAlphaChannel) != 0) ? c : c.withAlpha ((uint8) 0xff);
 
         updateHSV();
-        update();
+        update (notification);
     }
 }
 
@@ -370,7 +372,7 @@ void ColourSelector::setHue (float newH)
     {
         h = newH;
         colour = Colour (h, s, v, colour.getFloatAlpha());
-        update();
+        update (sendNotification);
     }
 }
 
@@ -384,7 +386,7 @@ void ColourSelector::setSV (float newS, float newV)
         s = newS;
         v = newV;
         colour = Colour (h, s, v, colour.getFloatAlpha());
-        update();
+        update (sendNotification);
     }
 }
 
@@ -394,14 +396,14 @@ void ColourSelector::updateHSV()
     colour.getHSB (h, s, v);
 }
 
-void ColourSelector::update()
+void ColourSelector::update (NotificationType notification)
 {
     if (sliders[0] != nullptr)
     {
-        sliders[0]->setValue ((int) colour.getRed());
-        sliders[1]->setValue ((int) colour.getGreen());
-        sliders[2]->setValue ((int) colour.getBlue());
-        sliders[3]->setValue ((int) colour.getAlpha());
+        sliders[0]->setValue ((int) colour.getRed(),   notification);
+        sliders[1]->setValue ((int) colour.getGreen(), notification);
+        sliders[2]->setValue ((int) colour.getBlue(),  notification);
+        sliders[3]->setValue ((int) colour.getAlpha(), notification);
     }
 
     if (colourSpace != nullptr)
@@ -413,7 +415,11 @@ void ColourSelector::update()
     if ((flags & showColourAtTop) != 0)
         repaint (previewArea);
 
-    sendChangeMessage();
+    if (notification != dontSendNotification)
+        sendChangeMessage();
+
+    if (notification == sendNotificationSync)
+        dispatchPendingMessages();
 }
 
 //==============================================================================
@@ -509,7 +515,7 @@ void ColourSelector::resized()
 
             for (int i = 0; i < numSwatches; ++i)
             {
-                SwatchComponent* const sc = new SwatchComponent (*this, i);
+                auto* sc = new SwatchComponent (*this, i);
                 swatchComponents.add (sc);
                 addAndMakeVisible (sc);
             }
@@ -519,7 +525,7 @@ void ColourSelector::resized()
 
         for (int i = 0; i < swatchComponents.size(); ++i)
         {
-            SwatchComponent* const sc = swatchComponents.getUnchecked(i);
+            auto* sc = swatchComponents.getUnchecked(i);
 
             sc->setBounds (x + xGap / 2,
                            y + yGap / 2,
@@ -560,7 +566,7 @@ Colour ColourSelector::getSwatchColour (const int) const
     return Colours::black;
 }
 
-void ColourSelector::setSwatchColour (const int, const Colour&) const
+void ColourSelector::setSwatchColour (int, const Colour&)
 {
     jassertfalse; // if you've overridden getNumSwatches(), you also need to implement this method
 }

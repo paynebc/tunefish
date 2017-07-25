@@ -2,22 +2,20 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -78,9 +76,9 @@ void SynthesiserVoice::renderNextBlock (AudioBuffer<double>& outputBuffer,
                                    outputBuffer.getNumChannels(),
                                    startSample, numSamples);
 
-    tempBuffer.makeCopyOf (subBuffer);
+    tempBuffer.makeCopyOf (subBuffer, true);
     renderNextBlock (tempBuffer, 0, numSamples);
-    subBuffer.makeCopyOf (tempBuffer);
+    subBuffer.makeCopyOf (tempBuffer, true);
 }
 
 //==============================================================================
@@ -88,6 +86,7 @@ Synthesiser::Synthesiser()
     : sampleRate (0),
       lastNoteOnCounter (0),
       minimumSubBlockSize (32),
+      subBlockSubdivisionIsStrict (false),
       shouldStealNotes (true)
 {
     for (int i = 0; i < numElementsInArray (lastPitchWheelValues); ++i)
@@ -147,10 +146,11 @@ void Synthesiser::setNoteStealingEnabled (const bool shouldSteal)
     shouldStealNotes = shouldSteal;
 }
 
-void Synthesiser::setMinimumRenderingSubdivisionSize (int numSamples) noexcept
+void Synthesiser::setMinimumRenderingSubdivisionSize (int numSamples, bool shouldBeStrict) noexcept
 {
     jassert (numSamples > 0); // it wouldn't make much sense for this to be less than 1
     minimumSubBlockSize = numSamples;
+    subBlockSubdivisionIsStrict = shouldBeStrict;
 }
 
 //==============================================================================
@@ -177,10 +177,12 @@ void Synthesiser::processNextBlock (AudioBuffer<floatType>& outputAudio,
 {
     // must set the sample rate before using this!
     jassert (sampleRate != 0);
+    const int targetChannels = outputAudio.getNumChannels();
 
     MidiBuffer::Iterator midiIterator (midiData);
     midiIterator.setNextSamplePosition (startSample);
 
+    bool firstEvent = true;
     int midiEventPos;
     MidiMessage m;
 
@@ -190,7 +192,9 @@ void Synthesiser::processNextBlock (AudioBuffer<floatType>& outputAudio,
     {
         if (! midiIterator.getNextEvent (m, midiEventPos))
         {
-            renderVoices (outputAudio, startSample, numSamples);
+            if (targetChannels > 0)
+                renderVoices (outputAudio, startSample, numSamples);
+
             return;
         }
 
@@ -198,18 +202,24 @@ void Synthesiser::processNextBlock (AudioBuffer<floatType>& outputAudio,
 
         if (samplesToNextMidiMessage >= numSamples)
         {
-            renderVoices (outputAudio, startSample, numSamples);
+            if (targetChannels > 0)
+                renderVoices (outputAudio, startSample, numSamples);
+
             handleMidiEvent (m);
             break;
         }
 
-        if (samplesToNextMidiMessage < minimumSubBlockSize)
+        if (samplesToNextMidiMessage < ((firstEvent && ! subBlockSubdivisionIsStrict) ? 1 : minimumSubBlockSize))
         {
             handleMidiEvent (m);
             continue;
         }
 
-        renderVoices (outputAudio, startSample, samplesToNextMidiMessage);
+        firstEvent = false;
+
+        if (targetChannels > 0)
+            renderVoices (outputAudio, startSample, samplesToNextMidiMessage);
+
         handleMidiEvent (m);
         startSample += samplesToNextMidiMessage;
         numSamples  -= samplesToNextMidiMessage;
@@ -512,13 +522,13 @@ void Synthesiser::handleSostenutoPedal (int midiChannel, bool isDown)
 
 void Synthesiser::handleSoftPedal (int midiChannel, bool /*isDown*/)
 {
-    (void) midiChannel;
+    ignoreUnused (midiChannel);
     jassert (midiChannel > 0 && midiChannel <= 16);
 }
 
 void Synthesiser::handleProgramChange (int midiChannel, int programNumber)
 {
-    (void) midiChannel; (void) programNumber;
+    ignoreUnused (midiChannel, programNumber);
     jassert (midiChannel > 0 && midiChannel <= 16);
 }
 

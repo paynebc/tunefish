@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
+   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
+   27th April 2017).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-5-licence
+   Privacy Policy: www.juce.com/juce-5-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MOUSEEVENT_H_INCLUDED
-#define JUCE_MOUSEEVENT_H_INCLUDED
-
+#pragma once
 
 //==============================================================================
 /**
@@ -47,6 +47,10 @@ public:
         @param pressure         the pressure of the touch or stylus, in the range 0 to 1. Devices that
                                 do not support force information may return 0.0, 1.0, or a negative value,
                                 depending on the platform
+        @param orientation      the orientation of the touch input for this event in radians. The default is 0
+        @param rotation         the rotation of the pen device for this event in radians. The default is 0
+        @param tiltX            the tilt of the pen device along the x-axis between -1.0 and 1.0. The default is 0
+        @param tiltY            the tilt of the pen device along the y-axis between -1.0 and 1.0. The default is 0
         @param eventComponent   the component that the mouse event applies to
         @param originator       the component that originally received the event
         @param eventTime        the time the event happened
@@ -63,6 +67,8 @@ public:
                 Point<float> position,
                 ModifierKeys modifiers,
                 float pressure,
+                float orientation, float rotation,
+                float tiltX, float tiltY,
                 Component* eventComponent,
                 Component* originator,
                 Time eventTime,
@@ -118,7 +124,27 @@ public:
         If the input device doesn't provide any pressure data, it may return a negative
         value here, or 0.0 or 1.0, depending on the platform.
     */
-    float pressure;
+    const float pressure;
+
+    /** The orientation of the touch input for this event in radians where 0 indicates a touch aligned with the x-axis
+        and pointing from left to right; increasing values indicate rotation in the clockwise direction. The default is 0.
+    */
+    const float orientation;
+
+    /** The rotation of the pen device for this event in radians. Indicates the clockwise
+        rotation, or twist, of the pen. The default is 0.
+    */
+    const float rotation;
+
+    /** The tilt of the pen device along the x-axis between -1.0 and 1.0. A positive value indicates
+        a tilt to the right. The default is 0.
+    */
+    const float tiltX;
+
+    /** The tilt of the pen device along the y-axis between -1.0 and 1.0. A positive value indicates
+        a tilt toward the user. The default is 0.
+    */
+    const float tiltY;
 
     /** The component that this event applies to.
 
@@ -156,19 +182,19 @@ public:
     //==============================================================================
     /** Returns the x coordinate of the last place that a mouse was pressed.
         The coordinate is relative to the component specified in MouseEvent::component.
-        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
+        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasDraggedSinceMouseDown
     */
     int getMouseDownX() const noexcept;
 
     /** Returns the y coordinate of the last place that a mouse was pressed.
         The coordinate is relative to the component specified in MouseEvent::component.
-        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
+        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasDraggedSinceMouseDown
     */
     int getMouseDownY() const noexcept;
 
     /** Returns the coordinates of the last place that a mouse was pressed.
         The coordinates are relative to the component specified in MouseEvent::component.
-        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
+        @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasDraggedSinceMouseDown
     */
     Point<int> getMouseDownPosition() const noexcept;
 
@@ -182,46 +208,48 @@ public:
     */
     int getDistanceFromDragStart() const noexcept;
 
-    /** Returns the difference between the mouse's current x postion and where it was
+    /** Returns the difference between the mouse's current x position and where it was
         when the button was last pressed.
 
         @see getDistanceFromDragStart
     */
     int getDistanceFromDragStartX() const noexcept;
 
-    /** Returns the difference between the mouse's current y postion and where it was
+    /** Returns the difference between the mouse's current y position and where it was
         when the button was last pressed.
 
         @see getDistanceFromDragStart
     */
     int getDistanceFromDragStartY() const noexcept;
 
-    /** Returns the difference between the mouse's current postion and where it was
+    /** Returns the difference between the mouse's current position and where it was
         when the button was last pressed.
 
         @see getDistanceFromDragStart
     */
     Point<int> getOffsetFromDragStart() const noexcept;
 
-    /** Returns true if the mouse has just been clicked.
+    /** Returns true if the user seems to be performing a drag gesture.
 
-        Used in either your mouseUp() or mouseDrag() methods, this will tell you whether
-        the user has dragged the mouse more than a few pixels from the place where the
-        mouse-down occurred.
+        This is only meaningful if called in either a mouseUp() or mouseDrag() method.
 
-        Once they have dragged it far enough for this method to return false, it will continue
-        to return false until the mouse-up, even if they move the mouse back to the same
-        position where they originally pressed it. This means that it's very handy for
+        It will return true if the user has dragged the mouse more than a few pixels
+        from the place where the mouse-down occurred.
+
+        Once they have dragged it far enough for this method to return true, it will continue
+        to return true until the mouse-up, even if they move the mouse back to the same
+        location at which the mouse-down happened. This means that it's very handy for
         objects that can either be clicked on or dragged, as you can use it in the mouseDrag()
-        callback to ignore any small movements they might make while clicking.
+        callback to ignore small movements they might make while trying to click.
+    */
+    bool mouseWasDraggedSinceMouseDown() const noexcept;
 
-        @returns    true if the mouse wasn't dragged by more than a few pixels between
-                    the last time the button was pressed and released.
+    /** Returns true if the mouse event is part of a click gesture rather than a drag.
+        This is effectively the opposite of mouseWasDraggedSinceMouseDown()
     */
     bool mouseWasClicked() const noexcept;
 
     /** For a click event, the number of times the mouse was clicked in succession.
-
         So for example a double-click event will return 2, a triple-click 3, etc.
     */
     int getNumberOfClicks() const noexcept                              { return numberOfClicks; }
@@ -237,6 +265,15 @@ public:
 
     /** Returns true if the pressure value for this event is meaningful. */
     bool isPressureValid() const noexcept;
+
+    /** Returns true if the orientation value for this event is meaningful. */
+    bool isOrientationValid() const noexcept;
+
+    /** Returns true if the rotation value for this event is meaningful. */
+    bool isRotationValid() const noexcept;
+
+    /** Returns true if the current tilt value (either x- or y-axis) is meaningful. */
+    bool isTiltValid (bool tiltX) const noexcept;
 
     //==============================================================================
     /** The position of the mouse when the event occurred.
@@ -374,5 +411,29 @@ struct MouseWheelDetails
     bool isInertial;
 };
 
+//==============================================================================
+/**
+    Contains status information about a pen event.
 
-#endif   // JUCE_MOUSEEVENT_H_INCLUDED
+    @see MouseListener, MouseEvent
+*/
+struct PenDetails
+{
+    /**
+        The rotation of the pen device in radians. Indicates the clockwise rotation, or twist,
+        of the pen. The default is 0.
+    */
+    float rotation;
+
+    /**
+        Indicates the angle of tilt of the pointer in a range of -1.0 to 1.0 along the x-axis where
+        a positive value indicates a tilt to the right. The default is 0.
+    */
+    float tiltX;
+
+    /**
+        Indicates the angle of tilt of the pointer in a range of -1.0 to 1.0 along the y-axis where
+        a positive value indicates a tilt toward the user. The default is 0.
+    */
+    float tiltY;
+};

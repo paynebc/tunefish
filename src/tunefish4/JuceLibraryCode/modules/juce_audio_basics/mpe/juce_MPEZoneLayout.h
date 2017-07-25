@@ -2,28 +2,25 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MPEZONELAYOUT_H_INCLUDED
-#define JUCE_MPEZONELAYOUT_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -46,6 +43,16 @@ public:
         You can add an MPE zone using the method addZone.
     */
     MPEZoneLayout() noexcept;
+
+    /** Copy constuctor.
+        This will not copy the listeners registered to the MPEZoneLayout.
+    */
+    MPEZoneLayout (const MPEZoneLayout& other);
+
+    /** Copy assignment operator.
+        This will not copy the listeners registered to the MPEZoneLayout.
+    */
+    MPEZoneLayout& operator= (const MPEZoneLayout& other);
 
     /** Adds a new MPE zone to the layout.
 
@@ -90,8 +97,9 @@ public:
     /** Returns the current number of MPE zones. */
     int getNumZones() const noexcept;
 
-    /** Returns a pointer to the MPE zone at the given index,
-        or nullptr if there is no such zone.
+    /** Returns a pointer to the MPE zone at the given index, or nullptr if there
+        is no such zone. Zones are sorted by insertion order (most recently added
+        zone last).
     */
     MPEZone* getZoneByIndex (int index) const noexcept;
 
@@ -115,15 +123,37 @@ public:
     */
     MPEZone* getZoneByNoteChannel (int midiChannel) const noexcept;
 
+    //==============================================================================
+    /** Listener class. Derive from this class to allow your class to be
+        notified about changes to the zone layout.
+    */
+    class Listener
+    {
+    public:
+        /** Destructor. */
+        virtual ~Listener() {}
+
+        /** Implement this callback to be notified about any changes to this
+            MPEZoneLayout. Will be called whenever a zone is added, zones are
+            removed, or any zone's master or note pitchbend ranges change.
+        */
+        virtual void zoneLayoutChanged (const MPEZoneLayout& layout) = 0;
+    };
+
+    //==============================================================================
+    /** Adds a listener. */
+    void addListener (Listener* const listenerToAdd) noexcept;
+
+    /** Removes a listener. */
+    void removeListener (Listener* const listenerToRemove) noexcept;
+
 private:
-    //==========================================================================
+    //==============================================================================
     Array<MPEZone> zones;
     MidiRPNDetector rpnDetector;
+    ListenerList<Listener> listeners;
 
     void processRpnMessage (MidiRPNMessage);
     void processZoneLayoutRpnMessage (MidiRPNMessage);
     void processPitchbendRangeRpnMessage (MidiRPNMessage);
 };
-
-
-#endif // JUCE_MPEZONELAYOUT_H_INCLUDED

@@ -1,33 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_BYTEORDER_H_INCLUDED
-#define JUCE_BYTEORDER_H_INCLUDED
+#pragma once
 
 
 //==============================================================================
@@ -140,35 +133,24 @@ private:
 
 
 //==============================================================================
-#if JUCE_USE_MSVC_INTRINSICS && ! defined (__INTEL_COMPILER)
+#if JUCE_MSVC && ! defined (__INTEL_COMPILER)
  #pragma intrinsic (_byteswap_ulong)
 #endif
 
 inline uint16 ByteOrder::swap (uint16 n) noexcept
 {
-   #if JUCE_USE_MSVC_INTRINSICSxxx // agh - the MS compiler has an internal error when you try to use this intrinsic!
-    return static_cast<uint16> (_byteswap_ushort (n));
-   #else
     return static_cast<uint16> ((n << 8) | (n >> 8));
-   #endif
 }
 
 inline uint32 ByteOrder::swap (uint32 n) noexcept
 {
    #if JUCE_MAC || JUCE_IOS
     return OSSwapInt32 (n);
-   #elif JUCE_GCC && JUCE_INTEL && ! JUCE_NO_INLINE_ASM
+   #elif (JUCE_GCC  || JUCE_CLANG) && JUCE_INTEL && ! JUCE_NO_INLINE_ASM
     asm("bswap %%eax" : "=a"(n) : "a"(n));
     return n;
-   #elif JUCE_USE_MSVC_INTRINSICS
+   #elif JUCE_MSVC
     return _byteswap_ulong (n);
-   #elif JUCE_MSVC && ! JUCE_NO_INLINE_ASM
-    __asm {
-        mov eax, n
-        bswap eax
-        mov n, eax
-    }
-    return n;
    #elif JUCE_ANDROID
     return bswap_32 (n);
    #else
@@ -180,7 +162,7 @@ inline uint64 ByteOrder::swap (uint64 value) noexcept
 {
    #if JUCE_MAC || JUCE_IOS
     return OSSwapInt64 (value);
-   #elif JUCE_USE_MSVC_INTRINSICS
+   #elif JUCE_MSVC
     return _byteswap_uint64 (value);
    #else
     return (((uint64) swap ((uint32) value)) << 32) | swap ((uint32) (value >> 32));
@@ -245,6 +227,3 @@ inline int  ByteOrder::littleEndian24Bit (const void* const bytes) noexcept     
 inline int  ByteOrder::bigEndian24Bit (const void* const bytes) noexcept                             { return (((int) static_cast<const int8*> (bytes)[0]) << 16) | (((int) static_cast<const uint8*> (bytes)[1]) << 8) | ((int) static_cast<const uint8*> (bytes)[2]); }
 inline void ByteOrder::littleEndian24BitToChars (const int value, void* const destBytes) noexcept    { static_cast<uint8*> (destBytes)[0] = (uint8) value;         static_cast<uint8*> (destBytes)[1] = (uint8) (value >> 8); static_cast<uint8*> (destBytes)[2] = (uint8) (value >> 16); }
 inline void ByteOrder::bigEndian24BitToChars (const int value, void* const destBytes) noexcept       { static_cast<uint8*> (destBytes)[0] = (uint8) (value >> 16); static_cast<uint8*> (destBytes)[1] = (uint8) (value >> 8); static_cast<uint8*> (destBytes)[2] = (uint8) value; }
-
-
-#endif   // JUCE_BYTEORDER_H_INCLUDED

@@ -1,33 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_ANDROID_JNIHELPERS_H_INCLUDED
-#define JUCE_ANDROID_JNIHELPERS_H_INCLUDED
+#pragma once
 
 #if ! (defined (JUCE_ANDROID_ACTIVITY_CLASSNAME) && defined (JUCE_ANDROID_ACTIVITY_CLASSPATH))
  #error "The JUCE_ANDROID_ACTIVITY_CLASSNAME and JUCE_ANDROID_ACTIVITY_CLASSPATH macros must be set!"
@@ -148,7 +141,7 @@ private:
 //==============================================================================
 namespace
 {
-    String juceString (JNIEnv* env, jstring s)
+    inline String juceString (JNIEnv* env, jstring s)
     {
         const char* const utf8 = env->GetStringUTFChars (s, nullptr);
         CharPointer_UTF8 utf8CP (utf8);
@@ -157,17 +150,17 @@ namespace
         return result;
     }
 
-    String juceString (jstring s)
+    inline String juceString (jstring s)
     {
         return juceString (getEnv(), s);
     }
 
-    LocalRef<jstring> javaString (const String& s)
+    inline LocalRef<jstring> javaString (const String& s)
     {
         return LocalRef<jstring> (getEnv()->NewStringUTF (s.toUTF8()));
     }
 
-    LocalRef<jstring> javaStringFromChar (const juce_wchar c)
+    inline LocalRef<jstring> javaStringFromChar (const juce_wchar c)
     {
         char utf8[8] = { 0 };
         CharPointer_UTF8 (utf8).write (c);
@@ -222,6 +215,7 @@ private:
     \
         void initialiseFields (JNIEnv* env) \
         { \
+            ignoreUnused (env); \
             JNI_CLASS_MEMBERS (CREATE_JNI_METHOD, CREATE_JNI_STATICMETHOD, CREATE_JNI_FIELD, CREATE_JNI_STATICFIELD); \
         } \
     \
@@ -266,16 +260,22 @@ extern AndroidSystem android;
  METHOD (createNativeSurfaceView, "createNativeSurfaceView", "(J)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$NativeSurfaceView;") \
  METHOD (postMessage,            "postMessage",          "(J)V") \
  METHOD (finish,                 "finish",               "()V") \
+ METHOD (setRequestedOrientation,"setRequestedOrientation", "(I)V") \
  METHOD (getClipboardContent,    "getClipboardContent",  "()Ljava/lang/String;") \
  METHOD (setClipboardContent,    "setClipboardContent",  "(Ljava/lang/String;)V") \
  METHOD (excludeClipRegion,      "excludeClipRegion",    "(Landroid/graphics/Canvas;FFFF)V") \
- METHOD (renderGlyph,            "renderGlyph",          "(CLandroid/graphics/Paint;Landroid/graphics/Matrix;Landroid/graphics/Rect;)[I") \
+ METHOD (renderGlyph,            "renderGlyph",          "(CCLandroid/graphics/Paint;Landroid/graphics/Matrix;Landroid/graphics/Rect;)[I") \
  STATICMETHOD (createHTTPStream, "createHTTPStream",     "(Ljava/lang/String;Z[BLjava/lang/String;I[ILjava/lang/StringBuffer;ILjava/lang/String;)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$HTTPStream;") \
  METHOD (launchURL,              "launchURL",            "(Ljava/lang/String;)V") \
  METHOD (showMessageBox,         "showMessageBox",       "(Ljava/lang/String;Ljava/lang/String;J)V") \
- METHOD (showOkCancelBox,        "showOkCancelBox",      "(Ljava/lang/String;Ljava/lang/String;J)V") \
+ METHOD (showOkCancelBox,        "showOkCancelBox",      "(Ljava/lang/String;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;)V") \
  METHOD (showYesNoCancelBox,     "showYesNoCancelBox",   "(Ljava/lang/String;Ljava/lang/String;J)V") \
  STATICMETHOD (getLocaleValue,   "getLocaleValue",       "(Z)Ljava/lang/String;") \
+ STATICMETHOD (getDocumentsFolder, "getDocumentsFolder", "()Ljava/lang/String;") \
+ STATICMETHOD (getPicturesFolder,  "getPicturesFolder",  "()Ljava/lang/String;") \
+ STATICMETHOD (getMusicFolder,     "getMusicFolder",     "()Ljava/lang/String;") \
+ STATICMETHOD (getDownloadsFolder, "getDownloadsFolder", "()Ljava/lang/String;") \
+ STATICMETHOD (getMoviesFolder,    "getMoviesFolder",    "()Ljava/lang/String;") \
  METHOD (scanFile,               "scanFile",             "(Ljava/lang/String;)V") \
  METHOD (getTypeFaceFromAsset,   "getTypeFaceFromAsset", "(Ljava/lang/String;)Landroid/graphics/Typeface;") \
  METHOD (getTypeFaceFromByteArray,"getTypeFaceFromByteArray","([B)Landroid/graphics/Typeface;") \
@@ -285,9 +285,11 @@ extern AndroidSystem android;
  METHOD (getAndroidBluetoothManager, "getAndroidBluetoothManager", "()L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$BluetoothManager;") \
  METHOD (getAndroidSDKVersion,    "getAndroidSDKVersion", "()I") \
  METHOD (audioManagerGetProperty, "audioManagerGetProperty", "(Ljava/lang/String;)Ljava/lang/String;") \
- METHOD (setCurrentThreadPriority, "setCurrentThreadPriority", "(I)I") \
  METHOD (hasSystemFeature,         "hasSystemFeature", "(Ljava/lang/String;)Z" ) \
- METHOD (createNewThread,          "createNewThread", "(J)Ljava/lang/Thread;") \
+ METHOD (requestRuntimePermission, "requestRuntimePermission", "(IJ)V" ) \
+ METHOD (isPermissionGranted,     "isPermissionGranted", "(I)Z" ) \
+ METHOD (isPermissionDeclaredInManifest, "isPermissionDeclaredInManifest", "(I)Z" ) \
+ METHOD (getSystemService,        "getSystemService",     "(Ljava/lang/String;)Ljava/lang/Object;") \
 
 DECLARE_JNI_CLASS (JuceAppActivity, JUCE_ANDROID_ACTIVITY_CLASSPATH);
 #undef JNI_CLASS_MEMBERS
@@ -319,19 +321,6 @@ DECLARE_JNI_CLASS (Matrix, "android/graphics/Matrix");
 
 //==============================================================================
 #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
- METHOD (start, "start", "()V") \
- METHOD (stop, "stop", "()V") \
- METHOD (setName, "setName", "(Ljava/lang/String;)V") \
- METHOD (getName, "getName", "()Ljava/lang/String;") \
- METHOD (getId, "getId", "()J") \
- STATICMETHOD (currentThread, "currentThread", "()Ljava/lang/Thread;") \
- METHOD (setPriority, "setPriority", "(I)V") \
-
-DECLARE_JNI_CLASS (JuceThread, "java/lang/Thread");
-#undef JNI_CLASS_MEMBERS
-
-//==============================================================================
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
  METHOD (constructor,   "<init>",   "(IIII)V") \
  FIELD (left,           "left",     "I") \
  FIELD (right,          "right",    "I") \
@@ -340,5 +329,3 @@ DECLARE_JNI_CLASS (JuceThread, "java/lang/Thread");
 
 DECLARE_JNI_CLASS (RectClass, "android/graphics/Rect");
 #undef JNI_CLASS_MEMBERS
-
-#endif   // JUCE_ANDROID_JNIHELPERS_H_INCLUDED

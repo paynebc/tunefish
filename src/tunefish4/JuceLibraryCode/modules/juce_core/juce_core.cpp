@@ -1,32 +1,26 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2017 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#if defined (JUCE_CORE_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
+#ifdef JUCE_CORE_H_INCLUDED
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -35,16 +29,15 @@
  #error "Incorrect use of JUCE cpp file"
 #endif
 
-// Your project must contain an AppConfig.h file with your project-specific settings in it,
-// and your header search path must make it accessible to the module's files.
-#include "AppConfig.h"
+#define JUCE_CORE_INCLUDE_OBJC_HELPERS 1
+#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
+#define JUCE_CORE_INCLUDE_NATIVE_HEADERS 1
 
-//==============================================================================
-#include "native/juce_BasicNativeHeaders.h"
 #include "juce_core.h"
 
 #include <locale>
 #include <cctype>
+#include <cstdarg>
 
 #if ! JUCE_ANDROID
  #include <sys/timeb.h>
@@ -53,10 +46,6 @@
 
 #if JUCE_WINDOWS
  #include <ctime>
-
- #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
- #include <winsock2.h>
- #include <ws2tcpip.h>
 
  #if ! JUCE_MINGW
   #pragma warning (push)
@@ -83,8 +72,10 @@
  #endif
 
  #if JUCE_LINUX
+  #include <stdio.h>
   #include <langinfo.h>
   #include <ifaddrs.h>
+  #include <sys/resource.h>
 
   #if JUCE_USE_CURL
    #include <curl/curl.h>
@@ -118,7 +109,7 @@
 
 //==============================================================================
 #ifndef    JUCE_STANDALONE_APPLICATION
- JUCE_COMPILER_WARNING ("Please re-save your Introjucer project with the latest Introjucer version to avoid this warning")
+ JUCE_COMPILER_WARNING ("Please re-save your project with the latest Projucer version to avoid this warning")
  #define   JUCE_STANDALONE_APPLICATION 0
 #endif
 
@@ -128,6 +119,7 @@ namespace juce
 
 #include "containers/juce_AbstractFifo.cpp"
 #include "containers/juce_NamedValueSet.cpp"
+#include "containers/juce_ListenerList.cpp"
 #include "containers/juce_PropertySet.cpp"
 #include "containers/juce_Variant.cpp"
 #include "files/juce_DirectoryIterator.cpp"
@@ -145,8 +137,10 @@ namespace juce
 #include "maths/juce_Expression.cpp"
 #include "maths/juce_Random.cpp"
 #include "memory/juce_MemoryBlock.cpp"
+#include "misc/juce_RuntimePermissions.cpp"
 #include "misc/juce_Result.cpp"
 #include "misc/juce_Uuid.cpp"
+#include "misc/juce_StdFunctionCompat.cpp"
 #include "network/juce_MACAddress.cpp"
 #include "network/juce_NamedPipe.cpp"
 #include "network/juce_Socket.cpp"
@@ -185,10 +179,6 @@ namespace juce
 #include "files/juce_WildcardFileFilter.cpp"
 
 //==============================================================================
-#if JUCE_MAC || JUCE_IOS
-#include "native/juce_osx_ObjCHelpers.h"
-#endif
-
 #if JUCE_ANDROID
 #include "native/juce_android_JNIHelpers.h"
 #endif
@@ -208,7 +198,6 @@ namespace juce
 
 //==============================================================================
 #elif JUCE_WINDOWS
-#include "native/juce_win32_ComSmartPtr.h"
 #include "native/juce_win32_Files.cpp"
 #include "native/juce_win32_Network.cpp"
 #include "native/juce_win32_Registry.cpp"
@@ -234,12 +223,14 @@ namespace juce
 #include "native/juce_android_Network.cpp"
 #include "native/juce_android_SystemStats.cpp"
 #include "native/juce_android_Threads.cpp"
+#include "native/juce_android_RuntimePermissions.cpp"
 
 #endif
 
 #include "threads/juce_ChildProcess.cpp"
 #include "threads/juce_HighResolutionTimer.cpp"
 #include "network/juce_URL.cpp"
+#include "network/juce_WebInputStream.cpp"
 
 //==============================================================================
 /*
