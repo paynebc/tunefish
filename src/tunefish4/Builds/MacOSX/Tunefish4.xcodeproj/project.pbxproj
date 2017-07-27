@@ -294,7 +294,6 @@
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = vst; }; name = Debug; };
@@ -334,7 +333,6 @@
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = vst; }; name = Release; };
@@ -373,7 +371,6 @@
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = vst3; }; name = Debug; };
@@ -413,7 +410,6 @@
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = vst3; }; name = Release; };
@@ -453,7 +449,6 @@
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = component; }; name = Debug; };
@@ -494,7 +489,6 @@
 				OTHER_LDFLAGS = "-bundle -lTunefish4";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I \"$(DEVELOPER_DIR)/Extras/CoreAudio/AudioUnits/AUPublic/AUBase\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = component; }; name = Release; };
@@ -595,7 +589,6 @@
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO; }; name = Debug; };
 		84538876918EFA03D1444B80 = {isa = XCBuildConfiguration; buildSettings = {
@@ -629,7 +622,6 @@
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_CPLUSPLUSFLAGS = "-msse4.1";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Tunefish4;
-				SDKROOT = macosx10.6;
 				SDKROOT_ppc = macosx10.5;
 				USE_HEADERMAP = NO; }; name = Release; };
 		0EC04B16151B1067EFA0501B = {isa = XCBuildConfiguration; buildSettings = {

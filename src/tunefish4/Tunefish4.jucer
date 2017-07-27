@@ -55,11 +55,10 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" postbuildCommand="" vstFolder="~/src/3rdparty/vst"
                extraCompilerFlags="-msse4.1" vst3Folder="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="10.6 SDK" osxCompatibility="10.6 SDK" osxArchitecture="64BitUniversal"
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.6 SDK" osxArchitecture="64BitUniversal"
                        isDebug="1" optimisation="1" targetName="Tunefish4"/>
-        <CONFIGURATION name="Release" osxSDK="10.6 SDK" osxCompatibility="10.6 SDK"
-                       osxArchitecture="64BitUniversal" isDebug="0" optimisation="3"
-                       targetName="Tunefish4"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.6 SDK" osxArchitecture="64BitUniversal"
+                       isDebug="0" optimisation="3" targetName="Tunefish4"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="..\..\..\..\3rdparty\JUCE\modules"/>
