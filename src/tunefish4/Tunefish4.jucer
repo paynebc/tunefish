@@ -8,11 +8,11 @@
               pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="Tunefish4AU" pluginRTASCategory="" aaxIdentifier="org.braincontrol.Tunefish4"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.0.2"
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.1.0"
               companyName="Brain Control" companyWebsite="http://www.tunefish-synth.com"
               companyEmail="payne@braincontrol.org" pluginIsMidiEffectPlugin="0"
               displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
-              buildAUv3="0" buildStandalone="0" enableIAA="0">
+              buildAUv3="0" buildStandalone="0" enableIAA="0" cppLanguageStandard="11">
   <MAINGROUP id="pOTaV2" name="Tunefish4">
     <GROUP id="{34CC9C98-4AD5-64AD-05BD-45F5FD171129}" name="Plugin">
       <FILE id="EcP6D9" name="tfsynthprogram.cpp" compile="1" resource="0"
