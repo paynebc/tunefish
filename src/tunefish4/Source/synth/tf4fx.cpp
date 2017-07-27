@@ -244,7 +244,7 @@ void eTfEffectReverbDelete(eTfEffect *fx)
     eFreeAligned(fx);
 }
 
-void eTfEffectReverbProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF32 **signal, eU32 len)
+void eTfEffectReverbProcess(eTfEffect *fx, eTfSynth &, eTfInstrument &instr, eF32 **signal, eU32 len)
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectReverb *reverb = static_cast<eTfEffectReverb *>(fx);
@@ -338,7 +338,7 @@ void eTfEffectDistortionDelete(eTfEffect *fx)
     eFreeAligned(fx);
 }
 
-void eTfEffectDistortionProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF32 **signal, eU32 len)
+void eTfEffectDistortionProcess(eTfEffect *fx, eTfSynth &, eTfInstrument &instr, eF32 **signal, eU32 len)
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectDistortion *dist = static_cast<eTfEffectDistortion *>(fx);
@@ -384,7 +384,7 @@ void eTfEffectFormantDelete(eTfEffect *fx)
     eFreeAligned(fx);
 }
 
-void eTfEffectFormantProcess(eTfEffect *fx, eTfSynth &synth, eTfInstrument &instr, eF32 **signal, eU32 len)
+void eTfEffectFormantProcess(eTfEffect *fx, eTfSynth &, eTfInstrument &instr, eF32 **signal, eU32 len)
 {
     eASSERT_ALIGNED16(fx);
     eTfEffectFormant *formant = static_cast<eTfEffectFormant *>(fx);

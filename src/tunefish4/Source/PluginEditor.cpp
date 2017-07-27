@@ -1312,7 +1312,7 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
         if (myChooser.browseForFileToSave(true))
         {
             File file = myChooser.getResult();
-            
+            tfProcessor->writeFactoryPatchHeader(file);
         }
     }
     else if (button == &m_btnAbout)

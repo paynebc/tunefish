@@ -105,6 +105,7 @@
 		87FFAA37A3099732CFD5B4A5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "include_juce_audio_plugin_client_VST3.cpp"; path = "../../JuceLibraryCode/include_juce_audio_plugin_client_VST3.cpp"; sourceTree = "SOURCE_ROOT"; };
 		884F6EBF2E97874B6E7C95FA = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.hpp; path = ../../Source/runtime/types.hpp; sourceTree = "SOURCE_ROOT"; };
 		8A2B329D9954D2B3E5221B6A = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		8A537E0A2CB859970DC22A5A = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = factorypatches.hpp; path = ../../Source/factorypatches.hpp; sourceTree = "SOURCE_ROOT"; };
 		915ABCAC3C7736F3264EA1A7 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tfrecorder.hpp; path = ../../Source/synth/tfrecorder.hpp; sourceTree = "SOURCE_ROOT"; };
 		97BCDB1C570E64D830CBD833 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tflookandfeel.h; path = ../../Source/tflookandfeel.h; sourceTree = "SOURCE_ROOT"; };
 		9AC2E64A4997DA18107DFA36 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "include_juce_audio_basics.mm"; path = "../../JuceLibraryCode/include_juce_audio_basics.mm"; sourceTree = "SOURCE_ROOT"; };
@@ -147,6 +148,7 @@
 		FCB287CE424D4261A0D5F38D = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = runtime.hpp; path = ../../Source/runtime/runtime.hpp; sourceTree = "SOURCE_ROOT"; };
 		FF2263C781F9561649E8BD09 = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		BA70D2C27CF5ADCED53B3A5D = {isa = PBXGroup; children = (
+					8A537E0A2CB859970DC22A5A,
 					1BC9DBEA46C7525E9CDDFF41,
 					0A82D304074AE6E52877A2DA,
 					AAE55F3A4B4428FB5BBD2A8D,

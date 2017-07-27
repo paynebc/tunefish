@@ -24,6 +24,8 @@
 #include "runtime/system.hpp"
 #include "synth/tf4.hpp"
 #include "tfsynthprogram.hpp"
+#include "factorypatches.hpp"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -49,11 +51,11 @@ eTfSynthProgram& eTfSynthProgram::operator= (const eTfSynthProgram& copy)
     return *this;
 }
 
-void eTfSynthProgram::loadDefault(int i)
+void eTfSynthProgram::loadDefault(int index)
 {
-    name = String("INIT ") + String(i);
+    name = String(TF_FACTORY_PATCH_NAMES[index]);
     for (int i = 0; i < TF_PARAM_COUNT; i++)
-        params[i] = TF_DEFAULTPROG[i];
+        params[i] = static_cast<eF32>(TF_FACTORY_PATCHES[index][i]);
 }
 
 void eTfSynthProgram::setParam(eU32 index, eF32 value)

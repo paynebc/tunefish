@@ -115,7 +115,7 @@ void TfLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int 
             g.fillPath (filledArc);
         }
 
-        g.drawText(String(eU32(eRoundNearest(slider.getValue() * 99))), x, y, width, height, Justification::centred, false);
+        g.drawText(String(eU32(eRoundNearest(static_cast<eF32>(slider.getValue()) * 99.0f))), x, y, width, height, Justification::centred, false);
 
         if (slider.isEnabled())
             g.setColour (slider.findColour (Slider::rotarySliderFillColourId).withBrightness(0.5f));

@@ -474,6 +474,50 @@ void Tunefish4AudioProcessor::resetParamDirty(eBool dirty)
     paramDirtyAny = dirty;
 }
 
+bool Tunefish4AudioProcessor::writeFactoryPatchHeader(File headerFile) const
+{
+    if (!headerFile.deleteFile())
+        return false;
+
+    FileOutputStream *out = headerFile.createOutputStream();
+    if (!out)
+        return false;
+
+    out->writeText("const int TF_FACTORY_PATCH_COUNT = " + String(TF_PLUG_NUM_PROGRAMS) + ";\r\n", false, false);
+    out->writeText("const int TF_FACTORY_PATCH_PARAMCOUNT = " + String(TF_PARAM_COUNT) + ";\r\n", false, false);
+    out->writeText("const double TF_FACTORY_PATCHES[TF_FACTORY_PATCH_COUNT][TF_FACTORY_PATCH_PARAMCOUNT] = {\r\n", false, false);
+    
+    for (auto i=0; i<TF_PLUG_NUM_PROGRAMS; i++)
+    {
+        auto &program = programs[i];
+
+        out->writeText("\t{\r\n\t\t", false, false);
+
+        for (auto j=0; j<TF_PARAM_COUNT; j++)
+        {
+            auto value = program.getParam(j);            
+            out->writeText(String(value) + ", ", false, false);            
+        }
+
+        out->writeText("\r\n\t},\r\n", false, false);
+    }
+
+    out->writeText("};\r\n\r\n", false, false);
+
+    out->writeText("const char * TF_FACTORY_PATCH_NAMES[TF_FACTORY_PATCH_COUNT] = {\r\n", false, false);
+
+    for (auto i = 0; i<TF_PLUG_NUM_PROGRAMS; i++)
+    {
+        auto &program = programs[i];
+        out->writeText("\t\"" + program.getName() + "\",\r\n", false, false);
+    }
+
+    out->writeText("};\r\n\r\n", false, false);
+           
+    delete out;
+    return true;
+}
+
 //==============================================================================
 bool Tunefish4AudioProcessor::hasEditor() const
 {

@@ -100,6 +100,8 @@ public:
     bool                    wasProgramSwitched() const;
     void                    resetParamDirty(eBool dirty = eFALSE);
 
+    bool                    writeFactoryPatchHeader(File headerFile) const;
+
 public:
     MidiKeyboardState       keyboardState;
 

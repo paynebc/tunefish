@@ -32,7 +32,7 @@ static eBool isMMSourceUsed(eF32 *params, eU32 source)
 {
 	for (eU32 i=0; i<10; i++)
 	{
-		if (eFtoL(eRoundNearest(params[TF_MM1_SOURCE + i*3] * (eTfModMatrix::INPUT_COUNT-1))) == source)
+		if (eFtoL(eRoundNearest(params[TF_MM1_SOURCE + i*3] * (eTfModMatrix::INPUT_COUNT-1))) == static_cast<int>(source))
 			return eTRUE;
 	}
 
@@ -340,7 +340,7 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 		outLog->writeText(String(e.velocity), false, false);
 		outLog->writeText("\r\n", false, false);
 
-        eU16 row = eFtoL(eRoundNearest(e.time * rows_per_sec));
+        eU16 row = static_cast<eU16>(eFtoL(eRoundNearest(e.time * rows_per_sec)));
 
         outJSON->writeText("[", false, false);
         outJSON->writeText(String(row), false, false);
@@ -369,7 +369,7 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 				eTfEvent &e = m_events[j];
 				if (e.instr == i)
 				{
-                    eU16 row = eFtoL(eRoundNearest(e.time * rows_per_sec));
+                    eU16 row = static_cast<eU16>(eFtoL(eRoundNearest(e.time * rows_per_sec)));
                     eU16 diff = row - oldRow;
                     oldRow = row;
 
