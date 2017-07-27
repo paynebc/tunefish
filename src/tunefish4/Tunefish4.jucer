@@ -84,13 +84,17 @@
             vst3Folder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" targetName="Tunefish4" optimisation="1" binaryPath="..\..\binary\x64\"/>
+                       isDebug="1" targetName="Tunefish4" optimisation="1" binaryPath="..\..\binary\x64\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
+                       optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"
+                       useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -113,13 +117,17 @@
     <VS2017 targetFolder="Builds/VisualStudio2017">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x64\"
+                       useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"
+                       useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
