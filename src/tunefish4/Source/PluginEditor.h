@@ -125,6 +125,7 @@ private:
     TextButton m_btnFastAnimations;
     TextButton m_btnMovingWaveforms;
     TextButton m_btnRecord;
+    TextButton m_btnFactoryWriter;
 
     // -------------------------------------
     //  COMPONENT GROUPS

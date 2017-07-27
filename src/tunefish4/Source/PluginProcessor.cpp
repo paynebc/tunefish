@@ -112,29 +112,9 @@ const String Tunefish4AudioProcessor::getParameterName (int index)
     return TF_NAMES[index];
 }
 
-const String Tunefish4AudioProcessor::getParameterText (int index)
+const String Tunefish4AudioProcessor::getParameterText (int )
 {
     return String::empty;
-}
-
-const String Tunefish4AudioProcessor::getInputChannelName (int channelIndex) const
-{
-    return String (channelIndex + 1);
-}
-
-const String Tunefish4AudioProcessor::getOutputChannelName (int channelIndex) const
-{
-    return String (channelIndex + 1);
-}
-
-bool Tunefish4AudioProcessor::isInputChannelStereoPair (int index) const
-{
-    return true;
-}
-
-bool Tunefish4AudioProcessor::isOutputChannelStereoPair (int index) const
-{
-    return true;
 }
 
 bool Tunefish4AudioProcessor::acceptsMidi() const
@@ -153,11 +133,6 @@ bool Tunefish4AudioProcessor::producesMidi() const
 #else
     return false;
 #endif
-}
-
-bool Tunefish4AudioProcessor::silenceInProducesSilenceOut() const
-{
-    return false;
 }
 
 double Tunefish4AudioProcessor::getTailLengthSeconds() const
@@ -217,10 +192,10 @@ CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
 }
 
 //==============================================================================
-void Tunefish4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void Tunefish4AudioProcessor::prepareToPlay (double sampleRate, int )
 {
     if (sampleRate > 0)
-        synth->sampleRate = sampleRate;
+        synth->sampleRate = static_cast<eU32>(sampleRate);
 }
 
 void Tunefish4AudioProcessor::releaseResources()
@@ -300,13 +275,13 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
     juce::AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
     eU32 tempo = static_cast<eU32>(cpi.bpm);
-    eTfRecorder::getInstance().setTempo(tempo);
+    eTfRecorder::getInstance().setTempo(static_cast<eU16>(tempo));
 
     it.setNextSamplePosition(messageOffset);
 
     while (it.getNextEvent(midiMessage, samplePosition))
     {
-        if (samplePosition >= messageOffset + frameSize)
+        if (samplePosition >= static_cast<int>(messageOffset + frameSize))
             break;
 
         eF32 time = static_cast<eF32>(cpi.timeInSeconds) + (static_cast<eF32>(samplePosition) / sampleRate);
@@ -318,7 +293,7 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
 
             eTfInstrumentNoteOn(*tf, note, velocity);
 
-            eTfRecorder::getInstance().recordEvent(eTfEvent(time, recorderIndex, note, velocity));
+            eTfRecorder::getInstance().recordEvent(eTfEvent(time, static_cast<eU8>(recorderIndex), note, velocity));
         }
         else if (midiMessage.isNoteOff())
         {
@@ -326,7 +301,7 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
 
             if (eTfInstrumentNoteOff(*tf, note))
             {
-                eTfRecorder::getInstance().recordEvent(eTfEvent(time, recorderIndex, note, 0));                
+                eTfRecorder::getInstance().recordEvent(eTfEvent(time, static_cast<eU8>(recorderIndex), note, 0));                
             }
         }
         else if (midiMessage.isAllNotesOff())
