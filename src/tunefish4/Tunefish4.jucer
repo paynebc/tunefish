@@ -53,7 +53,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" postbuildCommand="" vstFolder="~/src/3rdparty/vst"
-               extraCompilerFlags="-msse4.1">
+               extraCompilerFlags="-msse4.1" vst3Folder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
                        isDebug="1" optimisation="1" targetName="Tunefish4"/>
@@ -75,18 +75,20 @@
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="c:/dev/3rdparty/vst">
+    <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="c:/dev/3rdparty/vst"
+            vst3Folder="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug32" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="Tunefish4"/>
-        <CONFIGURATION name="Release32" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="Tunefish4"/>
-        <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" targetName="Tunefish4" optimisation="1"/>
-        <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       optimisation="3" targetName="Tunefish4"/>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" targetName="Tunefish4" optimisation="1" binaryPath="..\..\binary\x64\"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -103,8 +105,38 @@
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
+    <VS2017 targetFolder="Builds/VisualStudio2017">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x86\"/>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="Tunefish4" binaryPath="..\..\binary\x64\"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2017>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst"
                 extraCompilerFlags="-fpermissive">
       <CONFIGURATIONS>
@@ -128,6 +160,7 @@
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
@@ -137,6 +170,7 @@
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>

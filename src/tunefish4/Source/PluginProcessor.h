@@ -106,6 +106,9 @@ public:
     bool                    wasProgramSwitched() const;
     void                    resetParamDirty(eBool dirty = eFALSE);
 
+public:
+    MidiKeyboardState       keyboardState;
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tunefish4AudioProcessor)

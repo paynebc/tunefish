@@ -222,9 +222,10 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     m_imgShapeSawUp(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-    m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true)
+    m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
+    m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
-    setSize(1080, 740);
+    setSize(1080, 800);
 
     // Init configuration 
     // -------------------------------------------------------------------------------------------
@@ -236,33 +237,34 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     storageParams.doNotSave = false;
 
     m_appProperties.setStorageParameters(storageParams);
-
-    _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 10, 710, 100, 20);
-    _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 120, 710, 100, 20);
-    _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 230, 710, 100, 20);
-
+    
 #ifdef HAVE_RECORDING
     _addTextToggleButton(this, m_btnRecord, "Record", "", 790, 710, 100, 20);
 #endif
-
-    _addTextButton(this, m_btnAbout, String("Tunefish ") + JucePlugin_VersionString, 900, 710, 170, 20);
-
-    m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
-    m_btnFastAnimations.setToggleState(_configAreAnimationsFast(), dontSendNotification);
-    m_btnMovingWaveforms.setToggleState(_configAreWaveformsMoving(), dontSendNotification);
-       
+               
     _createIcons();
 
     // -------------------------------------
     //  GLOBAL GROUP
     // -------------------------------------
-    _addGroupBox(this, m_grpGlobal, "GLOBAL", 10, 0, 590, 100);
-    _addComboBox(&m_grpGlobal, m_cmbPolyphony, "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16", 65, 25, 45, 20);
-    _addComboBox(&m_grpGlobal, m_cmbPitchBendUp, "1|2|3|4|5|6|7|8|9|10|11|12", 65, 47, 45, 20);
-    _addComboBox(&m_grpGlobal, m_cmbPitchBendDown, "1|2|3|4|5|6|7|8|9|10|11|12", 65, 69, 45, 20);
-    _addLabel(&m_grpGlobal, m_lblGlobPolyphony, "Polyphony:", 5, 25, 50, 20);
-    _addLabel(&m_grpGlobal, m_lblGlobPitchBendUp, "Pitch up:", 5, 47, 50, 20);
-    _addLabel(&m_grpGlobal, m_lblGlobPitchBendDown, "Pitch down:", 5, 69, 50, 20);
+    _addGroupBox(this, m_grpGlobal, "GLOBAL", 10, 0, 1060, 80);
+
+    _addComboBox(&m_grpGlobal, m_cmbPolyphony, "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16", 65, 40, 45, 20);    
+    _addLabel(&m_grpGlobal, m_lblGlobPolyphony, "Polyphony:", 5, 40, 50, 20);
+
+    _addComboBox(&m_grpGlobal, m_cmbPitchBendUp, "1|2|3|4|5|6|7|8|9|10|11|12", 1005, 25, 45, 20);
+    _addComboBox(&m_grpGlobal, m_cmbPitchBendDown, "1|2|3|4|5|6|7|8|9|10|11|12", 1005, 47, 45, 20);
+    _addLabel(&m_grpGlobal, m_lblGlobPitchBendUp, "Pitch up:", 955, 25, 50, 20);
+    _addLabel(&m_grpGlobal, m_lblGlobPitchBendDown, "Pitch down:", 955, 47, 50, 20);
+
+    _addTextToggleButton(this, m_btnAnimationsOn, "Animations on", "", 850, 20, 100, 17);
+    _addTextToggleButton(this, m_btnFastAnimations, "Fast animations", "", 850, 38, 100, 17);
+    _addTextToggleButton(this, m_btnMovingWaveforms, "Moving waveforms", "", 850, 56, 100, 17);
+
+    m_btnAnimationsOn.setToggleState(_configAreAnimationsOn(), dontSendNotification);
+    m_btnFastAnimations.setToggleState(_configAreAnimationsFast(), dontSendNotification);
+    m_btnMovingWaveforms.setToggleState(_configAreWaveformsMoving(), dontSendNotification);
+
     _addRotarySlider(&m_grpGlobal, m_sldGlobVolume, m_lblGlobVolume, "Volume", 110, 25, COL_ROTARYSLIDER_GLOBAL);
     _addRotarySlider(&m_grpGlobal, m_sldGlobFrequency, m_lblGlobFrequency, "Frequency", 170, 25, COL_ROTARYSLIDER_GLOBAL);
     _addRotarySlider(&m_grpGlobal, m_sldGlobDetune, m_lblGlobDetune, "Detune", 230, 25, COL_ROTARYSLIDER_GLOBAL);
@@ -272,14 +274,16 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextButton(&m_grpGlobal, m_btnSave, "Save", 410, 50, 50, 20);
     _addTextButton(&m_grpGlobal, m_btnRestore, "Restore", 465, 50, 50, 20);
     _addTextButton(&m_grpGlobal, m_btnPrev, "Prev", 520, 50, 50, 20);
-    _addTextButton(&m_grpGlobal, m_btnCopy, "Copy", 410, 75, 50, 20);
-    _addTextButton(&m_grpGlobal, m_btnPaste, "Paste", 465, 75, 50, 20);
-    _addTextButton(&m_grpGlobal, m_btnNext, "Next", 520, 75, 50, 20);
+    _addTextButton(&m_grpGlobal, m_btnNext, "Next", 575, 50, 50, 20);
+    _addTextButton(&m_grpGlobal, m_btnCopy, "Copy", 630, 50, 50, 20);
+    _addTextButton(&m_grpGlobal, m_btnPaste, "Paste", 685, 50, 50, 20);
+
+    _addTextButton(&m_grpGlobal, m_btnAbout, String("Tunefish ") + JucePlugin_VersionString, 575, 25, 160, 20);
 
     // -------------------------------------
     //  GENERATOR GROUP
     // -------------------------------------
-    _addGroupBox(this, m_grpGenerator, "GENERATOR", 10, 100, 590, 330);
+    _addGroupBox(this, m_grpGenerator, "GENERATOR", 10, 80, 590, 370);
     _addRotarySlider(&m_grpGenerator, m_sldGenVolume, m_lblGenVolume, "Volume", 10, 25, COL_ROTARYSLIDER_GEN);
     _addRotarySlider(&m_grpGenerator, m_sldGenPanning, m_lblGenPanning, "Panning", 70, 25, COL_ROTARYSLIDER_GEN);
     _addRotarySlider(&m_grpGenerator, m_sldGenSpread, m_lblGenSpread, "Spread", 130, 25, COL_ROTARYSLIDER_GEN);
@@ -319,36 +323,36 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
 
     m_grpGenerator.addChildComponent(&m_freqView);
     m_freqView.setVisible(true);
-    m_freqView.setBounds(10, 150, 570, 170);
+    m_freqView.setBounds(10, 140, 570, 210);
     m_freqView.setSynth(ownerFilter, synth, synth->instr[0]);
 
     // -------------------------------------
     //  FILTER GROUPS
     // -------------------------------------
-    _addGroupBox(this, m_grpLPFilter, "LOWPASS", 10, 430, 140, 110);
-    _addTextToggleButton(nullptr, m_btnLPOn, "On", "", 15, 450, 25, 20);
+    _addGroupBox(this, m_grpLPFilter, "LOWPASS", 10, 450, 140, 100);
+    _addTextToggleButton(nullptr, m_btnLPOn, "On", "", 15, 470, 25, 20);
     _addRotarySlider(&m_grpLPFilter, m_sldLPFrequency, m_lblLPFrequency, "Frequency", 10, 40, COL_ROTARYSLIDER_FILTER);
     _addRotarySlider(&m_grpLPFilter, m_sldLPResonance, m_lblLPResonance, "Resonance", 70, 40, COL_ROTARYSLIDER_FILTER);
 
-    _addGroupBox(this, m_grpHPFilter, "HIGHPASS", 160, 430, 140, 110);
-    _addTextToggleButton(nullptr, m_btnHPOn, "On", "", 165, 450, 25, 20);
+    _addGroupBox(this, m_grpHPFilter, "HIGHPASS", 160, 450, 140, 100);
+    _addTextToggleButton(nullptr, m_btnHPOn, "On", "", 165, 470, 25, 20);
     _addRotarySlider(&m_grpHPFilter, m_sldHPFrequency, m_lblHPFrequency, "Frequency", 10, 40, COL_ROTARYSLIDER_FILTER);
     _addRotarySlider(&m_grpHPFilter, m_sldHPResonance, m_lblHPResonance, "Resonance", 70, 40, COL_ROTARYSLIDER_FILTER);
 
-    _addGroupBox(this, m_grpBPFilter, "BANDPASS", 310, 430, 140, 110);
-    _addTextToggleButton(nullptr, m_btnBPOn, "On", "", 315, 450, 25, 20);
+    _addGroupBox(this, m_grpBPFilter, "BANDPASS", 310, 450, 140, 100);
+    _addTextToggleButton(nullptr, m_btnBPOn, "On", "", 315, 470, 25, 20);
     _addRotarySlider(&m_grpBPFilter, m_sldBPFrequency, m_lblBPFrequency, "Frequency", 10, 40, COL_ROTARYSLIDER_FILTER);
     _addRotarySlider(&m_grpBPFilter, m_sldBPQ, m_lblBPQ, "Q", 70, 40, COL_ROTARYSLIDER_FILTER);
 
-    _addGroupBox(this, m_grpNTFilter, "NOTCH", 460, 430, 140, 110);
-    _addTextToggleButton(nullptr, m_btnNTOn, "On", "", 465, 450, 25, 20);
+    _addGroupBox(this, m_grpNTFilter, "NOTCH", 460, 450, 140, 100);
+    _addTextToggleButton(nullptr, m_btnNTOn, "On", "", 465, 470, 25, 20);
     _addRotarySlider(&m_grpNTFilter, m_sldNTFrequency, m_lblNTFrequency, "Frequency", 10, 40, COL_ROTARYSLIDER_FILTER);
     _addRotarySlider(&m_grpNTFilter, m_sldNTQ, m_lblNTQ, "Q", 70, 40, COL_ROTARYSLIDER_FILTER);
 
     // -------------------------------------
     //  LFO/ADSR GROUPS
     // -------------------------------------
-    _addGroupBox(this, m_grpLFO1, "LFO1", 10, 540, 140, 160);
+    _addGroupBox(this, m_grpLFO1, "LFO1", 10, 550, 140, 160);
     _addRotarySlider(&m_grpLFO1, m_sldLFO1Rate, m_lblLFO1Rate, "Rate", 10, 25, COL_ROTARYSLIDER_LFO);
     _addRotarySlider(&m_grpLFO1, m_sldLFO1Depth, m_lblLFO1Depth, "Depth", 70, 25, COL_ROTARYSLIDER_LFO);
     _addTextToggleButton(&m_grpLFO1, m_btnLFO1Sync, "Synchronized", "", 10, 130, 125, 20);
@@ -358,7 +362,7 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addImageToggleButton(&m_grpLFO1, m_btnLFO1ShapeSquare, m_dimgShapeSquare, "lfo1type", 85, 95, 25, 25);
     _addImageToggleButton(&m_grpLFO1, m_btnLFO1ShapeNoise, m_dimgShapeNoise, "lfo1type", 110, 95, 25, 25);
 
-    _addGroupBox(this, m_grpLFO2, "LFO2", 160, 540, 140, 160);
+    _addGroupBox(this, m_grpLFO2, "LFO2", 160, 550, 140, 160);
     _addRotarySlider(&m_grpLFO2, m_sldLFO2Rate, m_lblLFO2Rate, "Rate", 10, 25, COL_ROTARYSLIDER_LFO);
     _addRotarySlider(&m_grpLFO2, m_sldLFO2Depth, m_lblLFO2Depth, "Depth", 70, 25, COL_ROTARYSLIDER_LFO);
     _addTextToggleButton(&m_grpLFO2, m_btnLFO2Sync, "Synchronized", "", 10, 130, 125, 20);
@@ -368,14 +372,14 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addImageToggleButton(&m_grpLFO2, m_btnLFO2ShapeSquare, m_dimgShapeSquare, "lfo2type", 85, 95, 25, 25);
     _addImageToggleButton(&m_grpLFO2, m_btnLFO2ShapeNoise, m_dimgShapeNoise, "lfo2type", 110, 95, 25, 25);
 
-    _addGroupBox(this, m_grpADSR1, "ADSR1", 310, 540, 140, 160);
+    _addGroupBox(this, m_grpADSR1, "ADSR1", 310, 550, 140, 160);
     _addLinearSlider(&m_grpADSR1, m_sldADSR1Attack, m_lblADSR1Attack, "A", 10, 25, 20, 120);
     _addLinearSlider(&m_grpADSR1, m_sldADSR1Decay, m_lblADSR1Decay, "D", 35, 25, 20, 120);
     _addLinearSlider(&m_grpADSR1, m_sldADSR1Sustain, m_lblADSR1Sustain, "S", 60, 25, 20, 120);
     _addLinearSlider(&m_grpADSR1, m_sldADSR1Release, m_lblADSR1Release, "R", 85, 25, 20, 120);
     _addLinearSlider(&m_grpADSR1, m_sldADSR1Slope, m_lblADSR1Slope, "Slp", 110, 25, 20, 120);
 
-    _addGroupBox(this, m_grpADSR2, "ADSR2", 460, 540, 140, 160);
+    _addGroupBox(this, m_grpADSR2, "ADSR2", 460, 550, 140, 160);
     _addLinearSlider(&m_grpADSR2, m_sldADSR2Attack, m_lblADSR2Attack, "A", 10, 25, 20, 120);
     _addLinearSlider(&m_grpADSR2, m_sldADSR2Decay, m_lblADSR2Decay, "D", 35, 25, 20, 120);
     _addLinearSlider(&m_grpADSR2, m_sldADSR2Sustain, m_lblADSR2Sustain, "S", 60, 25, 20, 120);
@@ -385,34 +389,34 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     // -------------------------------------
     //  FX GROUPS
     // -------------------------------------
-    _addGroupBox(this, m_grpFxFlanger, "FLANGER", 610, 0, 270, 100);
+    _addGroupBox(this, m_grpFxFlanger, "FLANGER", 610, 80, 270, 90);
     _addRotarySlider(&m_grpFxFlanger, m_sldFlangerLFO, m_lblFlangerLFO, "LFO", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxFlanger, m_sldFlangerFrequency, m_lblFlangerFrequency, "Frequency", 70, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxFlanger, m_sldFlangerAmplitude, m_lblFlangerAmplitude, "Amplitude", 130, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxFlanger, m_sldFlangerWet, m_lblFlangerWet, "Wet", 190, 25, COL_ROTARYSLIDER_EFFECTS);
 
-    _addGroupBox(this, m_grpFxReverb, "REVERB", 610, 100, 270, 100);
+    _addGroupBox(this, m_grpFxReverb, "REVERB", 610, 170, 270, 90);
     _addRotarySlider(&m_grpFxReverb, m_sldReverbRoomsize, m_lblReverbRoomsize, "Roomsize", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxReverb, m_sldReverbDamp, m_lblReverbDamp, "Damp", 70, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxReverb, m_sldReverbWet, m_lblReverbWet, "Wet", 130, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxReverb, m_sldReverbWidth, m_lblReverbWidth, "Width", 190, 25, COL_ROTARYSLIDER_EFFECTS);
 
-    _addGroupBox(this, m_grpFxDelay, "DELAY", 610, 200, 270, 100);
+    _addGroupBox(this, m_grpFxDelay, "DELAY", 610, 260, 270, 90);
     _addRotarySlider(&m_grpFxDelay, m_sldDelayLeft, m_lblDelayLeft, "Left", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxDelay, m_sldDelayRight, m_lblDelayRight, "Right", 70, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxDelay, m_sldDelayDecay, m_lblDelayDecay, "Decay", 130, 25, COL_ROTARYSLIDER_EFFECTS);
 
-    _addGroupBox(this, m_grpFxEQ, "EQ", 610, 300, 270, 100);
+    _addGroupBox(this, m_grpFxEQ, "EQ", 610, 350, 270, 90);
     _addRotarySlider(&m_grpFxEQ, m_sldEqLow, m_lblEqLow, "-880hz", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxEQ, m_sldEqMid, m_lblEqMid, "880hz-5khz", 70, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxEQ, m_sldEqHigh, m_lblEqHigh, "5khz-", 130, 25, COL_ROTARYSLIDER_EFFECTS);
 
-    _addGroupBox(this, m_grpFxChorus, "CHORUS", 610, 400, 270, 100);
+    _addGroupBox(this, m_grpFxChorus, "CHORUS", 610, 440, 270, 90);
     _addRotarySlider(&m_grpFxChorus, m_sldChorusFreq, m_lblChorusFreq, "Frequency", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxChorus, m_sldChorusDepth, m_lblChorusDepth, "Depth", 70, 25, COL_ROTARYSLIDER_EFFECTS);
     _addRotarySlider(&m_grpFxChorus, m_sldChorusGain, m_lblChorusGain, "Gain", 130, 25, COL_ROTARYSLIDER_EFFECTS);
 
-    _addGroupBox(this, m_grpFxFormant, "FORMANT", 610, 500, 270, 100);
+    _addGroupBox(this, m_grpFxFormant, "FORMANT", 610, 530, 270, 90);
     _addRotarySlider(&m_grpFxFormant, m_sldFormantWet, m_lblFormantWet, "Wet", 10, 25, COL_ROTARYSLIDER_EFFECTS);
     _addTextToggleButton(&m_grpFxFormant, m_btnFormantA, "A", "formant", 70, 45, 25, 25);
     _addTextToggleButton(&m_grpFxFormant, m_btnFormantE, "E", "formant", 95, 45, 25, 25);
@@ -420,54 +424,61 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextToggleButton(&m_grpFxFormant, m_btnFormantO, "O", "formant", 145, 45, 25, 25);
     _addTextToggleButton(&m_grpFxFormant, m_btnFormantU, "U", "formant", 170, 45, 25, 25);
 
-    _addGroupBox(this, m_grpFxDistortion, "DISTORTION", 610, 600, 270, 100);
+    _addGroupBox(this, m_grpFxDistortion, "DISTORTION", 610, 620, 270, 90);
     _addRotarySlider(&m_grpFxDistortion, m_sldDistortionAmount, m_lblDistortionAmount, "Amount", 10, 25, COL_ROTARYSLIDER_EFFECTS);
 
     // -------------------------------------
     //  MOD MATRIX GROUP
     // -------------------------------------
     
-    _addGroupBox(this, m_grpModMatrix, "MOD MATRIX", 890, 0, 180, 410);
-    _addComboBox(&m_grpModMatrix, m_cmbMM1Src, MOD_SOURCES, 10, 25, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM1Dest, MOD_TARGETS, 10, 45, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM1Mod, 130, 25, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM2Src, MOD_SOURCES, 10, 70, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM2Dest, MOD_TARGETS, 10, 90, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM2Mod, 130, 70, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM3Src, MOD_SOURCES, 10, 115, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM3Dest, MOD_TARGETS, 10, 135, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM3Mod, 130, 115, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM4Src, MOD_SOURCES, 10, 160, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM4Dest, MOD_TARGETS, 10, 180, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM4Mod, 130, 160, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM5Src, MOD_SOURCES, 10, 205, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM5Dest, MOD_TARGETS, 10, 225, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM5Mod, 130, 205, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM6Src, MOD_SOURCES, 10, 250, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM6Dest, MOD_TARGETS, 10, 270, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM6Mod, 130, 250, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM7Src, MOD_SOURCES, 10, 295, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM7Dest, MOD_TARGETS, 10, 315, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM7Mod, 130, 295, COL_ROTARYSLIDER_GLOBAL);
-    _addComboBox(&m_grpModMatrix, m_cmbMM8Src, MOD_SOURCES, 10, 340, 110, 20);
-    _addComboBox(&m_grpModMatrix, m_cmbMM8Dest, MOD_TARGETS, 10, 360, 110, 20);
-    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM8Mod, 130, 340, COL_ROTARYSLIDER_GLOBAL);
+    _addGroupBox(this, m_grpModMatrix, "MOD MATRIX", 890, 80, 180, 360);
+    _addComboBox(&m_grpModMatrix, m_cmbMM1Src, MOD_SOURCES, 10, 21, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM1Dest, MOD_TARGETS, 10, 41, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM1Mod, 130, 21, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM2Src, MOD_SOURCES, 10, 63, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM2Dest, MOD_TARGETS, 10, 83, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM2Mod, 130, 63, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM3Src, MOD_SOURCES, 10, 105, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM3Dest, MOD_TARGETS, 10, 125, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM3Mod, 130, 105, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM4Src, MOD_SOURCES, 10, 147, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM4Dest, MOD_TARGETS, 10, 167, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM4Mod, 130, 147, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM5Src, MOD_SOURCES, 10, 189, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM5Dest, MOD_TARGETS, 10, 209, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM5Mod, 130, 189, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM6Src, MOD_SOURCES, 10, 231, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM6Dest, MOD_TARGETS, 10, 251, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM6Mod, 130, 231, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM7Src, MOD_SOURCES, 10, 273, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM7Dest, MOD_TARGETS, 10, 293, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM7Mod, 130, 273, COL_ROTARYSLIDER_GLOBAL);
+    _addComboBox(&m_grpModMatrix, m_cmbMM8Src, MOD_SOURCES, 10, 315, 110, 20);
+    _addComboBox(&m_grpModMatrix, m_cmbMM8Dest, MOD_TARGETS, 10, 335, 110, 20);
+    _addRotarySliderNoLabel(&m_grpModMatrix, m_sldMM8Mod, 130, 315, COL_ROTARYSLIDER_GLOBAL);
 
     // -------------------------------------
     //  EFFECT STACK GROUP
     // -------------------------------------
     
-    _addGroupBox(this, m_grpEffectStack, "EFFECTS STACK", 890, 410, 180, 290);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect1, FX_SECTIONS, 10, 25, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect2, FX_SECTIONS, 10, 50, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect3, FX_SECTIONS, 10, 75, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect4, FX_SECTIONS, 10, 100, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect5, FX_SECTIONS, 10, 125, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect6, FX_SECTIONS, 10, 150, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect7, FX_SECTIONS, 10, 175, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect8, FX_SECTIONS, 10, 200, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect9, FX_SECTIONS, 10, 225, 160, 20);
-    _addComboBox(&m_grpEffectStack, m_cmbEffect10, FX_SECTIONS, 10, 250, 160, 20);
+    _addGroupBox(this, m_grpEffectStack, "EFFECTS STACK", 890, 440, 180, 270);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect1, FX_SECTIONS, 10, 21, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect2, FX_SECTIONS, 10, 45, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect3, FX_SECTIONS, 10, 69, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect4, FX_SECTIONS, 10, 93, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect5, FX_SECTIONS, 10, 117, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect6, FX_SECTIONS, 10, 141, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect7, FX_SECTIONS, 10, 165, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect8, FX_SECTIONS, 10, 189, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect9, FX_SECTIONS, 10, 213, 160, 20);
+    _addComboBox(&m_grpEffectStack, m_cmbEffect10, FX_SECTIONS, 10, 237, 160, 20);
+
+    // -------------------------------------
+    //  KEYBOARD
+    // -------------------------------------
+    addAndMakeVisible(&m_midiKeyboard);
+    m_midiKeyboard.setBounds(10, getHeight() - 80, getWidth() - 20, 80);
+
 
     _fillProgramCombobox();
     _resetTimer();
@@ -492,7 +503,7 @@ void Tunefish4AudioProcessorEditor::_addRotarySlider(Component *parent, Slider &
     slider.setLookAndFeel(TfLookAndFeel::getInstance());
     slider.setColour(Slider::rotarySliderFillColourId, colour);
 
-    _addLabel(parent, label, text, x, y+40, 60, 20);
+    _addLabel(parent, label, text, x, y+30, 60, 20);
     label.setJustificationType(Justification::centredBottom);
 }
 

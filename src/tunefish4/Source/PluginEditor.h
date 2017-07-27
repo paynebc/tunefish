@@ -417,6 +417,7 @@ private:
     // Other
     // -------------------------------------
     TextButton m_btnAbout;
+    MidiKeyboardComponent m_midiKeyboard;
 };
 
 class AboutComponent : public Component

@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2015
+# Visual Studio 2017
 
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tunefish4 - VST", "Tunefish4_VST.vcxproj", "{7723134A-92EA-D966-5320-39529B22364F}"
 	ProjectSection(ProjectDependencies) = postProject

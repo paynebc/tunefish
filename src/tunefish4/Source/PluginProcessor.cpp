@@ -231,6 +231,8 @@ void Tunefish4AudioProcessor::releaseResources()
 
 void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
+
     MidiBuffer::Iterator it(midiMessages);
     MidiMessage midiMessage;
     eU32 messageOffset = 0;
