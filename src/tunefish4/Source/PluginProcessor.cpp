@@ -23,6 +23,22 @@
 #include "PluginEditor.h"
 #include "synth/tfrecorder.hpp"
 
+static File presetsDirectory()
+{
+    String folder(JucePlugin_Manufacturer);
+    folder << File::separatorString << JucePlugin_Name;
+
+#if JUCE_MAC
+    // /home/<Username>/Library/Audio/Presets/<JucePlugin_Manufacturer>/<JucePlugin_Name>
+    return File::getSpecialLocation(File::userHomeDirectory).getChildFile(String("Library/Audio/Presets/") + folder);
+#elif JUCE_WINDOWS
+    // C:\Users\<Username>\AppData\Local\<JucePlugin_Manufacturer>\<JucePlugin_Name>
+    return File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(folder);
+#else
+#error You must add support for your OS here!
+#endif
+}
+
 //==============================================================================
 Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     tf(nullptr),
@@ -45,7 +61,7 @@ Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     eTfInstrumentInit(*tf);
 
     for (eU32 i=0; i<TF_PLUG_NUM_PROGRAMS; i++)
-        programs[i].loadDefault(i);
+        programs[i].loadFactory(i);
 
     loadProgramAll();
     programs[0].applyToSynth(tf);
@@ -336,27 +352,31 @@ bool Tunefish4AudioProcessor::loadProgram()
 
 bool Tunefish4AudioProcessor::loadProgram(eU32 index)
 {
-    String path = pluginLocation +
-    File::separatorString + String("tf4programs") + File::separatorString +
-        String("program") + String(index) + String(".txt");
+    File file = presetsDirectory().getChildFile(String("program") + String(index) + String(".txt"));
 
-    File file(path);
-    FileInputStream *stream = file.createInputStream();
-    if (!stream)
+    if (!file.existsAsFile())
+    {
+        programs[index].loadFactory(index);
+        return true;
+    }
+    
+    ScopedPointer<FileInputStream> stream = file.createInputStream();
+    if (stream == nullptr)
+    {
+        NativeMessageBox::showMessageBox(AlertWindow::AlertIconType::WarningIcon,
+            "Error",
+            "Failed opening " + file.getFullPathName());
         return false;
+    }
 
-    String name = stream->readNextLine();
-    programs[index].setName(name.toRawUTF8());
+    programs[index].setName(stream->readNextLine());
 
-    while(true)
+    while (true)
     {
         String line = stream->readNextLine();
 
         if (line.length() == 0)
-        {
-            eDelete(stream);
             return true;
-        }
 
         StringArray parts;
         parts.addTokens(line, ";", String::empty);
@@ -366,7 +386,7 @@ bool Tunefish4AudioProcessor::loadProgram(eU32 index)
             String key = parts[0];
             eF32 value = parts[1].getFloatValue();
 
-            for(eU32 i=0;i<TF_PARAM_COUNT;i++)
+            for (eU32 i = 0; i<TF_PARAM_COUNT; i++)
             {
                 if (key == TF_NAMES[i])
                 {
@@ -376,8 +396,6 @@ bool Tunefish4AudioProcessor::loadProgram(eU32 index)
             }
         }
     }
-
-    return true;
 }
 
 bool Tunefish4AudioProcessor::loadProgramAll()
@@ -397,15 +415,19 @@ bool Tunefish4AudioProcessor::saveProgram() const
 
 bool Tunefish4AudioProcessor::saveProgram(eU32 index) const
 {
-    String path = pluginLocation +
-    File::separatorString + String("tf4programs") + File::separatorString +
-    String("program") + String(index) + String(".txt");
+    File file = presetsDirectory().getChildFile(String("program") + String(index) + String(".txt"));
 
-    File file(path);
+    file.getParentDirectory().createDirectory();
     file.deleteFile();
-    FileOutputStream *stream = file.createOutputStream();
-    if (!stream)
+
+    ScopedPointer<FileOutputStream> stream = file.createOutputStream();
+    if (stream == nullptr)
+    {
+        NativeMessageBox::showMessageBox(AlertWindow::AlertIconType::WarningIcon,
+            "Error",
+            "Failed writing " + file.getFullPathName());
         return false;
+    }
 
     stream->writeText(programs[index].getName(), false, false);
     stream->writeText("\r\n", false, false);
@@ -418,7 +440,6 @@ bool Tunefish4AudioProcessor::saveProgram(eU32 index) const
         stream->writeText("\r\n", false, false);
     }
 
-    eDelete(stream);
     return true;
 }
 

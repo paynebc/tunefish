@@ -32,7 +32,7 @@ public:
     eTfSynthProgram(const eTfSynthProgram& copy) noexcept; 
     eTfSynthProgram& operator=(const eTfSynthProgram& copy); 
 
-	void            loadDefault(int i);
+	void            loadFactory(int i);
     void            setParam(eU32 index, eF32 value);
     eF32            getParam(eU32 index) const;
     String          getName() const;

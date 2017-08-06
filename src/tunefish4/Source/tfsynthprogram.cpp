@@ -51,7 +51,7 @@ eTfSynthProgram& eTfSynthProgram::operator= (const eTfSynthProgram& copy)
     return *this;
 }
 
-void eTfSynthProgram::loadDefault(int index)
+void eTfSynthProgram::loadFactory(int index)
 {
     name = String(TF_FACTORY_PATCH_NAMES[index]);
     for (int i = 0; i < TF_PARAM_COUNT; i++)
