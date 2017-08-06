@@ -32,7 +32,10 @@ static File presetsDirectory()
     // /home/<Username>/Library/Audio/Presets/<JucePlugin_Manufacturer>/<JucePlugin_Name>
     return File::getSpecialLocation(File::userHomeDirectory).getChildFile(String("Library/Audio/Presets/") + folder);
 #elif JUCE_WINDOWS
-    // C:\Users\<Username>\AppData\Local\<JucePlugin_Manufacturer>\<JucePlugin_Name>
+    // C:\Users\<Username>\AppData\Roaming\<JucePlugin_Manufacturer>\<JucePlugin_Name>
+    return File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(folder);
+#elif JUCE_LINUX
+    // /home/<Username>/.config/<JucePlugin_Manufacturer>/<JucePlugin_Name>
     return File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(folder);
 #else
 #error You must add support for your OS here!

@@ -13,14 +13,14 @@ Check our website at https://tunefish-synth.com
 Compile using Visual Studio 2015. Solution can be found in
 /src/tunefish4/Builds/VisualStudio2015
 
-VST SDK has to be put in directory c:/dev/3rdparty/vst
+VST SDK has to be put in directory c:/SDKs
 
 ### Compiling on Mac OS X
 
 Compile using XCode. Project can be found in
 /src/tunefish4/Builds/MacOSX
 
-VST SDK has to be put in directory ~/src/3rdparty/vst
+VST SDK has to be put in directory ~/SDKs
 
 ### Compiling on Linux
 
@@ -42,8 +42,8 @@ sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound-dev libxrandr-de
 run make in directory
 /src/tunefish4/Builds/LinuxMakefile
 
-VST SDK has to be put in directory ~/src/3rdparty/vst
+VST SDK has to be put in directory ~/SDKs
 
 ### Running
 
-Copy the directory tf4programs from /pathches/ and the tunefish4.dll/.so/.component/vst (depending on platform) to your desired plugins directory. Run your sequencer.
+Copy the tunefish4.dll/.so/.component/vst (depending on platform) to your desired plugins directory. Run your sequencer.

@@ -4,15 +4,22 @@ Tunefish 4 User Guide
 
 System requirements:
 -------------------------------------------------
-Mac OS X 10.6 with Intel CPU 
-Windows XP or newer 32/64bit
-Ubuntu 13.10 32/64bit (Should work fine on other distributions but was built on this config)
+Mac OS X 10.9 with Intel CPU 
+Windows 7 or newer 32/64bit
+Ubuntu 16.04 32/64bit (Should work fine on other distributions but was built on this config)
 
 Installation:
 -------------------------------------------------
-Put the tf4programs folder into the same directory as you put the VST/AU. If you're on Linux, best is to put it in the ~/.vst folder 
-(which you might have to create). If you're on Windows, you can typically choose where to put the plugin and point your DAW to this folder.
-On Mac, you install it in your home folder to /Library/Audio/Plug-Ins/Components for the AU or /Library/Audio/Plug-Ins/VST for the VST.
+Linux: 		Copy the tunefish4.so to ~/.vst folder (which you might have to create). 
+Windows: 	You can typically choose where to put the plugin and point your DAW to this folder.
+Mac:		Install it in your home folder to /Library/Audio/Plug-Ins/Components for the AU 
+			or /Library/Audio/Plug-Ins/VST for the VST.
+
+Patches you modify and save in Tunefish will be saved into your home directory:
+
+Linux: 		/home/<Username>/.config/Brain Control/Tunefish4
+Windows:	C:\Users\<Username>\AppData\Local\Brain Control\Tunefish4
+Mac:		/home/<Username>/Library/Audio/Presets/Brain Control/Tunefish4
 
 Usage:
 -------------------------------------------------
