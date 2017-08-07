@@ -1278,8 +1278,8 @@ eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs,
 
             // Pitch wheel calculation
             // -------------------------------------------------------------------------------
-            eU32 semiTonesUp = eFtoL(instr.params[TF_PITCHWHEEL_UP] * 23.0f + 1.0f);
-            eU32 semiTonesDown = eFtoL(instr.params[TF_PITCHWHEEL_DOWN] * 23.0f + 1.0f);
+            eU32 semiTonesUp = eFtoL(instr.params[TF_PITCHWHEEL_UP] * 12.0f + 1.0f);
+            eU32 semiTonesDown = eFtoL(instr.params[TF_PITCHWHEEL_DOWN] * 12.0f + 1.0f);
             while (semiTonesUp--) { nextFreq *= TF_12TH_ROOT_OF_2; }
             while (semiTonesDown--) { prevFreq *= (1.0f / TF_12TH_ROOT_OF_2); }
             baseFreq = eLerp(prevFreq, baseFreq, eClamp<eF32>(0.0f, voice.pitchBendSemitones + 1.0f, 1.0f));

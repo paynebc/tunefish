@@ -332,8 +332,10 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
             eS32 bend_lsb = midiMessage.getRawData()[1] & 0x7f;
             eS32 bend_msb = midiMessage.getRawData()[2] & 0x7f;
 
-            eTfInstrumentPitchBend(*tf, ((eF32(bend_msb) / 127.0f) - 0.5f) * 2.0f,
-                                   ((eF32(bend_lsb) / 127.0f) - 0.5f) * 2.0f);
+            auto semitones = ((eF32(bend_msb) / 127.0f) - 0.5f) * 2.0f;
+            auto cents = ((eF32(bend_lsb) / 127.0f) - 0.5f) * 2.0f;
+
+            eTfInstrumentPitchBend(*tf, semitones, cents);
         }
     }
 }

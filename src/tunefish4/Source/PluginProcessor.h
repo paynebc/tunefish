@@ -106,9 +106,6 @@ public:
     MidiKeyboardState       keyboardState;
 
 private:
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tunefish4AudioProcessor)
-
     eTfInstrument *         tf;
     eTfSynth *              synth;
     eTfSynthProgram         programs[TF_PLUG_NUM_PROGRAMS];
@@ -125,6 +122,8 @@ private:
     eF32 *                  adapterBuffer[2];
     eU32                    adapterWriteOffset;
     eU32                    adapterDataAvailable;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Tunefish4AudioProcessor)
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED
