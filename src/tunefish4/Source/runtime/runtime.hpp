@@ -44,6 +44,14 @@
 #define eASSERT_ALIGNED16(x)    eASSERT(eU32(x)%16 == 0)
 #define eCOALESCE(x, y)         (x == nullptr ? y : x)
 
+#if defined(eRELEASE) && defined(ePLAYER)
+ePtr eCDECL operator new(eU32 size);
+ePtr eCDECL operator new[](eU32 size);
+void eCDECL operator delete(ePtr ptr);
+void eCDECL operator delete(ePtr ptr, unsigned int size);
+void eCDECL operator delete[](ePtr ptr);
+#endif
+
 ePtr    eAllocAligned(eU32 size, eU32 alignment);
 ePtr    eAllocAlignedAndZero(eU32 size, eU32 alignment);
 void    eFreeAligned(ePtr ptr);

@@ -29,21 +29,56 @@
 #include "types.hpp"
 #include "runtime.hpp"
 
-#pragma intrinsic(abs, sin, cos, tan, atan, atan2, sqrt, acos, asin, exp, memset, memcpy, pow)
+#pragma intrinsic(abs, sin, cos, tan, atan, atan2, sqrt, acos, asin, exp, pow)
+
+#if defined(eRELEASE) && defined(ePLAYER)
+
+ePtr eCDECL operator new(eU32 size)
+{
+    return HeapAlloc(GetProcessHeap(), 0, size);
+}
+
+ePtr eCDECL operator new [](eU32 size)
+{
+    return HeapAlloc(GetProcessHeap(), 0, size);
+}
+
+void eCDECL operator delete(ePtr ptr)
+{
+    HeapFree(GetProcessHeap(), 0, ptr);
+}
+
+void eCDECL operator delete(ePtr ptr, unsigned int size)
+{
+    HeapFree(GetProcessHeap(), 0, ptr);
+}
+
+void eCDECL operator delete [](ePtr ptr)
+{
+    HeapFree(GetProcessHeap(), 0, ptr);
+}
+
+#endif
 
 ePtr eAllocAligned(eU32 size, eU32 alignment)
 {
-    // allocate memory size+alignment+sizeof(eU32) bytes
-    ePtr p0 = new eU8[size+alignment+sizeof(eU64)];
+    eASSERT(alignment > 0 && eIsPowerOf2(alignment));
+
+    // alignment-1 because in worst case only that many
+    // bytes to the next properly aligned address are
+    // needed. e.g. new returns 49 and we want to align
+    // to 16 bytes => 49+(16-1) = 64
+    ePtr memPtr = new eU8[size + alignment - 1 + sizeof(eSize)];
 
     // find aligned memory address as multiples of alignment
-    const eU64 addr = (eU64)p0+alignment+sizeof(eU64);
-    ePtr p1 = (ePtr)(addr-(addr%alignment));
+    const eSize memStartAddr = (eSize)memPtr + sizeof(eSize);
+    const eSize alignedAddr = eAlign(memStartAddr, alignment);
+    ePtr alignedPtr = (ePtr)alignedAddr;
 
-    // store address returned by malloc 4 byte above
-    // pointer to be returned (useful when freeing)
-    *((eU64 *)p1-1) = (eU64)p0;
-    return p1;
+    // store address returned by new directly before
+    // pointer to be returned (useful for freeing)
+    ((eSize *)alignedPtr)[-1] = (eSize)memPtr;
+    return alignedPtr;
 }
 
 ePtr eAllocAlignedAndZero(eU32 size, eU32 alignment)
@@ -83,12 +118,29 @@ ePtr eMemRealloc(ePtr ptr, eU32 oldLength, eU32 newLength)
 
 void eMemSet(ePtr dst, eU8 val, eU32 count)
 {
+#if defined(eRELEASE) && defined(ePLAYER)
+  char *bytes = (char *)dst;
+  while (count--)
+  {
+    *bytes++ = (char)val;
+  }
+#else
     memset(dst, val, count);
+#endif
 }
 
 void eMemCopy(ePtr dst, eConstPtr src, eU32 count)
 {
+#if defined(eRELEASE) && defined(ePLAYER)
+    char *dest8 = (char *)dst;
+    const char *src8 = (const char *)src;
+    while (count--)
+    {
+      *dest8++ = *src8++;
+    }
+#else
     memcpy(dst, src, count);
+#endif
 }
 
 void eMemMove(ePtr dst, eConstPtr src, eU32 count)
@@ -329,17 +381,99 @@ eBool eIsDigit(eChar c)
 
 eF32 eAbs(eF32 x)
 {
-    return fabsf(x);
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fabs
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
+    return fabs(x);
+#endif
 }
 
 eInt eAbs(eInt x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fabs
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return abs(x);
+#endif
+}
+
+eF64 ePow64(eF64 a, eF64 b)
+{
+#ifdef ePLAYER
+    __asm
+    {
+      fld     qword ptr[b]
+      fld     qword ptr[a]
+
+      ftst
+      fstsw   ax
+      sahf
+      jz      zero
+
+      fyl2x
+      fist    dword ptr[a]
+      sub     esp, 12
+      mov     dword ptr[esp], 0
+      mov     dword ptr[esp + 4], 0x80000000
+      fisub   dword ptr[a]
+      mov     eax, dword ptr[a]
+      add     eax, 0x3fff
+      mov[esp + 8], eax
+      jle     underflow
+      cmp     eax, 0x8000
+      jge     overflow
+      f2xm1
+      fld1
+      fadd
+      fld     tbyte ptr[esp]
+      add     esp, 12
+      fmul
+      jmp     end
+
+      underflow :
+      fstp    st
+      fldz
+      add     esp, 12
+      jmp     end
+
+      overflow :
+      push    0x7f800000
+      fstp    st
+      fld     dword ptr[esp]
+      add     esp, 16
+      jmp     end
+
+      zero :
+      fstp    st(1)
+
+      end :
+    }
+#else
+    return 0.0f;
+#endif
 }
 
 eF32 ePow(eF32 base, eF32 exp)
 {
+#ifdef ePLAYER
+    return (eF32)ePow64(base, exp);
+#else
     return powf(base, exp);
+#endif
 }
 
 eF32 eSinH(eF32 x)
@@ -363,30 +497,124 @@ eF32 eTanH(eF32 x)
 // arcus sine with -1 <= x <= 1
 eF32 eASin(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fld     st(0)
+        fmul
+        fld     st(0)
+        fld1
+        fsubr
+        fdiv
+        fsqrt
+        fld1
+        fpatan
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return asinf(x);
+#endif
 }
 
 // arcus cosine with -1 <= x <= 1
 eF32 eACos(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fld     st(0)
+        fld     st(0)
+        fmul
+        fld1
+        fsubr
+        fsqrt
+        fxch
+        fpatan
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return acosf(x);
+#endif
 }
 
 eF32 eExp(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+      fld     dword ptr[x]
+      fldl2e
+      fmulp   st(1), st
+      fld1
+      fld     st(1)
+      fprem
+      f2xm1
+      faddp   st(1), st
+      fscale
+      fstp    st(1)
+      fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return expf(x);
+#endif
 }
 
 // rounds upVec towards +inf (e.g. ceil(-2.2) = -2)
 eF32 eRoundUp(eF32 x)
 {
+#ifdef ePLAYER
+    eInt holder, setter, res;
+
+    __asm
+    {
+      fld     dword ptr[x]
+      fnstcw  dword ptr[holder]
+      movzx   eax, [holder]
+      and eax, 0xfffff3ff
+      or eax, 0x00000800
+      mov     dword ptr[setter], eax
+      fldcw   dword ptr[setter]
+      fistp   dword ptr[res]
+      fldcw   dword ptr[holder]
+    }
+
+    return static_cast<eF32>(res);
+#else
     return ceilf(x);
+#endif
 }
 
 // rounds down towards -inf (e.g. floor(-2.2) = -3)
 eF32 eRoundDown(eF32 x)
 {
+#ifdef ePLAYER
+    eInt holder, setter, res;
+
+    __asm
+    {
+      fld     dword ptr[x]
+      fnstcw  dword ptr[holder]
+      movzx   eax, [holder]
+      and eax, 0xfffff3ff
+      or eax, 0x00000400
+      mov     dword ptr[setter], eax
+      fldcw   dword ptr[setter]
+      fistp   dword ptr[res]
+      fldcw   dword ptr[holder]
+    }
+
+    return static_cast<eF32>(res);
+#else
     return floorf(x);
+#endif
 }
 
 // rounds down for positive numbers,
@@ -398,7 +626,7 @@ eF32 eRoundZero(eF32 x)
 
 eF32 eRoundNearest(eF32 x)
 {
-    return floorf(x + 0.5f);
+    return eRoundDown(x + 0.5f);
 }
 
 eU32 eRoundToMultiple(eU32 x, eU32 multiple)
@@ -415,28 +643,78 @@ eBool eIsNumber(eF32 x)
 
 eF32 eLog10(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld1
+        fld     dword ptr[x]
+        fyl2x
+        fldl2t
+        fdiv
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return log10f(x);
+#endif
 }
 
 eF32 eLog2(eF32 x)
 {
-    static const eF32 log2 = eLog10(2.0f);
-    return log10f(x)/log2;
+    const eF32 log2 = 0.30102999566f;
+    return eLog10(x) / log2;
 }
 
 eF32 eLogE(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld1
+        fld     dword ptr[x]
+        fyl2x
+        fldl2e
+        fdiv
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return logf(x);
+#endif
 }
 
 eF32 eSin(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fsin
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return sin(x);
+#endif
 }
 
 eF32 eCos(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fcos
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return cos(x);
+#endif
 }
 
 eF32 eTan(eF32 x)
@@ -473,7 +751,18 @@ void eSinCos(eF32 x, eF32 &sine, eF32 &cosine)
 
 eF32 eSqrt(eF32 x)
 {
+#ifdef ePLAYER
+    __asm
+    {
+        fld     dword ptr[x]
+        fsqrt
+        fstp    dword ptr[x]
+    }
+
+    return x;
+#else
     return sqrtf(x);
+#endif
 }
 
 eF32 eInvSqrt(eF32 x)
@@ -487,7 +776,12 @@ eF32 eInvSqrt(eF32 x)
 // and i is an integer value).
 eF32 eMod(eF32 a, eF32 b)
 {
+#ifdef ePLAYER
+    // "crude" implementation from https://stackoverflow.com/questions/26342823/implementation-of-fmod-function
+    return (a - b * eRoundDown(a / b));
+#else
     return fmodf(a, b);
+#endif
 }
 
 eBool eIsFloatZero(eF32 x, eF32 thresh)

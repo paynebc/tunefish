@@ -337,7 +337,7 @@ eF32 eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eU32
 {
     eF32 freq = instr.params[paramOffset];
     eF32 depth = instr.params[paramOffset+1];
-    eU32 shape = static_cast<eU32>(eRoundNearest(instr.params[paramOffset + 2] * (TF_LFOSHAPECOUNT - 1)));
+    eU32 shape = eFtoL(eRoundNearest(instr.params[paramOffset + 2] * (TF_LFOSHAPECOUNT - 1)));
 
     eF32 result = 1.0f;
     depth = depth * depth;

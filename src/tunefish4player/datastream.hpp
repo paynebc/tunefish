@@ -28,35 +28,33 @@ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 class eDataStream
 {
 public:
-  eDataStream(eConstPtr data = nullptr, eU32 size = 0);
-  eDataStream(const eByteArray &data);
+    eDataStream(eConstPtr data = nullptr, eU32 size = 0);
+    eDataStream(const eByteArray &data);
 
-  void        Attach(eConstPtr data, eU32 size);
-  void        Flush();
+    void        Attach(eConstPtr data, eU32 size);
+    void        Flush();
 
-  void        WriteBit(eBool bit, eU32 count = 1);
-  void        WriteBits(eU64 val, eU32 bitCount);
-  void        WriteU8(eU8 val);
-  void        WriteU16(eU16 val);
-  void        WriteU32(eU32 val);
-  void        WriteU64(eU64 val);
+    void        WriteBit(eBool bit, eU32 count = 1);
+    void        WriteBits(eU32 val, eU32 bitCount);
+    void        WriteU8(eU8 val);
+    void        WriteU16(eU16 val);
+    void        WriteU32(eU32 val);
 
-  eBool       ReadBit();
-  eBool       ReadBitOrZero();
-  eU64        ReadBits(eU32 bitCount);
-  eU8         ReadU8();
-  eU16        ReadU16();
-  eU32        ReadU32();
-  eU64        ReadU64();
+    eBool       ReadBit();
+    eBool       ReadBitOrZero();
+    eU32        ReadBits(eU32 bitCount);
+    eU8         ReadU8();
+    eU16        ReadU16();
+    eU32        ReadU32();
 
 public:
-  eByteArray  Data;
-  eBool       Reading;
-  eU32        ReadIdx;
+    eByteArray  Data;
+    eBool       Reading;
+    eU32        ReadIdx;
 
 private:
-  eU32        NumBits;
-  eU8         CurByte;
+    eU32        NumBits;
+    eU8         CurByte;
 };
 
 #endif

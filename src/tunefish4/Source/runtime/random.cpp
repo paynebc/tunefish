@@ -19,6 +19,10 @@
  ---------------------------------------------------------------------
  */
 
+#if defined(eRELEASE) && defined(ePLAYER)
+#include <windows.h>
+#endif
+
 #include "system.hpp"
 #include <time.h>
 
@@ -40,7 +44,13 @@ void eRandom::Seed(eU32 newSeed)
 
 void eRandom::SeedRandomly()
 {
+#if defined(eRELEASE) && defined(ePLAYER)
+    eU64 curTime;
+    QueryPerformanceCounter((LARGE_INTEGER *)&curTime);
+    Seed(static_cast<eU32>(curTime));
+#else
     Seed(clock());
+#endif
 }
 
 eU32 eRandom::NextInt()

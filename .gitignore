@@ -4,6 +4,7 @@
 *.suo
 *.sdf
 *.opendb
+*.opensdf
 *.lib
 binary/
 src/tunefish4/Builds/VisualStudio2015/Debug/
@@ -12,4 +13,4 @@ src/tunefish4/Builds/VisualStudio2015/x64/
 src/tunefish4/Builds/VisualStudio2015/Win32/
 src/tunefish4player/debug/
 src/tunefish4player/x64/
-*.opensdf
+src/tunefish4player/release/
