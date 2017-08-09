@@ -76,7 +76,7 @@ void eThread::terminate(eU32 exitCode)
 
 void eThread::setPriority(eThreadPriority prio)
 {
-  eU32 tp[] =
+  int tp[] =
   {
     THREAD_PRIORITY_LOWEST,        // low
     THREAD_PRIORITY_NORMAL,        // normal

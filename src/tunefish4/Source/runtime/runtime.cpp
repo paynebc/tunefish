@@ -719,7 +719,7 @@ eF32 eCos(eF32 x)
 
 eF32 eTan(eF32 x)
 {
-    return tan(x);
+    return static_cast<eF32>(tan(x));
 }
 
 eF32 eCot(eF32 x)
@@ -730,12 +730,12 @@ eF32 eCot(eF32 x)
 
 eF32 eATan(eF32 x)
 {
-    return atan(x);
+    return static_cast<eF32>(atan(x));
 }
 
 eF32 eATan2(eF32 y, eF32 x)
 {
-    return atan2(y, x);
+    return static_cast<eF32>(atan2(y, x));
 }
 
 eF32 eATanh(eF32 x)
