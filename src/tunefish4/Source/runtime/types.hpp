@@ -84,12 +84,6 @@ typedef const void *            eConstPtr;
 typedef eU32                    eID;
 typedef eU8                     BYTE; // required because of the shader headers
 
-#ifdef eWIN64
-typedef eU64                    eSize;
-#else
-typedef eU32                    eSize;
-#endif
-
 // numerical limits (dont't change into consts, it's a size thing!)
 #define eU32_MAX                (0xffffffffU)
 #define eS32_MIN                (-2147483647-1)

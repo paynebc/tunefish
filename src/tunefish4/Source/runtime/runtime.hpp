@@ -271,7 +271,7 @@ template<class T> T eCubic(T x)
     return x*x*x;
 }
 
-template<class T> T eAlign(const T &val, eU32 alignment)
+template<class T> T eAlign(const T &val, eU64 alignment)
 {
     static_assert(sizeof(val) <= sizeof(alignment), "doesn't work correctly if sizeof(alignment) < sizeof(val)");
     return (T)((((eU32)val)+alignment-1)&(~(alignment-1)));

@@ -68,16 +68,16 @@ ePtr eAllocAligned(eU32 size, eU32 alignment)
     // bytes to the next properly aligned address are
     // needed. e.g. new returns 49 and we want to align
     // to 16 bytes => 49+(16-1) = 64
-    ePtr memPtr = new eU8[size + alignment - 1 + sizeof(eSize)];
+    ePtr memPtr = new eU8[size + alignment - 1 + sizeof(eU64)];
 
     // find aligned memory address as multiples of alignment
-    const eSize memStartAddr = (eSize)memPtr + sizeof(eSize);
-    const eSize alignedAddr = eAlign(memStartAddr, alignment);
+    const eU64 memStartAddr = (eU64)memPtr + sizeof(eU64);
+    const eU64 alignedAddr = eAlign(memStartAddr, alignment);
     ePtr alignedPtr = (ePtr)alignedAddr;
 
     // store address returned by new directly before
     // pointer to be returned (useful for freeing)
-    ((eSize *)alignedPtr)[-1] = (eSize)memPtr;
+    ((eU64 *)alignedPtr)[-1] = (eU64)memPtr;
     return alignedPtr;
 }
 
