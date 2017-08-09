@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="tf4">
+      <UniqueIdentifier>{a0c66f4f-254d-4660-bf41-485810139fdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="runtime">
+      <UniqueIdentifier>{c8730502-982e-4811-902c-fb284dedb9e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tunefish4\Source\synth\tf4.cpp">
+      <Filter>tf4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tunefish4\Source\synth\tf4fx.cpp">
+      <Filter>tf4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tunefish4\Source\runtime\array.cpp">
+      <Filter>runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tunefish4\Source\runtime\random.cpp">
+      <Filter>runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tunefish4\Source\runtime\runtime.cpp">
+      <Filter>runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tunefish4\Source\runtime\simd.cpp">
+      <Filter>runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="tf4dx.cpp" />
+    <ClCompile Include="tf4player.cpp" />
+    <ClCompile Include="datastream.cpp" />
+    <ClCompile Include="threading.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\tunefish4\Source\synth\tf4.hpp">
+      <Filter>tf4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\synth\tf4fx.hpp">
+      <Filter>tf4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\array.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\random.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\runtime.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\simd.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\system.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tunefish4\Source\runtime\types.hpp">
+      <Filter>runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="tf4dx.hpp" />
+    <ClInclude Include="tf4player.hpp" />
+    <ClInclude Include="datastream.hpp" />
+    <ClInclude Include="threading.hpp" />
+  </ItemGroup>
+</Project>

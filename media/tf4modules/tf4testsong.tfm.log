@@ -1,0 +1,2801 @@
+Instruments: 9
+Tempo: 100
+Eventcount for instr 0: 384
+Eventcount for instr 1: 432
+Eventcount for instr 2: 96
+Eventcount for instr 3: 384
+Eventcount for instr 4: 256
+Eventcount for instr 5: 0
+Eventcount for instr 6: 144
+Eventcount for instr 7: 64
+Eventcount for instr 8: 0
+Instruments
+-----------------------------------------
+Params for instr 0
+-----------------------------------------
+Gain: 0.538061 -> 53
+GenBandw: 0 -> 0
+GenHarmn: 0 -> 0
+GenDamp: 0 -> 0
+GenMod: 0 -> 0
+GenVol: 0 -> 0
+GenPan: 0.5 -> 50
+GenSlop: 0 -> 0
+GenOct: 0 -> 0
+GenGlid: 0 -> 0
+GetDetn: 0 -> 0
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0 -> 0
+GenUnis: 0 -> 0
+GenSprd: 0 -> 0
+GenScale: 0 -> 0
+NoiseOn: 0.0909091 -> 9
+NoiseFreq: 0.919192 -> 91
+NoiseBw: 0 -> 0
+FltLPOn: 0 -> 0
+FltLPCut: 0 -> 0
+FltLPRes: 0 -> 0
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.0609756 -> 6
+Env1Sus: 0 -> 0
+Env1Rel: 0.191919 -> 19
+Env1Slp: 1 -> 100
+Env2Att: 0 -> 0
+Env2Dec: 0 -> 0
+Env2Sus: 0 -> 0
+Env2Rel: 0 -> 0
+Env2Slp: 0 -> 0
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.214286 -> 21
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.282051 -> 28
+Mm2Source: 0 -> 0
+Mm2Mod: 0 -> 0
+Mm2Target: 0 -> 0
+Mm3Source: 0 -> 0
+Mm3Mod: 0 -> 0
+Mm3Target: 0 -> 0
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.5 -> 50
+Effect2: 0 -> 0
+Effect3: 0 -> 0
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.191919 -> 19
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.191919 -> 19
+DelayR: 0.191919 -> 19
+DelayDc: 0.191919 -> 19
+RevRoom: 0.115919 -> 11
+RevDamp: 0.191919 -> 19
+RevWet: 0.482949 -> 48
+RevWidth: 0.494949 -> 49
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 0 -> 0
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.5 -> 50
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 1
+-----------------------------------------
+Gain: 0.301737 -> 30
+GenBandw: 0.228 -> 22
+GenHarmn: 0.387596 -> 38
+GenDamp: 0.0909091 -> 9
+GenMod: 0.164 -> 16
+GenVol: 1 -> 100
+GenPan: 0.5 -> 50
+GenSlop: 0.5 -> 50
+GenOct: 0.375 -> 37
+GenGlid: 0 -> 0
+GetDetn: 0.2 -> 20
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0.08901 -> 8
+GenUnis: 0.222222 -> 22
+GenSprd: 0.280848 -> 28
+GenScale: 0 -> 0
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 1 -> 100
+FltLPCut: 0.5 -> 50
+FltLPRes: 0 -> 0
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.243902 -> 24
+Env1Sus: 0.121951 -> 12
+Env1Rel: 0.378049 -> 37
+Env1Slp: 1 -> 100
+Env2Att: 0 -> 0
+Env2Dec: 0.609756 -> 60
+Env2Sus: 0 -> 0
+Env2Rel: 0.560976 -> 56
+Env2Slp: 1 -> 100
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.214286 -> 21
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0.285714 -> 28
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.307692 -> 30
+Mm3Source: 0 -> 0
+Mm3Mod: 0 -> 0
+Mm3Target: 0 -> 0
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.2 -> 20
+Effect2: 0.5 -> 50
+Effect3: 0 -> 0
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.2 -> 20
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.317535 -> 31
+DelayR: 0.311232 -> 31
+DelayDc: 0.689253 -> 68
+RevRoom: 0.456 -> 45
+RevDamp: 0.02 -> 2
+RevWet: 0.212 -> 21
+RevWidth: 0.984 -> 98
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 1 -> 100
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.5 -> 50
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 2
+-----------------------------------------
+Gain: 0.494949 -> 49
+GenBandw: 0.268 -> 26
+GenHarmn: 1 -> 100
+GenDamp: 0.0909091 -> 9
+GenMod: 0 -> 0
+GenVol: 1 -> 100
+GenPan: 0.5 -> 50
+GenSlop: 0.5 -> 50
+GenOct: 0.75 -> 75
+GenGlid: 0 -> 0
+GetDetn: 0.181818 -> 18
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0.0808081 -> 8
+GenUnis: 0.333333 -> 33
+GenSprd: 0.137333 -> 13
+GenScale: 0.0606061 -> 6
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 1 -> 100
+FltLPCut: 0.410061 -> 41
+FltLPRes: 0.040404 -> 4
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.262626 -> 26
+Env1Sus: 0.262626 -> 26
+Env1Rel: 0.717172 -> 71
+Env1Slp: 0.597561 -> 59
+Env2Att: 0 -> 0
+Env2Dec: 0.565657 -> 56
+Env2Sus: 0 -> 0
+Env2Rel: 0.808081 -> 80
+Env2Slp: 0.949495 -> 94
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.285714 -> 28
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0.214286 -> 21
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.307692 -> 30
+Mm3Source: 0.214286 -> 21
+Mm3Mod: 0.5 -> 50
+Mm3Target: 0.0769231 -> 7
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0 -> 0
+Effect2: 0 -> 0
+Effect3: 0 -> 0
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.444444 -> 44
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.454545 -> 45
+DelayR: 0.464646 -> 46
+DelayDc: 0.676768 -> 67
+RevRoom: 0.79798 -> 79
+RevDamp: 1 -> 100
+RevWet: 0.252525 -> 25
+RevWidth: 1 -> 100
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 1 -> 100
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.5 -> 50
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 3
+-----------------------------------------
+Gain: 0.267919 -> 26
+GenBandw: 0.767677 -> 76
+GenHarmn: 0.252525 -> 25
+GenDamp: 0 -> 0
+GenMod: 0 -> 0
+GenVol: 1 -> 100
+GenPan: 0.5 -> 50
+GenSlop: 0.050505 -> 5
+GenOct: 0.375 -> 37
+GenGlid: 0 -> 0
+GetDetn: 0.181818 -> 18
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0 -> 0
+GenUnis: 0.777778 -> 77
+GenSprd: 0.377859 -> 37
+GenScale: 0 -> 0
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 1 -> 100
+FltLPCut: 0.764646 -> 76
+FltLPRes: 0 -> 0
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.426829 -> 42
+Env1Sus: 0.10101 -> 10
+Env1Rel: 0.717172 -> 71
+Env1Slp: 1 -> 100
+Env2Att: 0.262626 -> 26
+Env2Dec: 0.373737 -> 37
+Env2Sus: 0 -> 0
+Env2Rel: 0.0606061 -> 6
+Env2Slp: 0.949495 -> 94
+Lfo1Rate: 0.096 -> 9
+Lfo1Dep: 0.584 -> 58
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.285714 -> 28
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0.214286 -> 21
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.307692 -> 30
+Mm3Source: 0.0714286 -> 7
+Mm3Mod: 0.5 -> 50
+Mm3Target: 0.307692 -> 30
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.2 -> 20
+Effect2: 0 -> 0
+Effect3: 0.5 -> 50
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.444444 -> 44
+ChrsRate: 0.131313 -> 13
+ChrsDep: 0.252525 -> 25
+DelayL: 0.45415 -> 45
+DelayR: 0.45415 -> 45
+DelayDc: 0.656566 -> 65
+RevRoom: 0.717172 -> 71
+RevDamp: 0.565657 -> 56
+RevWet: 0.10101 -> 10
+RevWidth: 1 -> 100
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 0.50505 -> 50
+FrmtType: 0 -> 0
+FrmtWet: 1 -> 100
+EqLow: 0.242424 -> 24
+EqMid: 0.484848 -> 48
+EqHigh: 0.494949 -> 49
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 4
+-----------------------------------------
+Gain: 0.248929 -> 24
+GenBandw: 0.312687 -> 31
+GenHarmn: 0.040404 -> 4
+GenDamp: 0 -> 0
+GenMod: 0 -> 0
+GenVol: 0.494949 -> 49
+GenPan: 0.5 -> 50
+GenSlop: 0.0808081 -> 8
+GenOct: 0.5 -> 50
+GenGlid: 0 -> 0
+GetDetn: 0.181818 -> 18
+GenFreq: 0 -> 0
+GenPoly: 0.333333 -> 33
+GenDriv: 0.190707 -> 19
+GenUnis: 0.888889 -> 88
+GenSprd: 0.367354 -> 36
+GenScale: 0 -> 0
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 1 -> 100
+FltLPCut: 0.858586 -> 85
+FltLPRes: 0 -> 0
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.373737 -> 37
+Env1Sus: 0.232323 -> 23
+Env1Rel: 0.212121 -> 21
+Env1Slp: 1 -> 100
+Env2Att: 0 -> 0
+Env2Dec: 0.333333 -> 33
+Env2Sus: 0 -> 0
+Env2Rel: 0.181818 -> 18
+Env2Slp: 0.949495 -> 94
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.285714 -> 28
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0.214286 -> 21
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.307692 -> 30
+Mm3Source: 0 -> 0
+Mm3Mod: 0 -> 0
+Mm3Target: 0 -> 0
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0 -> 0
+Effect2: 0.2 -> 20
+Effect3: 0.5 -> 50
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.20202 -> 20
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.383838 -> 38
+DelayR: 0.383838 -> 38
+DelayDc: 0.626263 -> 62
+RevRoom: 0.515152 -> 51
+RevDamp: 1 -> 100
+RevWet: 0.242424 -> 24
+RevWidth: 1 -> 100
+FlangLfo: 0.222222 -> 22
+FlangFreq: 0.050505 -> 5
+FlangAmp: 0.585859 -> 58
+FlangWet: 0.565657 -> 56
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 1 -> 100
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.606061 -> 60
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 5
+-----------------------------------------
+Gain: 0.153131 -> 15
+GenBandw: 0.575758 -> 57
+GenHarmn: 0.24598 -> 24
+GenDamp: 0.0909091 -> 9
+GenMod: 0.203919 -> 20
+GenVol: 1 -> 100
+GenPan: 0.5 -> 50
+GenSlop: 0.050505 -> 5
+GenOct: 0.375 -> 37
+GenGlid: 0 -> 0
+GetDetn: 0.191919 -> 19
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0.474747 -> 47
+GenUnis: 1 -> 100
+GenSprd: 0.467758 -> 46
+GenScale: 0 -> 0
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 1 -> 100
+FltLPCut: 0.79798 -> 79
+FltLPRes: 0.0909091 -> 9
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.52439 -> 52
+Env1Sus: 0.597561 -> 59
+Env1Rel: 0.474747 -> 47
+Env1Slp: 1 -> 100
+Env2Att: 0 -> 0
+Env2Dec: 0.780488 -> 78
+Env2Sus: 0.560976 -> 56
+Env2Rel: 0.676768 -> 67
+Env2Slp: 1 -> 100
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.214286 -> 21
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0.285714 -> 28
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.307692 -> 30
+Mm3Source: 0 -> 0
+Mm3Mod: 0 -> 0
+Mm3Target: 0 -> 0
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.5 -> 50
+Effect2: 0.1 -> 10
+Effect3: 0.2 -> 20
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.191919 -> 19
+ChrsRate: 0.191919 -> 19
+ChrsDep: 0.191919 -> 19
+DelayL: 0.454545 -> 45
+DelayR: 0.454545 -> 45
+DelayDc: 0.381576 -> 38
+RevRoom: 0.59596 -> 59
+RevDamp: 0.191919 -> 19
+RevWet: 0.242424 -> 24
+RevWidth: 0.979798 -> 97
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.494949 -> 49
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 0 -> 0
+EqLow: 0.494949 -> 49
+EqMid: 0.494949 -> 49
+EqHigh: 0.494949 -> 49
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 6
+-----------------------------------------
+Gain: 0.800566 -> 80
+GenBandw: 0.020202 -> 2
+GenHarmn: 0.010101 -> 1
+GenDamp: 0.0909091 -> 9
+GenMod: 0 -> 0
+GenVol: 1 -> 100
+GenPan: 0.515152 -> 51
+GenSlop: 0.5 -> 50
+GenOct: 0.75 -> 75
+GenGlid: 0 -> 0
+GetDetn: 0.151515 -> 15
+GenFreq: 0.444444 -> 44
+GenPoly: 1 -> 100
+GenDriv: 0.010101 -> 1
+GenUnis: 0 -> 0
+GenSprd: 0.292929 -> 29
+GenScale: 0 -> 0
+NoiseOn: 0.105939 -> 10
+NoiseFreq: 0.282828 -> 28
+NoiseBw: 0.160323 -> 16
+FltLPOn: 1 -> 100
+FltLPCut: 0.252525 -> 25
+FltLPRes: 0.0909091 -> 9
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0.030303 -> 3
+Env1Sus: 0.272727 -> 27
+Env1Rel: 0.191919 -> 19
+Env1Slp: 0 -> 0
+Env2Att: 0 -> 0
+Env2Dec: 0.292929 -> 29
+Env2Sus: 0 -> 0
+Env2Rel: 0.232323 -> 23
+Env2Slp: 1 -> 100
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.214286 -> 21
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.153846 -> 15
+Mm2Source: 0.285714 -> 28
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.128205 -> 12
+Mm3Source: 0.285714 -> 28
+Mm3Mod: 0.5 -> 50
+Mm3Target: 0.282051 -> 28
+Mm4Source: 0.285714 -> 28
+Mm4Mod: 0.5 -> 50
+Mm4Target: 0.307692 -> 30
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.1 -> 10
+Effect2: 0.5 -> 50
+Effect3: 0 -> 0
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.363636 -> 36
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.2 -> 20
+DelayR: 0.2 -> 20
+DelayDc: 0.2 -> 20
+RevRoom: 0.323232 -> 32
+RevDamp: 0.2 -> 20
+RevWet: 0.151515 -> 15
+RevWidth: 0.5 -> 50
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 0 -> 0
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.5 -> 50
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 7
+-----------------------------------------
+Gain: 0.454545 -> 45
+GenBandw: 0.515152 -> 51
+GenHarmn: 0.0606061 -> 6
+GenDamp: 0.0909091 -> 9
+GenMod: 0 -> 0
+GenVol: 0.989899 -> 98
+GenPan: 0.5 -> 50
+GenSlop: 0.5 -> 50
+GenOct: 0.375 -> 37
+GenGlid: 0 -> 0
+GetDetn: 0.191919 -> 19
+GenFreq: 0.30303 -> 30
+GenPoly: 1 -> 100
+GenDriv: 0 -> 0
+GenUnis: 0 -> 0
+GenSprd: 0.292929 -> 29
+GenScale: 0.050505 -> 5
+NoiseOn: 0.292929 -> 29
+NoiseFreq: 0.292929 -> 29
+NoiseBw: 0.323232 -> 32
+FltLPOn: 0 -> 0
+FltLPCut: 0 -> 0
+FltLPRes: 0 -> 0
+FltHPOn: 1 -> 100
+FltHPCut: 0.121212 -> 12
+FltHPRes: 0.717172 -> 71
+Env1Att: 0 -> 0
+Env1Dec: 0.219512 -> 21
+Env1Sus: 0.121212 -> 12
+Env1Rel: 0.191919 -> 19
+Env1Slp: 0 -> 0
+Env2Att: 0 -> 0
+Env2Dec: 0.0365854 -> 3
+Env2Sus: 0 -> 0
+Env2Rel: 0.191919 -> 19
+Env2Slp: 0.424242 -> 42
+Lfo1Rate: 0 -> 0
+Lfo1Dep: 0 -> 0
+Lfo1Shp: 0 -> 0
+Lfo1Sync: 0 -> 0
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.214286 -> 21
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.153846 -> 15
+Mm2Source: 0.285714 -> 28
+Mm2Mod: 0.5 -> 50
+Mm2Target: 0.128205 -> 12
+Mm3Source: 0.285714 -> 28
+Mm3Mod: 0.5 -> 50
+Mm3Target: 0.282051 -> 28
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0.1 -> 10
+Effect2: 0.5 -> 50
+Effect3: 0.7 -> 70
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.222222 -> 22
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.2 -> 20
+DelayR: 0.2 -> 20
+DelayDc: 0.2 -> 20
+RevRoom: 0.333333 -> 33
+RevDamp: 0.989899 -> 98
+RevWet: 0.292929 -> 29
+RevWidth: 0.959596 -> 95
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 0 -> 0
+EqLow: 0.575758 -> 57
+EqMid: 0.666667 -> 66
+EqHigh: 0.777778 -> 77
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Params for instr 8
+-----------------------------------------
+Gain: 0.5 -> 50
+GenBandw: 0 -> 0
+GenHarmn: 0 -> 0
+GenDamp: 0 -> 0
+GenMod: 0 -> 0
+GenVol: 1 -> 100
+GenPan: 0.5 -> 50
+GenSlop: 0.5 -> 50
+GenOct: 0.5 -> 50
+GenGlid: 0 -> 0
+GetDetn: 0.2 -> 20
+GenFreq: 0 -> 0
+GenPoly: 1 -> 100
+GenDriv: 0 -> 0
+GenUnis: 1 -> 100
+GenSprd: 0 -> 0
+GenScale: 0 -> 0
+NoiseOn: 0 -> 0
+NoiseFreq: 0 -> 0
+NoiseBw: 0 -> 0
+FltLPOn: 0 -> 0
+FltLPCut: 0 -> 0
+FltLPRes: 0 -> 0
+FltHPOn: 0 -> 0
+FltHPCut: 0 -> 0
+FltHPRes: 0 -> 0
+Env1Att: 0 -> 0
+Env1Dec: 0 -> 0
+Env1Sus: 0 -> 0
+Env1Rel: 0 -> 0
+Env1Slp: 0 -> 0
+Env2Att: 0 -> 0
+Env2Dec: 0 -> 0
+Env2Sus: 0 -> 0
+Env2Rel: 0 -> 0
+Env2Slp: 0 -> 0
+Lfo1Rate: 0.672 -> 67
+Lfo1Dep: 1 -> 100
+Lfo1Shp: 0.5 -> 50
+Lfo1Sync: 1 -> 100
+Lfo2Rate: 0 -> 0
+Lfo2Dep: 0 -> 0
+Lfo2Shp: 0 -> 0
+Lfo2Sync: 0 -> 0
+Mm1Source: 0.0714286 -> 7
+Mm1Mod: 0.5 -> 50
+Mm1Target: 0.128205 -> 12
+Mm2Source: 0 -> 0
+Mm2Mod: 0 -> 0
+Mm2Target: 0 -> 0
+Mm3Source: 0 -> 0
+Mm3Mod: 0 -> 0
+Mm3Target: 0 -> 0
+Mm4Source: 0 -> 0
+Mm4Mod: 0 -> 0
+Mm4Target: 0 -> 0
+Mm5Source: 0 -> 0
+Mm5Mod: 0 -> 0
+Mm5Target: 0 -> 0
+Mm6Source: 0 -> 0
+Mm6Mod: 0 -> 0
+Mm6Target: 0 -> 0
+Mm7Source: 0 -> 0
+Mm7Mod: 0 -> 0
+Mm7Target: 0 -> 0
+Mm8Source: 0 -> 0
+Mm8Mod: 0 -> 0
+Mm8Target: 0 -> 0
+Mm9Source: 0 -> 0
+Mm9Mod: 0 -> 0
+Mm9Target: 0 -> 0
+Mm10Sourc: 0 -> 0
+Mm10Mod: 0 -> 0
+Mm10Targe: 0 -> 0
+Effect1: 0 -> 0
+Effect2: 0 -> 0
+Effect3: 0 -> 0
+Effect4: 0 -> 0
+Effect5: 0 -> 0
+Effect6: 0 -> 0
+Effect7: 0 -> 0
+Effect8: 0 -> 0
+Effect9: 0 -> 0
+Effect10: 0 -> 0
+DistAmnt: 0.2 -> 20
+ChrsRate: 0.2 -> 20
+ChrsDep: 0.2 -> 20
+DelayL: 0.2 -> 20
+DelayR: 0.2 -> 20
+DelayDc: 0.2 -> 20
+RevRoom: 0.2 -> 20
+RevDamp: 0.2 -> 20
+RevWet: 0.5 -> 50
+RevWidth: 0.5 -> 50
+FlangLfo: 0.2 -> 20
+FlangFreq: 0.2 -> 20
+FlangAmp: 0.2 -> 20
+FlangWet: 0.5 -> 50
+ChrsGain: 1 -> 100
+FrmtType: 0 -> 0
+FrmtWet: 1 -> 100
+EqLow: 0.5 -> 50
+EqMid: 0.5 -> 50
+EqHigh: 0.5 -> 50
+OscPWup: 0 -> 0
+OscPWdw: 0 -> 0
+FltBPOn: 0 -> 0
+FltBPCut: 0.5 -> 50
+FltBPQ: 0.5 -> 50
+FltNTOn: 0 -> 0
+FltNTCut: 0.5 -> 50
+FltNTQ: 0.5 -> 50
+Events (Time, iTime, Instrument, Note, Velocity)
+-----------------------------------------
+Event: 0	0	1	41	127
+Event: 0	0	3	41	127
+Event: 0	0	0	44	127
+Event: 0.15	1	1	41	0
+Event: 0.15	1	3	41	0
+Event: 0.15	1	3	53	127
+Event: 0.3	2	0	44	0
+Event: 0.3	2	1	41	127
+Event: 0.3	2	0	44	127
+Event: 0.45	2	1	41	0
+Event: 0.45	2	1	41	127
+Event: 0.45	2	3	53	0
+Event: 0.45	2	3	41	127
+Event: 0.6	4	3	41	0
+Event: 0.6	4	3	53	127
+Event: 0.6	4	1	41	0
+Event: 0.6	4	1	53	127
+Event: 0.6	4	0	44	0
+Event: 0.6	4	0	46	127
+Event: 0.75	5	0	46	0
+Event: 0.75	5	0	44	127
+Event: 0.75	5	1	53	0
+Event: 1.05	6	1	41	127
+Event: 1.2	8	1	41	0
+Event: 1.2	8	1	58	127
+Event: 1.2	8	3	53	0
+Event: 1.2	8	3	41	127
+Event: 1.2	8	0	44	0
+Event: 1.2	8	0	44	127
+Event: 1.35	9	3	41	0
+Event: 1.35	9	3	53	127
+Event: 1.65	11	3	53	0
+Event: 1.65	11	0	44	0
+Event: 1.65	11	3	41	127
+Event: 1.65	11	0	44	127
+Event: 1.65	11	1	58	0
+Event: 1.65	11	1	41	127
+Event: 1.8	11	0	44	0
+Event: 1.8	11	0	46	127
+Event: 1.8	11	3	41	0
+Event: 1.8	11	3	53	127
+Event: 1.8	11	1	41	0
+Event: 1.8	11	1	57	127
+Event: 2.25	15	0	46	0
+Event: 2.25	15	0	46	127
+Event: 2.25	15	1	57	0
+Event: 2.25	15	1	41	127
+Event: 2.4	15	0	46	0
+Event: 2.4	15	0	44	127
+Event: 2.4	15	1	41	0
+Event: 2.4	15	1	41	127
+Event: 2.4	15	3	53	0
+Event: 2.4	15	3	36	127
+Event: 2.55	17	1	41	0
+Event: 2.55	17	3	36	0
+Event: 2.55	17	3	48	127
+Event: 2.7	18	1	41	127
+Event: 2.7	18	0	44	0
+Event: 2.7	18	0	44	127
+Event: 2.85	19	3	48	0
+Event: 2.85	19	1	41	0
+Event: 2.85	19	3	36	127
+Event: 2.85	19	1	41	127
+Event: 3	20	3	36	0
+Event: 3	20	3	48	127
+Event: 3	20	1	41	0
+Event: 3	20	0	44	0
+Event: 3	20	0	46	127
+Event: 3	20	1	53	127
+Event: 3.15	21	0	46	0
+Event: 3.15	21	0	44	127
+Event: 3.15	21	1	53	0
+Event: 3.45	23	1	41	127
+Event: 3.6	23	0	44	0
+Event: 3.6	23	0	44	127
+Event: 3.6	23	1	41	0
+Event: 3.6	23	3	48	0
+Event: 3.6	23	3	36	127
+Event: 3.6	23	1	48	127
+Event: 3.75	25	3	36	0
+Event: 3.75	25	3	48	127
+Event: 4.05	27	1	48	0
+Event: 4.05	27	0	44	0
+Event: 4.05	27	1	41	127
+Event: 4.05	27	0	44	127
+Event: 4.05	27	3	48	0
+Event: 4.05	27	3	36	127
+Event: 4.2	27	3	36	0
+Event: 4.2	27	0	44	0
+Event: 4.2	27	3	48	127
+Event: 4.2	27	0	46	127
+Event: 4.2	27	1	41	0
+Event: 4.2	27	1	51	127
+Event: 4.65	31	1	51	0
+Event: 4.65	31	0	46	0
+Event: 4.65	31	1	41	127
+Event: 4.65	31	0	46	127
+Event: 4.8	31	1	41	0
+Event: 4.8	31	1	41	127
+Event: 4.8	31	3	48	0
+Event: 4.8	31	0	46	0
+Event: 4.8	31	0	44	127
+Event: 4.8	31	3	39	127
+Event: 4.95	32	1	41	0
+Event: 4.95	32	3	39	0
+Event: 4.95	32	3	51	127
+Event: 5.1	34	0	44	0
+Event: 5.1	34	0	44	127
+Event: 5.1	34	1	41	127
+Event: 5.25	35	1	41	0
+Event: 5.25	35	1	41	127
+Event: 5.25	35	3	51	0
+Event: 5.25	35	3	39	127
+Event: 5.4	36	1	41	0
+Event: 5.4	36	0	44	0
+Event: 5.4	36	1	53	127
+Event: 5.4	36	0	46	127
+Event: 5.4	36	3	39	0
+Event: 5.4	36	3	51	127
+Event: 5.55	37	1	53	0
+Event: 5.55	37	0	46	0
+Event: 5.55	37	0	44	127
+Event: 5.85	39	1	41	127
+Event: 6	40	3	51	0
+Event: 6	40	0	44	0
+Event: 6	40	3	39	127
+Event: 6	40	0	44	127
+Event: 6	40	1	41	0
+Event: 6	40	1	58	127
+Event: 6.15	41	3	39	0
+Event: 6.15	41	3	51	127
+Event: 6.45	42	0	44	0
+Event: 6.45	42	0	44	127
+Event: 6.45	42	1	58	0
+Event: 6.45	42	1	41	127
+Event: 6.45	42	3	51	0
+Event: 6.45	42	3	39	127
+Event: 6.6	44	0	44	0
+Event: 6.6	44	0	46	127
+Event: 6.6	44	1	41	0
+Event: 6.6	44	1	57	127
+Event: 6.6	44	3	39	0
+Event: 6.6	44	3	51	127
+Event: 7.05	47	1	57	0
+Event: 7.05	47	1	41	127
+Event: 7.05	47	0	46	0
+Event: 7.05	47	0	46	127
+Event: 7.2	47	0	46	0
+Event: 7.2	47	0	44	127
+Event: 7.2	47	1	41	0
+Event: 7.2	47	1	41	127
+Event: 7.2	47	3	51	0
+Event: 7.2	47	3	38	127
+Event: 7.35	49	1	41	0
+Event: 7.35	49	3	38	0
+Event: 7.35	49	3	50	127
+Event: 7.5	50	1	41	127
+Event: 7.5	50	0	44	0
+Event: 7.5	50	0	44	127
+Event: 7.65	51	3	50	0
+Event: 7.65	51	3	38	127
+Event: 7.65	51	1	41	0
+Event: 7.65	51	1	41	127
+Event: 7.8	51	3	38	0
+Event: 7.8	51	3	50	127
+Event: 7.8	51	0	44	0
+Event: 7.8	51	0	46	127
+Event: 7.8	51	1	41	0
+Event: 7.8	51	1	53	127
+Event: 7.95	53	0	46	0
+Event: 7.95	53	0	44	127
+Event: 7.95	53	1	53	0
+Event: 8.25	55	1	41	127
+Event: 8.4	55	0	44	0
+Event: 8.4	55	0	44	127
+Event: 8.4	55	3	50	0
+Event: 8.4	55	3	38	127
+Event: 8.4	55	1	41	0
+Event: 8.4	55	1	48	127
+Event: 8.55	57	3	38	0
+Event: 8.55	57	3	50	127
+Event: 8.85	59	1	48	0
+Event: 8.85	59	0	44	0
+Event: 8.85	59	3	50	0
+Event: 8.85	59	1	41	127
+Event: 8.85	59	3	38	127
+Event: 8.85	59	0	44	127
+Event: 9	60	1	41	0
+Event: 9	60	0	44	0
+Event: 9	60	0	46	127
+Event: 9	60	1	51	127
+Event: 9	60	3	38	0
+Event: 9	60	3	50	127
+Event: 9.45	63	1	51	0
+Event: 9.45	63	0	46	0
+Event: 9.45	63	0	46	127
+Event: 9.45	63	1	41	127
+Event: 9.6	63	1	41	0
+Event: 9.6	63	0	46	0
+Event: 9.6	63	3	50	0
+Event: 9.6	63	3	41	127
+Event: 9.6	63	0	44	127
+Event: 9.6	63	1	41	127
+Event: 9.75	65	3	41	0
+Event: 9.75	65	3	53	127
+Event: 9.75	65	1	41	0
+Event: 9.9	65	1	41	127
+Event: 9.9	65	0	44	0
+Event: 9.9	65	0	44	127
+Event: 10.05	67	3	53	0
+Event: 10.05	67	1	41	0
+Event: 10.05	67	3	41	127
+Event: 10.05	67	1	41	127
+Event: 10.2	68	3	41	0
+Event: 10.2	68	3	53	127
+Event: 10.2	68	1	41	0
+Event: 10.2	68	0	44	0
+Event: 10.2	68	0	46	127
+Event: 10.2	68	1	53	127
+Event: 10.35	69	1	53	0
+Event: 10.35	69	0	46	0
+Event: 10.35	69	0	44	127
+Event: 10.65	71	1	41	127
+Event: 10.8	72	1	41	0
+Event: 10.8	72	0	44	0
+Event: 10.8	72	3	53	0
+Event: 10.8	72	3	41	127
+Event: 10.8	72	0	44	127
+Event: 10.8	72	1	58	127
+Event: 10.95	73	3	41	0
+Event: 10.95	73	3	53	127
+Event: 11.25	75	3	53	0
+Event: 11.25	75	3	41	127
+Event: 11.25	75	0	44	0
+Event: 11.25	75	0	44	127
+Event: 11.25	75	1	58	0
+Event: 11.25	75	1	41	127
+Event: 11.4	75	3	41	0
+Event: 11.4	75	1	41	0
+Event: 11.4	75	0	44	0
+Event: 11.4	75	0	46	127
+Event: 11.4	75	3	53	127
+Event: 11.4	75	1	57	127
+Event: 11.85	78	1	57	0
+Event: 11.85	78	1	41	127
+Event: 11.85	78	0	46	0
+Event: 11.85	78	0	46	127
+Event: 12	80	3	53	0
+Event: 12	80	1	41	0
+Event: 12	80	0	46	0
+Event: 12	80	1	41	127
+Event: 12	80	0	44	127
+Event: 12	80	3	36	127
+Event: 12.15	80	3	36	0
+Event: 12.15	80	3	48	127
+Event: 12.15	80	1	41	0
+Event: 12.3	82	0	44	0
+Event: 12.3	82	1	41	127
+Event: 12.3	82	0	44	127
+Event: 12.45	83	3	48	0
+Event: 12.45	83	3	36	127
+Event: 12.45	83	1	41	0
+Event: 12.45	83	1	41	127
+Event: 12.6	83	1	41	0
+Event: 12.6	83	0	44	0
+Event: 12.6	83	1	53	127
+Event: 12.6	83	0	46	127
+Event: 12.6	83	3	36	0
+Event: 12.6	83	3	48	127
+Event: 12.75	85	1	53	0
+Event: 12.75	85	0	46	0
+Event: 12.75	85	0	44	127
+Event: 13.05	87	1	41	127
+Event: 13.2	88	3	48	0
+Event: 13.2	88	3	36	127
+Event: 13.2	88	0	44	0
+Event: 13.2	88	0	44	127
+Event: 13.2	88	1	41	0
+Event: 13.2	88	1	48	127
+Event: 13.35	89	3	36	0
+Event: 13.35	89	3	48	127
+Event: 13.65	90	3	48	0
+Event: 13.65	90	0	44	0
+Event: 13.65	90	3	36	127
+Event: 13.65	90	0	44	127
+Event: 13.65	90	1	48	0
+Event: 13.65	90	1	41	127
+Event: 13.8	92	0	44	0
+Event: 13.8	92	0	46	127
+Event: 13.8	92	1	41	0
+Event: 13.8	92	1	51	127
+Event: 13.8	92	3	36	0
+Event: 13.8	92	3	48	127
+Event: 14.25	95	0	46	0
+Event: 14.25	95	0	46	127
+Event: 14.25	95	1	51	0
+Event: 14.25	95	1	41	127
+Event: 14.4	96	3	48	0
+Event: 14.4	96	3	39	127
+Event: 14.4	96	1	41	0
+Event: 14.4	96	1	41	127
+Event: 14.4	96	0	46	0
+Event: 14.4	96	0	44	127
+Event: 14.55	96	1	41	0
+Event: 14.55	96	3	39	0
+Event: 14.55	96	3	51	127
+Event: 14.7	98	0	44	0
+Event: 14.7	98	1	41	127
+Event: 14.7	98	0	44	127
+Event: 14.85	98	1	41	0
+Event: 14.85	98	3	51	0
+Event: 14.85	98	1	41	127
+Event: 14.85	98	3	39	127
+Event: 15	100	3	39	0
+Event: 15	100	0	44	0
+Event: 15	100	3	51	127
+Event: 15	100	0	46	127
+Event: 15	100	1	41	0
+Event: 15	100	1	53	127
+Event: 15.15	100	0	46	0
+Event: 15.15	100	0	44	127
+Event: 15.15	100	1	53	0
+Event: 15.45	103	1	41	127
+Event: 15.6	104	1	41	0
+Event: 15.6	104	0	44	0
+Event: 15.6	104	0	44	127
+Event: 15.6	104	1	58	127
+Event: 15.6	104	3	51	0
+Event: 15.6	104	3	39	127
+Event: 15.75	105	3	39	0
+Event: 15.75	105	3	51	127
+Event: 16.05	107	0	44	0
+Event: 16.05	107	0	44	127
+Event: 16.05	107	1	58	0
+Event: 16.05	107	3	51	0
+Event: 16.05	107	1	41	127
+Event: 16.05	107	3	39	127
+Event: 16.2	108	1	41	0
+Event: 16.2	108	0	44	0
+Event: 16.2	108	0	46	127
+Event: 16.2	108	1	57	127
+Event: 16.2	108	3	39	0
+Event: 16.2	108	3	51	127
+Event: 16.65	111	0	46	0
+Event: 16.65	111	0	46	127
+Event: 16.65	111	1	57	0
+Event: 16.65	111	1	41	127
+Event: 16.8	111	3	51	0
+Event: 16.8	111	0	46	0
+Event: 16.8	111	0	44	127
+Event: 16.8	111	3	46	127
+Event: 16.8	111	1	41	0
+Event: 16.8	111	1	41	127
+Event: 16.95	112	1	41	0
+Event: 16.95	112	3	46	0
+Event: 16.95	112	3	58	127
+Event: 17.1	114	0	44	0
+Event: 17.1	114	0	44	127
+Event: 17.1	114	1	41	127
+Event: 17.25	115	3	58	0
+Event: 17.25	115	1	41	0
+Event: 17.25	115	3	46	127
+Event: 17.25	115	1	41	127
+Event: 17.4	115	3	46	0
+Event: 17.4	115	3	58	127
+Event: 17.4	115	0	44	0
+Event: 17.4	115	0	46	127
+Event: 17.4	115	1	41	0
+Event: 17.4	115	1	53	127
+Event: 17.55	116	1	53	0
+Event: 17.55	116	0	46	0
+Event: 17.55	116	0	44	127
+Event: 17.85	119	1	41	127
+Event: 18	120	3	58	0
+Event: 18	120	0	44	0
+Event: 18	120	0	44	127
+Event: 18	120	3	45	127
+Event: 18	120	1	41	0
+Event: 18	120	1	48	127
+Event: 18.15	120	3	45	0
+Event: 18.15	120	3	57	127
+Event: 18.45	123	1	48	0
+Event: 18.45	123	1	41	127
+Event: 18.45	123	0	44	0
+Event: 18.45	123	0	44	127
+Event: 18.45	123	3	57	0
+Event: 18.45	123	3	45	127
+Event: 18.6	124	1	41	0
+Event: 18.6	124	0	44	0
+Event: 18.6	124	1	51	127
+Event: 18.6	124	0	46	127
+Event: 18.6	124	3	45	0
+Event: 18.6	124	3	57	127
+Event: 19.05	126	0	46	0
+Event: 19.05	126	0	46	127
+Event: 19.05	126	1	51	0
+Event: 19.05	126	1	41	127
+Event: 19.2	128	4	60	127
+Event: 19.2	128	0	46	0
+Event: 19.2	128	0	44	127
+Event: 19.2	128	3	57	0
+Event: 19.2	128	3	41	127
+Event: 19.2	128	1	41	0
+Event: 19.2	128	1	41	127
+Event: 19.2	128	6	55	127
+Event: 19.35	128	3	41	0
+Event: 19.35	128	3	53	127
+Event: 19.35	128	1	41	0
+Event: 19.5	130	4	60	0
+Event: 19.5	130	4	60	127
+Event: 19.5	130	1	41	127
+Event: 19.5	130	0	44	0
+Event: 19.5	130	0	44	127
+Event: 19.65	131	1	41	0
+Event: 19.65	131	1	41	127
+Event: 19.65	131	6	55	0
+Event: 19.65	131	6	55	127
+Event: 19.65	131	3	53	0
+Event: 19.65	131	3	41	127
+Event: 19.8	131	4	60	0
+Event: 19.8	131	4	60	127
+Event: 19.8	131	0	44	0
+Event: 19.8	131	0	46	127
+Event: 19.8	131	3	41	0
+Event: 19.8	131	3	53	127
+Event: 19.8	131	6	55	0
+Event: 19.8	131	1	41	0
+Event: 19.8	131	1	53	127
+Event: 19.8	131	7	55	127
+Event: 19.95	132	1	53	0
+Event: 19.95	132	0	46	0
+Event: 19.95	132	0	44	127
+Event: 20.1	134	4	60	0
+Event: 20.1	134	6	55	127
+Event: 20.1	134	4	60	127
+Event: 20.1	134	7	55	0
+Event: 20.25	135	1	41	127
+Event: 20.4	136	0	44	0
+Event: 20.4	136	0	44	127
+Event: 20.4	136	3	53	0
+Event: 20.4	136	3	41	127
+Event: 20.4	136	1	41	0
+Event: 20.4	136	1	58	127
+Event: 20.4	136	4	60	0
+Event: 20.4	136	4	60	127
+Event: 20.55	136	6	55	0
+Event: 20.55	136	6	55	127
+Event: 20.55	136	3	41	0
+Event: 20.55	136	3	53	127
+Event: 20.7	138	4	60	0
+Event: 20.7	138	4	60	127
+Event: 20.85	139	0	44	0
+Event: 20.85	139	3	53	0
+Event: 20.85	139	6	55	0
+Event: 20.85	139	0	44	127
+Event: 20.85	139	3	41	127
+Event: 20.85	139	6	55	127
+Event: 20.85	139	1	58	0
+Event: 20.85	139	1	41	127
+Event: 21	140	4	60	0
+Event: 21	140	4	60	127
+Event: 21	140	1	41	0
+Event: 21	140	1	57	127
+Event: 21	140	0	44	0
+Event: 21	140	0	46	127
+Event: 21	140	6	55	0
+Event: 21	140	3	41	0
+Event: 21	140	3	53	127
+Event: 21	140	7	55	127
+Event: 21.3	142	4	60	0
+Event: 21.3	142	4	60	127
+Event: 21.45	143	1	57	0
+Event: 21.45	143	0	46	0
+Event: 21.45	143	0	46	127
+Event: 21.45	143	1	41	127
+Event: 21.6	144	3	53	0
+Event: 21.6	144	0	46	0
+Event: 21.6	144	4	60	0
+Event: 21.6	144	1	41	0
+Event: 21.6	144	6	55	127
+Event: 21.6	144	3	36	127
+Event: 21.6	144	4	60	127
+Event: 21.6	144	0	44	127
+Event: 21.6	144	1	41	127
+Event: 21.6	144	7	55	0
+Event: 21.75	145	1	41	0
+Event: 21.75	145	3	36	0
+Event: 21.75	145	3	48	127
+Event: 21.9	146	0	44	0
+Event: 21.9	146	4	60	0
+Event: 21.9	146	0	44	127
+Event: 21.9	146	4	60	127
+Event: 21.9	146	1	41	127
+Event: 22.05	146	6	55	0
+Event: 22.05	146	1	41	0
+Event: 22.05	146	1	41	127
+Event: 22.05	146	6	55	127
+Event: 22.05	146	3	48	0
+Event: 22.05	146	3	36	127
+Event: 22.2	147	1	41	0
+Event: 22.2	147	4	60	0
+Event: 22.2	147	0	44	0
+Event: 22.2	147	0	46	127
+Event: 22.2	147	4	60	127
+Event: 22.2	147	1	53	127
+Event: 22.2	147	6	55	0
+Event: 22.2	147	3	36	0
+Event: 22.2	147	3	48	127
+Event: 22.2	147	7	55	127
+Event: 22.35	149	0	46	0
+Event: 22.35	149	0	44	127
+Event: 22.35	149	1	53	0
+Event: 22.5	150	4	60	0
+Event: 22.5	150	4	60	127
+Event: 22.5	150	6	55	127
+Event: 22.5	150	7	55	0
+Event: 22.65	151	1	41	127
+Event: 22.8	151	1	41	0
+Event: 22.8	151	3	48	0
+Event: 22.8	151	1	48	127
+Event: 22.8	151	3	36	127
+Event: 22.8	151	0	44	0
+Event: 22.8	151	0	44	127
+Event: 22.8	151	4	60	0
+Event: 22.8	151	4	60	127
+Event: 22.95	153	3	36	0
+Event: 22.95	153	3	48	127
+Event: 22.95	153	6	55	0
+Event: 22.95	153	6	55	127
+Event: 23.1	154	4	60	0
+Event: 23.1	154	4	60	127
+Event: 23.25	155	3	48	0
+Event: 23.25	155	0	44	0
+Event: 23.25	155	3	36	127
+Event: 23.25	155	0	44	127
+Event: 23.25	155	1	48	0
+Event: 23.25	155	1	41	127
+Event: 23.4	156	3	36	0
+Event: 23.4	156	1	41	0
+Event: 23.4	156	1	51	127
+Event: 23.4	156	3	48	127
+Event: 23.4	156	6	55	0
+Event: 23.4	156	0	44	0
+Event: 23.4	156	0	46	127
+Event: 23.4	156	4	60	0
+Event: 23.4	156	4	60	127
+Event: 23.4	156	7	55	127
+Event: 23.7	158	4	60	0
+Event: 23.7	158	4	60	127
+Event: 23.85	159	1	51	0
+Event: 23.85	159	1	41	127
+Event: 23.85	159	0	46	0
+Event: 23.85	159	0	46	127
+Event: 24	160	1	41	0
+Event: 24	160	4	60	0
+Event: 24	160	0	46	0
+Event: 24	160	3	48	0
+Event: 24	160	6	55	127
+Event: 24	160	0	44	127
+Event: 24	160	1	41	127
+Event: 24	160	3	39	127
+Event: 24	160	4	58	127
+Event: 24	160	7	55	0
+Event: 24.15	161	1	41	0
+Event: 24.15	161	3	39	0
+Event: 24.15	161	3	51	127
+Event: 24.3	161	4	58	0
+Event: 24.3	161	4	58	127
+Event: 24.3	161	1	41	127
+Event: 24.3	161	0	44	0
+Event: 24.3	161	0	44	127
+Event: 24.45	162	3	51	0
+Event: 24.45	162	3	39	127
+Event: 24.45	162	6	55	0
+Event: 24.45	162	6	55	127
+Event: 24.45	162	1	41	0
+Event: 24.45	162	1	41	127
+Event: 24.6	163	3	39	0
+Event: 24.6	163	4	58	0
+Event: 24.6	163	4	58	127
+Event: 24.6	163	3	51	127
+Event: 24.6	163	1	41	0
+Event: 24.6	163	1	53	127
+Event: 24.6	163	6	55	0
+Event: 24.6	163	0	44	0
+Event: 24.6	163	0	46	127
+Event: 24.6	163	7	55	127
+Event: 24.75	165	0	46	0
+Event: 24.75	165	0	44	127
+Event: 24.75	165	1	53	0
+Event: 24.9	166	4	58	0
+Event: 24.9	166	6	55	127
+Event: 24.9	166	4	58	127
+Event: 24.9	166	7	55	0
+Event: 25.05	166	1	41	127
+Event: 25.2	167	1	41	0
+Event: 25.2	167	0	44	0
+Event: 25.2	167	3	51	0
+Event: 25.2	167	0	44	127
+Event: 25.2	167	1	58	127
+Event: 25.2	167	3	39	127
+Event: 25.2	167	4	58	0
+Event: 25.2	167	4	58	127
+Event: 25.35	169	6	55	0
+Event: 25.35	169	6	55	127
+Event: 25.35	169	3	39	0
+Event: 25.35	169	3	51	127
+Event: 25.5	170	4	58	0
+Event: 25.5	170	4	58	127
+Event: 25.65	171	0	44	0
+Event: 25.65	171	0	44	127
+Event: 25.65	171	3	51	0
+Event: 25.65	171	6	55	0
+Event: 25.65	171	3	39	127
+Event: 25.65	171	6	55	127
+Event: 25.65	171	1	58	0
+Event: 25.65	171	1	41	127
+Event: 25.8	172	1	41	0
+Event: 25.8	172	1	57	127
+Event: 25.8	172	0	44	0
+Event: 25.8	172	0	46	127
+Event: 25.8	172	6	55	0
+Event: 25.8	172	3	39	0
+Event: 25.8	172	3	51	127
+Event: 25.8	172	4	58	0
+Event: 25.8	172	4	58	127
+Event: 25.8	172	7	55	127
+Event: 26.1	174	4	58	0
+Event: 26.1	174	4	58	127
+Event: 26.25	175	0	46	0
+Event: 26.25	175	0	46	127
+Event: 26.25	175	1	57	0
+Event: 26.25	175	1	41	127
+Event: 26.4	176	3	51	0
+Event: 26.4	176	3	38	127
+Event: 26.4	176	0	46	0
+Event: 26.4	176	6	55	127
+Event: 26.4	176	0	44	127
+Event: 26.4	176	1	41	0
+Event: 26.4	176	1	41	127
+Event: 26.4	176	4	58	0
+Event: 26.4	176	4	58	127
+Event: 26.4	176	7	55	0
+Event: 26.55	177	1	41	0
+Event: 26.55	177	3	38	0
+Event: 26.55	177	3	50	127
+Event: 26.7	178	0	44	0
+Event: 26.7	178	0	44	127
+Event: 26.7	178	4	58	0
+Event: 26.7	178	1	41	127
+Event: 26.7	178	4	58	127
+Event: 26.85	179	3	50	0
+Event: 26.85	179	6	55	0
+Event: 26.85	179	1	41	0
+Event: 26.85	179	6	55	127
+Event: 26.85	179	1	41	127
+Event: 26.85	179	3	38	127
+Event: 27	180	0	44	0
+Event: 27	180	0	46	127
+Event: 27	180	4	58	0
+Event: 27	180	4	58	127
+Event: 27	180	6	55	0
+Event: 27	180	1	41	0
+Event: 27	180	1	53	127
+Event: 27	180	3	38	0
+Event: 27	180	3	50	127
+Event: 27	180	7	55	127
+Event: 27.15	181	0	46	0
+Event: 27.15	181	0	44	127
+Event: 27.15	181	1	53	0
+Event: 27.3	181	4	58	0
+Event: 27.3	181	4	58	127
+Event: 27.3	181	6	55	127
+Event: 27.3	181	7	55	0
+Event: 27.45	182	1	41	127
+Event: 27.6	184	3	50	0
+Event: 27.6	184	3	38	127
+Event: 27.6	184	1	41	0
+Event: 27.6	184	1	48	127
+Event: 27.6	184	0	44	0
+Event: 27.6	184	0	44	127
+Event: 27.6	184	4	58	0
+Event: 27.6	184	4	58	127
+Event: 27.75	185	6	55	0
+Event: 27.75	185	6	55	127
+Event: 27.75	185	3	38	0
+Event: 27.75	185	3	50	127
+Event: 27.9	186	4	58	0
+Event: 27.9	186	4	58	127
+Event: 28.05	186	3	50	0
+Event: 28.05	186	1	48	0
+Event: 28.05	186	0	44	0
+Event: 28.05	186	0	44	127
+Event: 28.05	186	1	41	127
+Event: 28.05	186	3	38	127
+Event: 28.2	188	6	55	0
+Event: 28.2	188	4	58	0
+Event: 28.2	188	3	38	0
+Event: 28.2	188	0	44	0
+Event: 28.2	188	1	41	0
+Event: 28.2	188	1	51	127
+Event: 28.2	188	0	46	127
+Event: 28.2	188	3	50	127
+Event: 28.2	188	4	58	127
+Event: 28.2	188	7	55	127
+Event: 28.5	190	4	58	0
+Event: 28.5	190	4	58	127
+Event: 28.65	191	1	51	0
+Event: 28.65	191	0	46	0
+Event: 28.65	191	0	46	127
+Event: 28.65	191	1	41	127
+Event: 28.8	192	1	41	0
+Event: 28.8	192	3	50	0
+Event: 28.8	192	0	46	0
+Event: 28.8	192	1	41	127
+Event: 28.8	192	3	41	127
+Event: 28.8	192	0	44	127
+Event: 28.8	192	4	58	0
+Event: 28.8	192	6	55	127
+Event: 28.8	192	4	57	127
+Event: 28.8	192	7	55	0
+Event: 28.95	193	1	41	0
+Event: 28.95	193	3	41	0
+Event: 28.95	193	3	53	127
+Event: 29.1	194	0	44	0
+Event: 29.1	194	0	44	127
+Event: 29.1	194	4	57	0
+Event: 29.1	194	4	57	127
+Event: 29.1	194	1	41	127
+Event: 29.25	195	6	55	0
+Event: 29.25	195	3	53	0
+Event: 29.25	195	1	41	0
+Event: 29.25	195	3	41	127
+Event: 29.25	195	1	41	127
+Event: 29.25	195	6	55	127
+Event: 29.4	196	0	44	0
+Event: 29.4	196	0	46	127
+Event: 29.4	196	4	57	0
+Event: 29.4	196	6	55	0
+Event: 29.4	196	4	57	127
+Event: 29.4	196	1	41	0
+Event: 29.4	196	3	41	0
+Event: 29.4	196	3	53	127
+Event: 29.4	196	1	53	127
+Event: 29.4	196	7	55	127
+Event: 29.55	196	1	53	0
+Event: 29.55	196	0	46	0
+Event: 29.55	196	0	44	127
+Event: 29.7	197	6	55	127
+Event: 29.7	197	4	57	0
+Event: 29.7	197	4	57	127
+Event: 29.7	197	7	55	0
+Event: 29.85	198	1	41	127
+Event: 30	200	0	44	0
+Event: 30	200	0	44	127
+Event: 30	200	3	53	0
+Event: 30	200	3	41	127
+Event: 30	200	1	41	0
+Event: 30	200	4	57	0
+Event: 30	200	4	57	127
+Event: 30	200	1	58	127
+Event: 30.15	201	6	55	0
+Event: 30.15	201	6	55	127
+Event: 30.15	201	3	41	0
+Event: 30.15	201	3	53	127
+Event: 30.3	201	4	57	0
+Event: 30.3	201	4	57	127
+Event: 30.45	203	1	58	0
+Event: 30.45	203	1	41	127
+Event: 30.45	203	0	44	0
+Event: 30.45	203	0	44	127
+Event: 30.45	203	6	55	0
+Event: 30.45	203	6	55	127
+Event: 30.45	203	3	53	0
+Event: 30.45	203	3	41	127
+Event: 30.6	204	3	41	0
+Event: 30.6	204	4	57	0
+Event: 30.6	204	0	44	0
+Event: 30.6	204	4	57	127
+Event: 30.6	204	3	53	127
+Event: 30.6	204	0	46	127
+Event: 30.6	204	6	55	0
+Event: 30.6	204	1	41	0
+Event: 30.6	204	1	57	127
+Event: 30.6	204	7	55	127
+Event: 30.9	206	4	57	0
+Event: 30.9	206	4	57	127
+Event: 31.05	207	0	46	0
+Event: 31.05	207	0	46	127
+Event: 31.05	207	1	57	0
+Event: 31.05	207	1	41	127
+Event: 31.2	208	3	53	0
+Event: 31.2	208	1	41	0
+Event: 31.2	208	0	46	0
+Event: 31.2	208	0	44	127
+Event: 31.2	208	3	36	127
+Event: 31.2	208	1	41	127
+Event: 31.2	208	4	57	0
+Event: 31.2	208	6	55	127
+Event: 31.2	208	4	57	127
+Event: 31.2	208	7	55	0
+Event: 31.35	209	1	41	0
+Event: 31.35	209	3	36	0
+Event: 31.35	209	3	48	127
+Event: 31.5	210	4	57	0
+Event: 31.5	210	4	57	127
+Event: 31.5	210	0	44	0
+Event: 31.5	210	1	41	127
+Event: 31.5	210	0	44	127
+Event: 31.65	211	1	41	0
+Event: 31.65	211	1	41	127
+Event: 31.65	211	3	48	0
+Event: 31.65	211	3	36	127
+Event: 31.65	211	6	55	0
+Event: 31.65	211	6	55	127
+Event: 31.8	212	6	55	0
+Event: 31.8	212	0	44	0
+Event: 31.8	212	4	57	0
+Event: 31.8	212	3	36	0
+Event: 31.8	212	1	41	0
+Event: 31.8	212	1	53	127
+Event: 31.8	212	4	57	127
+Event: 31.8	212	3	48	127
+Event: 31.8	212	0	46	127
+Event: 31.8	212	7	55	127
+Event: 31.95	213	1	53	0
+Event: 31.95	213	0	46	0
+Event: 31.95	213	0	44	127
+Event: 32.1	214	4	57	0
+Event: 32.1	214	4	57	127
+Event: 32.1	214	6	55	127
+Event: 32.1	214	7	55	0
+Event: 32.25	215	1	41	127
+Event: 32.4	216	4	57	0
+Event: 32.4	216	4	57	127
+Event: 32.4	216	3	48	0
+Event: 32.4	216	3	36	127
+Event: 32.4	216	0	44	0
+Event: 32.4	216	0	44	127
+Event: 32.4	216	1	41	0
+Event: 32.4	216	1	48	127
+Event: 32.55	216	3	36	0
+Event: 32.55	216	3	48	127
+Event: 32.55	216	6	55	0
+Event: 32.55	216	6	55	127
+Event: 32.7	218	4	57	0
+Event: 32.7	218	4	57	127
+Event: 32.85	219	1	48	0
+Event: 32.85	219	3	48	0
+Event: 32.85	219	1	41	127
+Event: 32.85	219	3	36	127
+Event: 32.85	219	0	44	0
+Event: 32.85	219	0	44	127
+Event: 33	220	1	41	0
+Event: 33	220	1	51	127
+Event: 33	220	0	44	0
+Event: 33	220	0	46	127
+Event: 33	220	4	57	0
+Event: 33	220	4	57	127
+Event: 33	220	3	36	0
+Event: 33	220	3	48	127
+Event: 33	220	6	55	0
+Event: 33	220	7	55	127
+Event: 33.3	222	4	57	0
+Event: 33.3	222	4	57	127
+Event: 33.45	223	1	51	0
+Event: 33.45	223	1	41	127
+Event: 33.45	223	0	46	0
+Event: 33.45	223	0	46	127
+Event: 33.6	223	4	57	0
+Event: 33.6	223	4	55	127
+Event: 33.6	223	1	41	0
+Event: 33.6	223	1	41	127
+Event: 33.6	223	3	48	0
+Event: 33.6	223	3	39	127
+Event: 33.6	223	6	55	127
+Event: 33.6	223	0	46	0
+Event: 33.6	223	0	44	127
+Event: 33.6	223	7	55	0
+Event: 33.75	225	3	39	0
+Event: 33.75	225	3	51	127
+Event: 33.75	225	1	41	0
+Event: 33.9	226	1	41	127
+Event: 33.9	226	4	55	0
+Event: 33.9	226	4	55	127
+Event: 33.9	226	0	44	0
+Event: 33.9	226	0	44	127
+Event: 34.05	226	1	41	0
+Event: 34.05	226	1	41	127
+Event: 34.05	226	3	51	0
+Event: 34.05	226	3	39	127
+Event: 34.05	226	6	55	0
+Event: 34.05	226	6	55	127
+Event: 34.2	228	4	55	0
+Event: 34.2	228	4	55	127
+Event: 34.2	228	6	55	0
+Event: 34.2	228	3	39	0
+Event: 34.2	228	3	51	127
+Event: 34.2	228	1	41	0
+Event: 34.2	228	1	53	127
+Event: 34.2	228	0	44	0
+Event: 34.2	228	0	46	127
+Event: 34.2	228	7	55	127
+Event: 34.35	228	0	46	0
+Event: 34.35	228	0	44	127
+Event: 34.35	228	1	53	0
+Event: 34.5	230	4	55	0
+Event: 34.5	230	6	55	127
+Event: 34.5	230	4	55	127
+Event: 34.5	230	7	55	0
+Event: 34.65	231	1	41	127
+Event: 34.8	231	1	41	0
+Event: 34.8	231	4	55	0
+Event: 34.8	231	1	58	127
+Event: 34.8	231	4	55	127
+Event: 34.8	231	3	51	0
+Event: 34.8	231	3	39	127
+Event: 34.8	231	0	44	0
+Event: 34.8	231	0	44	127
+Event: 34.95	233	3	39	0
+Event: 34.95	233	3	51	127
+Event: 34.95	233	6	55	0
+Event: 34.95	233	6	55	127
+Event: 35.1	234	4	55	0
+Event: 35.1	234	4	55	127
+Event: 35.25	235	3	51	0
+Event: 35.25	235	1	58	0
+Event: 35.25	235	6	55	0
+Event: 35.25	235	0	44	0
+Event: 35.25	235	0	44	127
+Event: 35.25	235	1	41	127
+Event: 35.25	235	3	39	127
+Event: 35.25	235	6	55	127
+Event: 35.4	236	4	55	0
+Event: 35.4	236	1	41	0
+Event: 35.4	236	0	44	0
+Event: 35.4	236	1	57	127
+Event: 35.4	236	0	46	127
+Event: 35.4	236	4	55	127
+Event: 35.4	236	6	55	0
+Event: 35.4	236	3	39	0
+Event: 35.4	236	3	51	127
+Event: 35.4	236	7	55	127
+Event: 35.7	238	4	55	0
+Event: 35.7	238	4	55	127
+Event: 35.85	239	1	57	0
+Event: 35.85	239	0	46	0
+Event: 35.85	239	0	46	127
+Event: 35.85	239	1	41	127
+Event: 36	240	3	51	0
+Event: 36	240	1	41	0
+Event: 36	240	0	46	0
+Event: 36	240	3	46	127
+Event: 36	240	0	44	127
+Event: 36	240	1	41	127
+Event: 36	240	4	55	0
+Event: 36	240	6	55	127
+Event: 36	240	4	53	127
+Event: 36	240	7	55	0
+Event: 36.15	240	1	41	0
+Event: 36.15	240	3	46	0
+Event: 36.15	240	3	58	127
+Event: 36.3	241	0	44	0
+Event: 36.3	241	0	44	127
+Event: 36.3	241	4	53	0
+Event: 36.3	241	4	53	127
+Event: 36.3	241	1	41	127
+Event: 36.45	243	6	55	0
+Event: 36.45	243	1	41	0
+Event: 36.45	243	3	58	0
+Event: 36.45	243	6	55	127
+Event: 36.45	243	3	46	127
+Event: 36.45	243	1	41	127
+Event: 36.6	243	4	53	0
+Event: 36.6	243	6	55	0
+Event: 36.6	243	0	44	0
+Event: 36.6	243	1	41	0
+Event: 36.6	243	3	46	0
+Event: 36.6	243	0	46	127
+Event: 36.6	243	1	53	127
+Event: 36.6	243	3	58	127
+Event: 36.6	243	4	53	127
+Event: 36.6	243	7	55	127
+Event: 36.75	245	1	53	0
+Event: 36.75	245	0	46	0
+Event: 36.75	245	0	44	127
+Event: 36.9	245	4	53	0
+Event: 36.9	245	4	53	127
+Event: 36.9	245	6	55	127
+Event: 36.9	245	7	55	0
+Event: 37.05	246	1	41	127
+Event: 37.2	248	3	58	0
+Event: 37.2	248	3	45	127
+Event: 37.2	248	0	44	0
+Event: 37.2	248	0	44	127
+Event: 37.2	248	4	53	0
+Event: 37.2	248	1	41	0
+Event: 37.2	248	1	48	127
+Event: 37.2	248	4	53	127
+Event: 37.35	248	3	45	0
+Event: 37.35	248	6	55	0
+Event: 37.35	248	6	55	127
+Event: 37.35	248	3	57	127
+Event: 37.5	250	4	53	0
+Event: 37.5	250	4	53	127
+Event: 37.65	250	3	57	0
+Event: 37.65	250	3	45	127
+Event: 37.65	250	0	44	0
+Event: 37.65	250	0	44	127
+Event: 37.65	250	1	48	0
+Event: 37.65	250	1	41	127
+Event: 37.8	251	3	45	0
+Event: 37.8	251	1	41	0
+Event: 37.8	251	1	51	127
+Event: 37.8	251	3	57	127
+Event: 37.8	251	6	55	0
+Event: 37.8	251	0	44	0
+Event: 37.8	251	0	46	127
+Event: 37.8	251	4	53	0
+Event: 37.8	251	4	53	127
+Event: 37.8	251	7	55	127
+Event: 38.1	253	4	53	0
+Event: 38.1	253	4	53	127
+Event: 38.25	255	0	46	0
+Event: 38.25	255	0	46	127
+Event: 38.25	255	1	51	0
+Event: 38.25	255	1	41	127
+Event: 38.4	256	1	41	0
+Event: 38.4	256	0	46	0
+Event: 38.4	256	0	44	127
+Event: 38.4	256	2	53	127
+Event: 38.4	256	1	41	127
+Event: 38.4	256	3	57	0
+Event: 38.4	256	6	55	127
+Event: 38.4	256	3	41	127
+Event: 38.4	256	4	53	0
+Event: 38.4	256	4	60	127
+Event: 38.4	256	7	55	0
+Event: 38.55	257	3	41	0
+Event: 38.55	257	3	53	127
+Event: 38.55	257	1	41	0
+Event: 38.7	257	0	44	0
+Event: 38.7	257	2	53	0
+Event: 38.7	257	1	41	127
+Event: 38.7	257	0	44	127
+Event: 38.7	257	2	53	127
+Event: 38.7	257	4	60	0
+Event: 38.7	257	4	60	127
+Event: 38.85	258	3	53	0
+Event: 38.85	258	3	41	127
+Event: 38.85	258	6	55	0
+Event: 38.85	258	6	55	127
+Event: 38.85	258	1	41	0
+Event: 38.85	258	1	41	127
+Event: 39	260	1	41	0
+Event: 39	260	0	44	0
+Event: 39	260	1	53	127
+Event: 39	260	0	46	127
+Event: 39	260	6	55	0
+Event: 39	260	4	60	0
+Event: 39	260	4	60	127
+Event: 39	260	3	41	0
+Event: 39	260	3	53	127
+Event: 39	260	7	55	127
+Event: 39.15	260	0	46	0
+Event: 39.15	260	0	44	127
+Event: 39.15	260	1	53	0
+Event: 39.3	262	2	53	0
+Event: 39.3	262	4	60	0
+Event: 39.3	262	2	53	127
+Event: 39.3	262	4	60	127
+Event: 39.3	262	6	55	127
+Event: 39.3	262	7	55	0
+Event: 39.45	262	1	41	127
+Event: 39.6	264	2	53	0
+Event: 39.6	264	2	53	127
+Event: 39.6	264	1	41	0
+Event: 39.6	264	1	58	127
+Event: 39.6	264	3	53	0
+Event: 39.6	264	3	41	127
+Event: 39.6	264	4	60	0
+Event: 39.6	264	4	60	127
+Event: 39.6	264	0	44	0
+Event: 39.6	264	0	44	127
+Event: 39.75	265	3	41	0
+Event: 39.75	265	3	53	127
+Event: 39.75	265	6	55	0
+Event: 39.75	265	6	55	127
+Event: 39.9	265	4	60	0
+Event: 39.9	265	4	60	127
+Event: 39.9	265	2	53	0
+Event: 39.9	265	2	53	127
+Event: 40.05	267	6	55	0
+Event: 40.05	267	3	53	0
+Event: 40.05	267	6	55	127
+Event: 40.05	267	3	41	127
+Event: 40.05	267	1	58	0
+Event: 40.05	267	0	44	0
+Event: 40.05	267	0	44	127
+Event: 40.05	267	1	41	127
+Event: 40.2	268	1	41	0
+Event: 40.2	268	1	57	127
+Event: 40.2	268	0	44	0
+Event: 40.2	268	0	46	127
+Event: 40.2	268	6	55	0
+Event: 40.2	268	4	60	0
+Event: 40.2	268	4	60	127
+Event: 40.2	268	3	41	0
+Event: 40.2	268	3	53	127
+Event: 40.2	268	7	55	127
+Event: 40.5	270	2	53	0
+Event: 40.5	270	4	60	0
+Event: 40.5	270	4	60	127
+Event: 40.5	270	2	53	127
+Event: 40.65	270	0	46	0
+Event: 40.65	270	0	46	127
+Event: 40.65	270	1	57	0
+Event: 40.65	270	1	41	127
+Event: 40.8	272	2	53	0
+Event: 40.8	272	4	60	0
+Event: 40.8	272	1	41	0
+Event: 40.8	272	0	46	0
+Event: 40.8	272	4	60	127
+Event: 40.8	272	1	41	127
+Event: 40.8	272	2	53	127
+Event: 40.8	272	0	44	127
+Event: 40.8	272	3	53	0
+Event: 40.8	272	6	55	127
+Event: 40.8	272	3	36	127
+Event: 40.8	272	7	55	0
+Event: 40.95	273	1	41	0
+Event: 40.95	273	3	36	0
+Event: 40.95	273	3	48	127
+Event: 41.1	273	2	53	0
+Event: 41.1	273	4	60	0
+Event: 41.1	273	2	53	127
+Event: 41.1	273	4	60	127
+Event: 41.1	273	1	41	127
+Event: 41.1	273	0	44	0
+Event: 41.1	273	0	44	127
+Event: 41.25	275	3	48	0
+Event: 41.25	275	6	55	0
+Event: 41.25	275	1	41	0
+Event: 41.25	275	3	36	127
+Event: 41.25	275	6	55	127
+Event: 41.25	275	1	41	127
+Event: 41.4	276	3	36	0
+Event: 41.4	276	6	55	0
+Event: 41.4	276	3	48	127
+Event: 41.4	276	1	41	0
+Event: 41.4	276	1	53	127
+Event: 41.4	276	4	60	0
+Event: 41.4	276	0	44	0
+Event: 41.4	276	0	46	127
+Event: 41.4	276	4	60	127
+Event: 41.4	276	7	55	127
+Event: 41.55	277	0	46	0
+Event: 41.55	277	0	44	127
+Event: 41.55	277	1	53	0
+Event: 41.7	278	2	53	0
+Event: 41.7	278	2	53	127
+Event: 41.7	278	6	55	127
+Event: 41.7	278	4	60	0
+Event: 41.7	278	4	60	127
+Event: 41.7	278	7	55	0
+Event: 41.85	278	1	41	127
+Event: 42	280	3	48	0
+Event: 42	280	4	60	0
+Event: 42	280	0	44	0
+Event: 42	280	2	53	0
+Event: 42	280	3	36	127
+Event: 42	280	4	60	127
+Event: 42	280	0	44	127
+Event: 42	280	2	53	127
+Event: 42	280	1	41	0
+Event: 42	280	1	48	127
+Event: 42.15	281	3	36	0
+Event: 42.15	281	3	48	127
+Event: 42.15	281	6	55	0
+Event: 42.15	281	6	55	127
+Event: 42.3	282	2	53	0
+Event: 42.3	282	2	53	127
+Event: 42.3	282	4	60	0
+Event: 42.3	282	4	60	127
+Event: 42.45	282	1	48	0
+Event: 42.45	282	1	41	127
+Event: 42.45	282	3	48	0
+Event: 42.45	282	3	36	127
+Event: 42.45	282	0	44	0
+Event: 42.45	282	0	44	127
+Event: 42.6	284	1	41	0
+Event: 42.6	284	1	51	127
+Event: 42.6	284	0	44	0
+Event: 42.6	284	4	60	0
+Event: 42.6	284	0	46	127
+Event: 42.6	284	4	60	127
+Event: 42.6	284	6	55	0
+Event: 42.6	284	3	36	0
+Event: 42.6	284	3	48	127
+Event: 42.6	284	7	55	127
+Event: 42.9	286	2	53	0
+Event: 42.9	286	2	53	127
+Event: 42.9	286	4	60	0
+Event: 42.9	286	4	60	127
+Event: 43.05	287	1	51	0
+Event: 43.05	287	1	41	127
+Event: 43.05	287	0	46	0
+Event: 43.05	287	0	46	127
+Event: 43.2	288	3	48	0
+Event: 43.2	288	1	41	0
+Event: 43.2	288	3	39	127
+Event: 43.2	288	1	41	127
+Event: 43.2	288	4	60	0
+Event: 43.2	288	4	58	127
+Event: 43.2	288	2	53	0
+Event: 43.2	288	2	51	127
+Event: 43.2	288	0	46	0
+Event: 43.2	288	6	55	127
+Event: 43.2	288	0	44	127
+Event: 43.2	288	7	55	0
+Event: 43.35	289	1	41	0
+Event: 43.35	289	3	39	0
+Event: 43.35	289	3	51	127
+Event: 43.5	290	2	51	0
+Event: 43.5	290	2	51	127
+Event: 43.5	290	0	44	0
+Event: 43.5	290	0	44	127
+Event: 43.5	290	1	41	127
+Event: 43.5	290	4	58	0
+Event: 43.5	290	4	58	127
+Event: 43.65	290	6	55	0
+Event: 43.65	290	6	55	127
+Event: 43.65	290	1	41	0
+Event: 43.65	290	1	41	127
+Event: 43.65	290	3	51	0
+Event: 43.65	290	3	39	127
+Event: 43.8	292	1	41	0
+Event: 43.8	292	3	39	0
+Event: 43.8	292	4	58	0
+Event: 43.8	292	1	53	127
+Event: 43.8	292	3	51	127
+Event: 43.8	292	4	58	127
+Event: 43.8	292	0	44	0
+Event: 43.8	292	6	55	0
+Event: 43.8	292	0	46	127
+Event: 43.8	292	7	55	127
+Event: 43.95	293	1	53	0
+Event: 43.95	293	0	46	0
+Event: 43.95	293	0	44	127
+Event: 44.1	293	2	51	0
+Event: 44.1	293	4	58	0
+Event: 44.1	293	6	55	127
+Event: 44.1	293	2	51	127
+Event: 44.1	293	4	58	127
+Event: 44.1	293	7	55	0
+Event: 44.25	295	1	41	127
+Event: 44.4	296	1	41	0
+Event: 44.4	296	3	51	0
+Event: 44.4	296	3	39	127
+Event: 44.4	296	1	58	127
+Event: 44.4	296	0	44	0
+Event: 44.4	296	0	44	127
+Event: 44.4	296	4	58	0
+Event: 44.4	296	2	51	0
+Event: 44.4	296	2	51	127
+Event: 44.4	296	4	58	127
+Event: 44.55	297	6	55	0
+Event: 44.55	297	6	55	127
+Event: 44.55	297	3	39	0
+Event: 44.55	297	3	51	127
+Event: 44.7	298	4	58	0
+Event: 44.7	298	2	51	0
+Event: 44.7	298	4	58	127
+Event: 44.7	298	2	51	127
+Event: 44.85	298	0	44	0
+Event: 44.85	298	0	44	127
+Event: 44.85	298	1	58	0
+Event: 44.85	298	1	41	127
+Event: 44.85	298	6	55	0
+Event: 44.85	298	6	55	127
+Event: 44.85	298	3	51	0
+Event: 44.85	298	3	39	127
+Event: 45	300	1	41	0
+Event: 45	300	1	57	127
+Event: 45	300	0	44	0
+Event: 45	300	0	46	127
+Event: 45	300	4	58	0
+Event: 45	300	4	58	127
+Event: 45	300	6	55	0
+Event: 45	300	3	39	0
+Event: 45	300	3	51	127
+Event: 45	300	7	55	127
+Event: 45.3	302	4	58	0
+Event: 45.3	302	4	58	127
+Event: 45.3	302	2	51	0
+Event: 45.3	302	2	51	127
+Event: 45.45	303	0	46	0
+Event: 45.45	303	0	46	127
+Event: 45.45	303	1	57	0
+Event: 45.45	303	1	41	127
+Event: 45.6	303	2	51	0
+Event: 45.6	303	2	50	127
+Event: 45.6	303	0	46	0
+Event: 45.6	303	0	44	127
+Event: 45.6	303	1	41	0
+Event: 45.6	303	1	41	127
+Event: 45.6	303	6	55	127
+Event: 45.6	303	3	51	0
+Event: 45.6	303	3	38	127
+Event: 45.6	303	4	58	0
+Event: 45.6	303	4	58	127
+Event: 45.6	303	7	55	0
+Event: 45.75	305	3	38	0
+Event: 45.75	305	3	50	127
+Event: 45.75	305	1	41	0
+Event: 45.9	306	1	41	127
+Event: 45.9	306	0	44	0
+Event: 45.9	306	0	44	127
+Event: 45.9	306	4	58	0
+Event: 45.9	306	2	50	0
+Event: 45.9	306	4	58	127
+Event: 45.9	306	2	50	127
+Event: 46.05	307	3	50	0
+Event: 46.05	307	1	41	0
+Event: 46.05	307	6	55	0
+Event: 46.05	307	3	38	127
+Event: 46.05	307	1	41	127
+Event: 46.05	307	6	55	127
+Event: 46.2	308	0	44	0
+Event: 46.2	308	0	46	127
+Event: 46.2	308	6	55	0
+Event: 46.2	308	3	38	0
+Event: 46.2	308	3	50	127
+Event: 46.2	308	4	58	0
+Event: 46.2	308	4	58	127
+Event: 46.2	308	1	41	0
+Event: 46.2	308	1	53	127
+Event: 46.2	308	7	55	127
+Event: 46.35	309	0	46	0
+Event: 46.35	309	0	44	127
+Event: 46.35	309	1	53	0
+Event: 46.5	310	2	50	0
+Event: 46.5	310	6	55	127
+Event: 46.5	310	4	58	0
+Event: 46.5	310	2	50	127
+Event: 46.5	310	4	58	127
+Event: 46.5	310	7	55	0
+Event: 46.65	310	1	41	127
+Event: 46.8	312	2	50	0
+Event: 46.8	312	2	50	127
+Event: 46.8	312	1	41	0
+Event: 46.8	312	1	48	127
+Event: 46.8	312	3	50	0
+Event: 46.8	312	3	38	127
+Event: 46.8	312	0	44	0
+Event: 46.8	312	0	44	127
+Event: 46.8	312	4	58	0
+Event: 46.8	312	4	58	127
+Event: 46.95	312	6	55	0
+Event: 46.95	312	6	55	127
+Event: 46.95	312	3	38	0
+Event: 46.95	312	3	50	127
+Event: 47.1	313	2	50	0
+Event: 47.1	313	4	58	0
+Event: 47.1	313	2	50	127
+Event: 47.1	313	4	58	127
+Event: 47.25	315	1	48	0
+Event: 47.25	315	3	50	0
+Event: 47.25	315	3	38	127
+Event: 47.25	315	1	41	127
+Event: 47.25	315	0	44	0
+Event: 47.25	315	0	44	127
+Event: 47.4	315	3	38	0
+Event: 47.4	315	4	58	0
+Event: 47.4	315	1	41	0
+Event: 47.4	315	3	50	127
+Event: 47.4	315	4	58	127
+Event: 47.4	315	1	51	127
+Event: 47.4	315	6	55	0
+Event: 47.4	315	0	44	0
+Event: 47.4	315	0	46	127
+Event: 47.4	315	7	55	127
+Event: 47.7	318	2	50	0
+Event: 47.7	318	4	58	0
+Event: 47.7	318	2	50	127
+Event: 47.7	318	4	58	127
+Event: 47.85	318	1	51	0
+Event: 47.85	318	1	41	127
+Event: 47.85	318	0	46	0
+Event: 47.85	318	0	46	127
+Event: 48	320	3	50	0
+Event: 48	320	4	58	0
+Event: 48	320	0	46	0
+Event: 48	320	0	44	127
+Event: 48	320	4	57	127
+Event: 48	320	3	41	127
+Event: 48	320	2	50	0
+Event: 48	320	2	53	127
+Event: 48	320	1	41	0
+Event: 48	320	6	55	127
+Event: 48	320	1	41	127
+Event: 48	320	7	55	0
+Event: 48.15	320	3	41	0
+Event: 48.15	320	3	53	127
+Event: 48.15	320	1	41	0
+Event: 48.3	322	2	53	0
+Event: 48.3	322	2	53	127
+Event: 48.3	322	0	44	0
+Event: 48.3	322	0	44	127
+Event: 48.3	322	1	41	127
+Event: 48.3	322	4	57	0
+Event: 48.3	322	4	57	127
+Event: 48.45	323	1	41	0
+Event: 48.45	323	1	41	127
+Event: 48.45	323	3	53	0
+Event: 48.45	323	6	55	0
+Event: 48.45	323	3	41	127
+Event: 48.45	323	6	55	127
+Event: 48.6	323	4	57	0
+Event: 48.6	323	3	41	0
+Event: 48.6	323	0	44	0
+Event: 48.6	323	4	57	127
+Event: 48.6	323	3	53	127
+Event: 48.6	323	0	46	127
+Event: 48.6	323	1	41	0
+Event: 48.6	323	6	55	0
+Event: 48.6	323	1	53	127
+Event: 48.6	323	7	55	127
+Event: 48.75	325	1	53	0
+Event: 48.75	325	0	46	0
+Event: 48.75	325	0	44	127
+Event: 48.9	326	2	53	0
+Event: 48.9	326	2	53	127
+Event: 48.9	326	6	55	127
+Event: 48.9	326	4	57	0
+Event: 48.9	326	4	57	127
+Event: 48.9	326	7	55	0
+Event: 49.05	327	1	41	127
+Event: 49.2	327	1	41	0
+Event: 49.2	327	3	53	0
+Event: 49.2	327	1	58	127
+Event: 49.2	327	3	41	127
+Event: 49.2	327	0	44	0
+Event: 49.2	327	0	44	127
+Event: 49.2	327	2	53	0
+Event: 49.2	327	4	57	0
+Event: 49.2	327	4	57	127
+Event: 49.2	327	2	53	127
+Event: 49.35	328	3	41	0
+Event: 49.35	328	3	53	127
+Event: 49.35	328	6	55	0
+Event: 49.35	328	6	55	127
+Event: 49.5	330	2	53	0
+Event: 49.5	330	2	53	127
+Event: 49.5	330	4	57	0
+Event: 49.5	330	4	57	127
+Event: 49.65	331	3	53	0
+Event: 49.65	331	3	41	127
+Event: 49.65	331	6	55	0
+Event: 49.65	331	6	55	127
+Event: 49.65	331	0	44	0
+Event: 49.65	331	0	44	127
+Event: 49.65	331	1	58	0
+Event: 49.65	331	1	41	127
+Event: 49.8	332	3	41	0
+Event: 49.8	332	4	57	0
+Event: 49.8	332	0	44	0
+Event: 49.8	332	3	53	127
+Event: 49.8	332	4	57	127
+Event: 49.8	332	0	46	127
+Event: 49.8	332	6	55	0
+Event: 49.8	332	1	41	0
+Event: 49.8	332	1	57	127
+Event: 49.8	332	7	55	127
+Event: 50.1	334	2	53	0
+Event: 50.1	334	2	53	127
+Event: 50.1	334	4	57	0
+Event: 50.1	334	4	57	127
+Event: 50.25	335	0	46	0
+Event: 50.25	335	0	46	127
+Event: 50.25	335	1	57	0
+Event: 50.25	335	1	41	127
+Event: 50.4	335	3	53	0
+Event: 50.4	335	3	36	127
+Event: 50.4	335	0	46	0
+Event: 50.4	335	0	44	127
+Event: 50.4	335	2	53	0
+Event: 50.4	335	6	55	127
+Event: 50.4	335	2	53	127
+Event: 50.4	335	1	41	0
+Event: 50.4	335	4	57	0
+Event: 50.4	335	1	41	127
+Event: 50.4	335	4	57	127
+Event: 50.4	335	7	55	0
+Event: 50.55	337	1	41	0
+Event: 50.55	337	3	36	0
+Event: 50.55	337	3	48	127
+Event: 50.7	338	2	53	0
+Event: 50.7	338	0	44	0
+Event: 50.7	338	4	57	0
+Event: 50.7	338	0	44	127
+Event: 50.7	338	2	53	127
+Event: 50.7	338	4	57	127
+Event: 50.7	338	1	41	127
+Event: 50.85	339	3	48	0
+Event: 50.85	339	3	36	127
+Event: 50.85	339	6	55	0
+Event: 50.85	339	6	55	127
+Event: 50.85	339	1	41	0
+Event: 50.85	339	1	41	127
+Event: 51	340	4	57	0
+Event: 51	340	3	36	0
+Event: 51	340	0	44	0
+Event: 51	340	4	57	127
+Event: 51	340	0	46	127
+Event: 51	340	3	48	127
+Event: 51	340	6	55	0
+Event: 51	340	1	41	0
+Event: 51	340	1	53	127
+Event: 51	340	7	55	127
+Event: 51.15	340	1	53	0
+Event: 51.15	340	0	46	0
+Event: 51.15	340	0	44	127
+Event: 51.3	342	2	53	0
+Event: 51.3	342	6	55	127
+Event: 51.3	342	4	57	0
+Event: 51.3	342	2	53	127
+Event: 51.3	342	4	57	127
+Event: 51.3	342	7	55	0
+Event: 51.45	343	1	41	127
+Event: 51.6	343	2	53	0
+Event: 51.6	343	2	53	127
+Event: 51.6	343	3	48	0
+Event: 51.6	343	3	36	127
+Event: 51.6	343	4	57	0
+Event: 51.6	343	4	57	127
+Event: 51.6	343	0	44	0
+Event: 51.6	343	0	44	127
+Event: 51.6	343	1	41	0
+Event: 51.6	343	1	48	127
+Event: 51.75	345	6	55	0
+Event: 51.75	345	6	55	127
+Event: 51.75	345	3	36	0
+Event: 51.75	345	3	48	127
+Event: 51.9	346	4	57	0
+Event: 51.9	346	2	53	0
+Event: 51.9	346	4	57	127
+Event: 51.9	346	2	53	127
+Event: 52.05	347	1	48	0
+Event: 52.05	347	1	41	127
+Event: 52.05	347	3	48	0
+Event: 52.05	347	0	44	0
+Event: 52.05	347	3	36	127
+Event: 52.05	347	0	44	127
+Event: 52.2	348	3	36	0
+Event: 52.2	348	3	48	127
+Event: 52.2	348	0	44	0
+Event: 52.2	348	0	46	127
+Event: 52.2	348	1	41	0
+Event: 52.2	348	1	51	127
+Event: 52.2	348	6	55	0
+Event: 52.2	348	4	57	0
+Event: 52.2	348	4	57	127
+Event: 52.2	348	7	55	127
+Event: 52.5	350	2	53	0
+Event: 52.5	350	4	57	0
+Event: 52.5	350	4	57	127
+Event: 52.5	350	2	53	127
+Event: 52.65	351	1	51	0
+Event: 52.65	351	1	41	127
+Event: 52.65	351	0	46	0
+Event: 52.65	351	0	46	127
+Event: 52.8	352	2	53	0
+Event: 52.8	352	2	60	127
+Event: 52.8	352	0	46	0
+Event: 52.8	352	0	44	127
+Event: 52.8	352	3	48	0
+Event: 52.8	352	3	39	127
+Event: 52.8	352	6	55	127
+Event: 52.8	352	4	57	0
+Event: 52.8	352	4	55	127
+Event: 52.8	352	1	41	0
+Event: 52.8	352	1	41	127
+Event: 52.8	352	7	55	0
+Event: 52.95	353	3	39	0
+Event: 52.95	353	3	51	127
+Event: 52.95	353	1	41	0
+Event: 53.1	354	4	55	0
+Event: 53.1	354	0	44	0
+Event: 53.1	354	2	60	0
+Event: 53.1	354	1	41	127
+Event: 53.1	354	4	55	127
+Event: 53.1	354	2	60	127
+Event: 53.1	354	0	44	127
+Event: 53.25	355	3	51	0
+Event: 53.25	355	1	41	0
+Event: 53.25	355	3	39	127
+Event: 53.25	355	1	41	127
+Event: 53.25	355	6	55	0
+Event: 53.25	355	6	55	127
+Event: 53.4	356	3	39	0
+Event: 53.4	356	4	55	0
+Event: 53.4	356	0	44	0
+Event: 53.4	356	3	51	127
+Event: 53.4	356	0	46	127
+Event: 53.4	356	4	55	127
+Event: 53.4	356	6	55	0
+Event: 53.4	356	1	41	0
+Event: 53.4	356	1	53	127
+Event: 53.4	356	7	55	127
+Event: 53.55	357	0	46	0
+Event: 53.55	357	0	44	127
+Event: 53.55	357	1	53	0
+Event: 53.7	358	6	55	127
+Event: 53.7	358	2	60	0
+Event: 53.7	358	4	55	0
+Event: 53.7	358	2	60	127
+Event: 53.7	358	4	55	127
+Event: 53.7	358	7	55	0
+Event: 53.85	359	1	41	127
+Event: 54	360	1	41	0
+Event: 54	360	4	55	0
+Event: 54	360	1	58	127
+Event: 54	360	4	55	127
+Event: 54	360	2	60	0
+Event: 54	360	3	51	0
+Event: 54	360	2	60	127
+Event: 54	360	3	39	127
+Event: 54	360	0	44	0
+Event: 54	360	0	44	127
+Event: 54.15	360	6	55	0
+Event: 54.15	360	6	55	127
+Event: 54.15	360	3	39	0
+Event: 54.15	360	3	51	127
+Event: 54.3	362	4	55	0
+Event: 54.3	362	2	60	0
+Event: 54.3	362	4	55	127
+Event: 54.3	362	2	60	127
+Event: 54.45	363	1	58	0
+Event: 54.45	363	1	41	127
+Event: 54.45	363	6	55	0
+Event: 54.45	363	3	51	0
+Event: 54.45	363	6	55	127
+Event: 54.45	363	3	39	127
+Event: 54.45	363	0	44	0
+Event: 54.45	363	0	44	127
+Event: 54.6	363	6	55	0
+Event: 54.6	363	0	44	0
+Event: 54.6	363	4	55	0
+Event: 54.6	363	3	39	0
+Event: 54.6	363	3	51	127
+Event: 54.6	363	0	46	127
+Event: 54.6	363	4	55	127
+Event: 54.6	363	1	41	0
+Event: 54.6	363	1	57	127
+Event: 54.6	363	7	55	127
+Event: 54.9	365	2	60	0
+Event: 54.9	365	2	60	127
+Event: 54.9	365	4	55	0
+Event: 54.9	365	4	55	127
+Event: 55.05	367	0	46	0
+Event: 55.05	367	1	57	0
+Event: 55.05	367	1	41	127
+Event: 55.05	367	0	46	127
+Event: 55.2	368	1	41	0
+Event: 55.2	368	4	55	0
+Event: 55.2	368	0	46	0
+Event: 55.2	368	2	60	0
+Event: 55.2	368	6	55	127
+Event: 55.2	368	2	58	127
+Event: 55.2	368	4	53	127
+Event: 55.2	368	0	44	127
+Event: 55.2	368	1	41	127
+Event: 55.2	368	3	51	0
+Event: 55.2	368	3	46	127
+Event: 55.2	368	7	55	0
+Event: 55.35	368	1	41	0
+Event: 55.35	368	3	46	0
+Event: 55.35	368	3	58	127
+Event: 55.5	370	2	58	0
+Event: 55.5	370	2	58	127
+Event: 55.5	370	0	44	0
+Event: 55.5	370	0	44	127
+Event: 55.5	370	4	53	0
+Event: 55.5	370	4	53	127
+Event: 55.5	370	1	41	127
+Event: 55.65	371	1	41	0
+Event: 55.65	371	6	55	0
+Event: 55.65	371	1	41	127
+Event: 55.65	371	6	55	127
+Event: 55.65	371	3	58	0
+Event: 55.65	371	3	46	127
+Event: 55.8	372	1	41	0
+Event: 55.8	372	4	53	0
+Event: 55.8	372	3	46	0
+Event: 55.8	372	3	58	127
+Event: 55.8	372	1	53	127
+Event: 55.8	372	4	53	127
+Event: 55.8	372	6	55	0
+Event: 55.8	372	0	44	0
+Event: 55.8	372	0	46	127
+Event: 55.8	372	7	55	127
+Event: 55.95	373	0	46	0
+Event: 55.95	373	0	44	127
+Event: 55.95	373	1	53	0
+Event: 56.1	373	2	58	0
+Event: 56.1	373	2	58	127
+Event: 56.1	373	6	55	127
+Event: 56.1	373	4	53	0
+Event: 56.1	373	4	53	127
+Event: 56.1	373	7	55	0
+Event: 56.25	375	1	41	127
+Event: 56.4	376	2	58	0
+Event: 56.4	376	1	41	0
+Event: 56.4	376	0	44	0
+Event: 56.4	376	4	53	0
+Event: 56.4	376	2	58	127
+Event: 56.4	376	1	48	127
+Event: 56.4	376	0	44	127
+Event: 56.4	376	4	53	127
+Event: 56.4	376	3	58	0
+Event: 56.4	376	3	45	127
+Event: 56.55	377	6	55	0
+Event: 56.55	377	3	45	0
+Event: 56.55	377	3	57	127
+Event: 56.55	377	6	55	127
+Event: 56.7	378	2	58	0
+Event: 56.7	378	4	53	0
+Event: 56.7	378	2	58	127
+Event: 56.7	378	4	53	127
+Event: 56.85	378	0	44	0
+Event: 56.85	378	0	44	127
+Event: 56.85	378	1	48	0
+Event: 56.85	378	1	41	127
+Event: 56.85	378	3	57	0
+Event: 56.85	378	3	45	127
+Event: 57	380	3	45	0
+Event: 57	380	1	41	0
+Event: 57	380	4	53	0
+Event: 57	380	3	57	127
+Event: 57	380	4	53	127
+Event: 57	380	1	51	127
+Event: 57	380	6	55	0
+Event: 57	380	0	44	0
+Event: 57	380	0	46	127
+Event: 57	380	7	55	127
+Event: 57.3	382	2	58	0
+Event: 57.3	382	2	58	127
+Event: 57.3	382	4	53	0
+Event: 57.3	382	4	53	127
+Event: 57.45	382	1	51	0
+Event: 57.45	382	1	41	127
+Event: 57.45	382	0	46	0
+Event: 57.45	382	0	46	127
+Event: 58.05	387	3	57	0
+Event: 58.05	387	1	41	0
+Event: 58.05	387	4	53	0
+Event: 58.05	387	0	46	0
+Event: 58.05	387	2	58	0
+Event: 58.05	387	7	55	0
