@@ -292,11 +292,4 @@ template<class T> void eMemZero(T &val)
     eMemSet(&val, 0, sizeof(T));
 }
 
-template<class MEMBER, class PARENT>
-PARENT & eGetContainerOf(MEMBER &memberInst, const MEMBER PARENT::*memberVar)
-{
-    const eSize off = reinterpret_cast<eSize>(&(reinterpret_cast<PARENT *>(0)->*memberVar));
-    return *reinterpret_cast<PARENT *>(reinterpret_cast<eSize>(memberInst)-off);
-}
-
 #endif
