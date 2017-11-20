@@ -10,5 +10,5 @@ xcopy ..\README.txt . /v /y
 xcopy ..\COPYING . /v /y
 xcopy ..\CHANGES.txt . /v /y 
 
-zip ..\..\artifacts\tunefish4-%VER%-x64.zip . -r
-cd ..\..\scripts
+zip ..\artifacts\tunefish4-%VER%-x64.zip . -r
+cd ..\scripts
