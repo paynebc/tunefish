@@ -1,8 +1,15 @@
 #!/bin/sh
 mkdir ../artifacts
+mkdir ../build
+cd ../build
 
 cd ../src/tunefish4/Builds/LinuxMakefile
 
-tar cvfz ../../../../artifacts/tunefish4-$(cat ../../FULLVERSION_TF4)-x64.tar.gz *
+cp ../src/tunefish4/Builds/LinuxMakefile/build/Tunefish4.so .
+cp ../README.txt .
+cp ../CHANGES.txt .
+cp ../COPYING .
 
-cd ../../../../scripts
+tar cvfz ../artifacts/tunefish4-$(cat ../FULLVERSION_TF4)-x64.tar.gz *
+
+cd ../scripts
