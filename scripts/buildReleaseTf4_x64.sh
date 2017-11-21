@@ -3,8 +3,6 @@ mkdir ../artifacts
 mkdir ../build
 cd ../build
 
-cd ../src/tunefish4/Builds/LinuxMakefile
-
 cp ../src/tunefish4/Builds/LinuxMakefile/build/Tunefish4.so .
 cp ../README.txt .
 cp ../CHANGES.txt .
