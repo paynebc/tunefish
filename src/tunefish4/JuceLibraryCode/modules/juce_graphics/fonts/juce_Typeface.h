@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -110,7 +110,7 @@ public:
         The distances returned are based on the font having an normalised height of 1.0.
         You should never need to call this directly! Use Font::getGlyphPositions() instead!
     */
-    virtual void getGlyphPositions (const String& text, Array <int>& glyphs, Array<float>& xOffsets) = 0;
+    virtual void getGlyphPositions (const String& text, Array<int>& glyphs, Array<float>& xOffsets) = 0;
 
     /** Returns the outline for a glyph.
         The path returned will be normalised to a font height of 1.0.
@@ -157,3 +157,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Typeface)
 };
+
+} // namespace juce

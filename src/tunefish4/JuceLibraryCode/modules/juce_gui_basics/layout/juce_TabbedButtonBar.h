@@ -24,7 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 class TabbedButtonBar;
 
@@ -119,10 +120,10 @@ public:
 protected:
     friend class TabbedButtonBar;
     TabbedButtonBar& owner;
-    int overlapPixels;
+    int overlapPixels = 0;
 
     ScopedPointer<Component> extraComponent;
-    ExtraComponentPlacement extraCompPlacement;
+    ExtraComponentPlacement extraCompPlacement = afterText;
 
 private:
     void calcAreas (Rectangle<int>&, Rectangle<int>&) const;
@@ -311,6 +312,7 @@ public:
         virtual Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton&, Rectangle<int>& textArea, Component& extraComp) = 0;
 
         virtual void drawTabButton (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) = 0;
+        virtual Font getTabButtonFont (TabBarButton&, float height) = 0;
         virtual void drawTabButtonText (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) = 0;
         virtual void drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics&) = 0;
         virtual void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) = 0;
@@ -339,8 +341,6 @@ protected:
     virtual TabBarButton* createTabButton (const String& tabName, int tabIndex);
 
 private:
-    Orientation orientation;
-
     struct TabInfo
     {
         ScopedPointer<TabBarButton> button;
@@ -348,10 +348,11 @@ private:
         Colour colour;
     };
 
-    OwnedArray <TabInfo> tabs;
+    OwnedArray<TabInfo> tabs;
 
-    double minimumScale;
-    int currentTabIndex;
+    Orientation orientation;
+    double minimumScale = 0.7;
+    int currentTabIndex = -1;
 
     class BehindFrontTabComp;
     friend class BehindFrontTabComp;
@@ -365,3 +366,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabbedButtonBar)
 };
+
+} // namespace juce

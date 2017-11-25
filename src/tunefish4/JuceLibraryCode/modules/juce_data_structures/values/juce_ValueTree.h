@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -67,7 +67,7 @@
 
     @see var, XmlElement
 */
-class JUCE_API  ValueTree
+class JUCE_API  ValueTree  final
 {
 public:
     //==============================================================================
@@ -574,3 +574,5 @@ private:
 
     explicit ValueTree (SharedObject*) noexcept;
 };
+
+} // namespace juce

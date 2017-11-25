@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 AudioDeviceManager::AudioDeviceSetup::AudioDeviceSetup()
     : sampleRate (0),
       bufferSize (0),
@@ -728,6 +731,9 @@ void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelDat
         const double msTaken = Time::getMillisecondCounterHiRes() - callbackStartTime;
         const double filterAmount = 0.2;
         cpuUsageMs += filterAmount * (msTaken - cpuUsageMs);
+
+        if (msTaken > msPerBlock)
+            xruns++;
     }
     else
     {
@@ -753,13 +759,14 @@ void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelDat
 void AudioDeviceManager::audioDeviceAboutToStartInt (AudioIODevice* const device)
 {
     cpuUsageMs = 0;
+    xruns = 0;
 
     const double sampleRate = device->getCurrentSampleRate();
     const int blockSize = device->getCurrentBufferSizeSamples();
 
     if (sampleRate > 0.0 && blockSize > 0)
     {
-        const double msPerBlock = 1000.0 * blockSize / sampleRate;
+        msPerBlock = 1000.0 * blockSize / sampleRate;
         timeToCpuScale = (msPerBlock > 0.0) ? (1.0 / msPerBlock) : 0.0;
     }
 
@@ -776,6 +783,7 @@ void AudioDeviceManager::audioDeviceStoppedInt()
 {
     cpuUsageMs = 0;
     timeToCpuScale = 0;
+    xruns = 0;
     sendChangeMessage();
 
     const ScopedLock sl (audioCallbackLock);
@@ -929,7 +937,7 @@ void AudioDeviceManager::LevelMeter::updateLevel (const float* const* channelDat
             for (int i = 0; i < numChannels; ++i)
                 s += std::abs (channelData[i][j]);
 
-            s /= numChannels;
+            s /= (float) numChannels;
 
             const double decayFactor = 0.99992;
 
@@ -995,8 +1003,16 @@ void AudioDeviceManager::playTestSound()
     }
 }
 
+int AudioDeviceManager::getXRunCount() const noexcept
+{
+    auto deviceXRuns = (currentAudioDevice != nullptr ? currentAudioDevice->getXRunCount() : -1);
+    return (deviceXRuns >= 0 ? deviceXRuns : xruns);
+}
+
 double AudioDeviceManager::getCurrentInputLevel() const noexcept    { return inputLevelMeter.getCurrentLevel(); }
 double AudioDeviceManager::getCurrentOutputLevel() const noexcept   { return outputLevelMeter.getCurrentLevel(); }
 
 void AudioDeviceManager::enableInputLevelMeasurement  (bool enable) noexcept  { inputLevelMeter.setEnabled (enable); }
 void AudioDeviceManager::enableOutputLevelMeasurement (bool enable) noexcept  { outputLevelMeter.setEnabled (enable); }
+
+} // namespace juce

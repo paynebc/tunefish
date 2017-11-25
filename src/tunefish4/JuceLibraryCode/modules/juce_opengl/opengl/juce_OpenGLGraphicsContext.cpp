@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 extern void (*clearOpenGLGlyphCache)(); // declared in juce_graphics
 
 namespace OpenGLRendering
@@ -296,7 +299,7 @@ private:
             : area (et.getMaximumBounds().withSize (nextPowerOfTwo (et.getMaximumBounds().getWidth()),
                                                     nextPowerOfTwo (et.getMaximumBounds().getHeight())))
         {
-            data.calloc ((size_t) (area.getWidth() * area.getHeight()));
+            data.calloc (area.getWidth() * area.getHeight());
             et.iterate (*this);
         }
 
@@ -1894,3 +1897,5 @@ Result OpenGLGraphicsContextCustomShader::checkCompilation (LowLevelGraphicsCont
 
     return Result::fail (errorMessage);
 }
+
+} // namespace juce

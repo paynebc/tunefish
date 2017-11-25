@@ -59,6 +59,7 @@
  #pragma warning (disable : 4458)
 #endif
 
+#include <juce_core/juce_core.h>
 #include "../../juce_audio_processors/format_types/juce_VSTInterface.h"
 
 #ifdef _MSC_VER
@@ -294,9 +295,9 @@ public:
         vstEffect.plugInIdentifier = JucePlugin_VSTUniqueID;
 
        #ifdef JucePlugin_VSTChunkStructureVersion
-        vstEffect.plugInVersion = convertHexVersionToDecimal (JucePlugin_VSTChunkStructureVersion);
+        vstEffect.plugInVersion = JucePlugin_VSTChunkStructureVersion;
        #else
-        vstEffect.plugInVersion = convertHexVersionToDecimal (JucePlugin_VersionCode);
+        vstEffect.plugInVersion = JucePlugin_VersionCode;
        #endif
 
         vstEffect.processAudioInplaceFunction = processReplacingCB;
@@ -656,6 +657,7 @@ public:
 
             switch (ti->smpteRate)
             {
+                case vstSmpteRateFps239:       rate = AudioPlayHead::fps23976;    fps = 24.0 * 1000.0 / 1001.0; break;
                 case vstSmpteRateFps24:        rate = AudioPlayHead::fps24;       fps = 24.0;  break;
                 case vstSmpteRateFps25:        rate = AudioPlayHead::fps25;       fps = 25.0;  break;
                 case vstSmpteRateFps2997:      rate = AudioPlayHead::fps2997;     fps = 30.0 * 1000.0 / 1001.0; break;
@@ -666,7 +668,6 @@ public:
                 case vstSmpteRate16mmFilm:
                 case vstSmpteRate35mmFilm:     fps = 24.0; break;
 
-                case vstSmpteRateFps239:       fps = 24.0 * 1000.0 / 1001.0; break;
                 case vstSmpteRateFps249:       fps = 25.0 * 1000.0 / 1001.0; break;
                 case vstSmpteRateFps599:       fps = 60.0 * 1000.0 / 1001.0; break;
                 case vstSmpteRateFps60:        fps = 60; break;
@@ -1265,7 +1266,9 @@ public:
             {
                 ed->setTopLeftPosition (0, 0);
                 ed->setBounds (ed->getLocalArea (this, getLocalBounds()));
-                updateWindowSize();
+
+                if (! getHostType().isBitwigStudio())
+                    updateWindowSize();
             }
 
            #if JUCE_MAC && ! JUCE_64BIT
@@ -1322,7 +1325,9 @@ public:
 
             if (auto host = wrapper.hostCallback)
             {
-                if (host (wrapper.getVstEffectInterface(), hostOpcodeCanHostDo, 0, 0, const_cast<char*> ("sizeWindow"), 0))
+                auto status = host (wrapper.getVstEffectInterface(), hostOpcodeCanHostDo, 0, 0, const_cast<char*> ("sizeWindow"), 0);
+
+                if (status == (pointer_sized_int) 1 || getHostType().isAbletonLive())
                 {
                     isInSizeWindow = true;
                     sizeWasSuccessful = (host (wrapper.getVstEffectInterface(), hostOpcodeWindowSize, newWidth, newHeight, 0, 0) != 0);
@@ -1478,10 +1483,27 @@ private:
        #if JUCE_VST_RETURN_HEX_VERSION_NUMBER_DIRECTLY
         return (int32) hexVersion;
        #else
-        return (int32) (((hexVersion >> 24) & 0xff) * 1000
-                         + ((hexVersion >> 16) & 0xff) * 100
-                         + ((hexVersion >> 8)  & 0xff) * 10
-                         + (hexVersion & 0xff));
+        // Currently, only Cubase displays the version number to the user
+        // We are hoping here that when other DAWs start to display the version
+        // number, that they do so according to yfede's encoding table in the link
+        // below. If not, then this code will need an if (isSteinberg()) in the
+        // future.
+        int major = (hexVersion >> 16) & 0xff;
+        int minor = (hexVersion >> 8) & 0xff;
+        int bugfix = hexVersion & 0xff;
+
+        // for details, see: https://forum.juce.com/t/issues-with-version-integer-reported-by-vst2/23867
+
+        // Encoding B
+        if (major < 1)
+            return major * 1000 + minor * 100 + bugfix * 10;
+
+        // Encoding E
+        if (major > 100)
+            return major * 10000000 + minor * 100000 + bugfix * 1000;
+
+        // Encoding D
+        return static_cast<int32> (hexVersion);
        #endif
     }
 

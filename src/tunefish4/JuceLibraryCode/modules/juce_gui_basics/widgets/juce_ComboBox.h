@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -44,8 +44,8 @@
 */
 class JUCE_API  ComboBox  : public Component,
                             public SettableTooltipClient,
-                            public LabelListener,  // (can't use Label::Listener due to idiotic VC2005 bug)
-                            public ValueListener,
+                            public Label::Listener,
+                            public Value::Listener,
                             private AsyncUpdater
 {
 public:
@@ -428,13 +428,13 @@ private:
 
     PopupMenu currentMenu;
     Value currentId;
-    int lastCurrentId;
-    bool isButtonDown, menuActive, scrollWheelEnabled;
-    float mouseWheelAccumulator;
+    int lastCurrentId = 0;
+    bool isButtonDown = false, menuActive = false, scrollWheelEnabled = false;
+    float mouseWheelAccumulator = 0;
     ListenerList<Listener> listeners;
     ScopedPointer<Label> label;
     String textWhenNothingSelected, noChoicesMessage;
-    EditableState labelEditableState;
+    EditableState labelEditableState = editableUnknown;
 
     PopupMenu::Item* getItemForId (int) const noexcept;
     PopupMenu::Item* getItemForIndex (int) const noexcept;
@@ -448,3 +448,5 @@ private:
 
 /** This typedef is just for compatibility with old code - newer code should use the ComboBox::Listener class directly. */
 typedef ComboBox::Listener ComboBoxListener;
+
+} // namespace juce

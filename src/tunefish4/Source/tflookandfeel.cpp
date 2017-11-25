@@ -155,3 +155,149 @@ void TfLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int 
         g.fillPath (p, AffineTransform::rotation (angle).translated (centreX, centreY));
     }
 }
+
+/**************************************************************************************
+ *      LevelMeter
+ **************************************************************************************/
+
+LevelMeter::LevelMeter (LevelMeterSource& source_,
+                        int numChannels_,
+                        int meterId_,
+                        int numLEDs_,
+                        bool linearDisplay,
+                        bool peakBox)  :
+source (source_),
+linear (linearDisplay),
+peak (peakBox),
+meterId (meterId_),
+numChannels (jmin (MaxMeterChannels, numChannels_)),
+numLEDs (jlimit (8, MaxMeterLEDs, numLEDs_)),
+background (Colour::fromRGB(40, 40, 40)),
+ledHeight (0)
+{
+    zerostruct(gauges);
+    zerostruct(levels);
+    zerostruct(ledWidth);
+    
+    const int limitRed      = numLEDs-1;
+    const int limitOrange   = numLEDs-3;
+    
+    for (int i = 0; i < numLEDs; ++i)
+    {
+        colours[i] = Colours::lightgreen.darker(0.2f);
+        if (i >= limitOrange)  colours[i] = Colours::orange;
+        if (i >= limitRed)     colours[i] = Colours::red;
+    }
+}
+
+LevelMeter::~LevelMeter ()
+{
+}
+
+void LevelMeter::resized()
+{
+    int padding = 1;
+    if (numChannels > 1 && getHeight() > 30)
+        padding = 2;
+    
+    int gap = 1;
+    if (getHeight() > 30)
+        gap = 2;
+    if (numChannels < 2)
+        gap = 0;
+    
+    const int vspace = getHeight() - padding*2 - (numChannels-1)*gap;
+    const int hspace = getWidth() - (padding*2);
+    const int w = hspace / numLEDs;
+    for (int i=0; i < numLEDs; ++i) ledWidth[i] = w;
+    ledWidth[numLEDs-1] = hspace - (numLEDs-1)*w;
+    ledHeight = vspace / numChannels;
+    
+    for (int chan=0; chan < numChannels; ++chan)
+        gauges[chan] = Rectangle<int>(padding,
+                                      padding+(chan * (ledHeight + gap)),
+                                      hspace,
+                                      ledHeight);
+    // fix unsymmetric placement
+    if (numChannels > 1
+        && gauges[numChannels-1].getBottom() < (getHeight()-padding))
+        gauges[numChannels-1].translate(0,1);
+    
+}
+
+void LevelMeter::paint (Graphics& g, int channel, int level)
+{
+    g.setColour (background);
+    g.fillRect (gauges[channel]);
+    const int x = gauges[channel].getX();
+    const int y = gauges[channel].getY();
+    
+    // level is 1-based here: 1...numLEDs, 0=off
+    if (level > 0)
+    {
+        int offset = x;
+        for (int i=0; i < level; ++i)
+        {
+            g.setColour(colours[i]);
+            g.fillRect(offset, y, ledWidth[i] - 1, ledHeight);
+            offset += ledWidth[i];
+        }
+    }
+    if (peak && level < numLEDs)
+    {
+        g.setColour(Colours::black);
+        g.fillRect(x + ledWidth[0]*(numLEDs-1),
+                   y,
+                   ledWidth[numLEDs-1] - 1,
+                   ledHeight);
+    }
+}
+
+void LevelMeter::paint (Graphics& g)
+{
+    g.fillAll(Colour::fromRGB(40, 40, 40));
+    
+    for (int chan=0; chan < numChannels; ++chan)
+        paint (g, chan, levels[chan]);
+}
+
+void LevelMeter::refreshDisplayIfNeeded ()
+{
+    bool dirty = false;
+    
+    for (int chan=0; chan < numChannels; ++chan)
+    {
+        int levelShown = levels[chan];
+        int levelInput = map (source.getMeterLevel (chan, meterId));
+        jassert (levelInput <= numLEDs);
+        if (levelInput > levelShown)
+        {
+            levels[chan] = levelInput;
+            dirty = true;
+        }
+        else
+        {
+            if (levelShown > 0)
+            {
+                if (--levels[chan] > 0)
+                    --levels[chan];
+                dirty = true;
+            }
+        }
+    }
+    if (dirty)
+        repaint ();
+}
+
+int LevelMeter::map (float gain)
+{
+    // Trigger red warning LED only beyond unity level
+    const float input = gain * 0.99f;
+    
+    if (linear)
+        return jlimit(0,numLEDs,roundToInt(input * numLEDs));
+    
+    float scale = jlimit (0.0f, 1.0f, 0.96f + logf(sqrt(input) + 0.1f));
+    return roundToInt(scale * numLEDs);
+}
+

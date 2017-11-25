@@ -1227,7 +1227,7 @@ void eTfInstrumentFree(eTfInstrument &instr)
 	eTfDumpClose();
 }
 
-eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, long frameSize)
+eF32 eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, eU32 frameSize)
 {
     eSimdSetArithmeticFlags(eSAF_FTZ);
     eASSERT(frameSize <= TF_MAXFRAMESIZE);

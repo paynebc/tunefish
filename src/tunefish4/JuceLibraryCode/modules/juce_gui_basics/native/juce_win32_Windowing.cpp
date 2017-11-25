@@ -24,6 +24,13 @@
   ==============================================================================
 */
 
+#if JUCE_MODULE_AVAILABLE_juce_audio_plugin_client
+ #include <juce_audio_plugin_client/AAX/juce_AAX_Modifier_Injector.h>
+#endif
+
+namespace juce
+{
+
 #undef GetSystemMetrics // multimon overrides this for some reason and causes a mess..
 
 // these are in the windows SDK, but need to be repeated here for GCC..
@@ -41,10 +48,6 @@
  #define WM_APPCOMMAND                     0x0319
 #endif
 
-#if JUCE_MODULE_AVAILABLE_juce_audio_plugin_client
- #include <juce_audio_plugin_client/AAX/juce_AAX_Modifier_Injector.h>
-#endif
-
 extern void juce_repeatLastProcessPriority();
 extern void juce_checkCurrentlyFocusedTopLevelWindow();  // in juce_TopLevelWindow.cpp
 extern bool juce_isRunningInWine();
@@ -57,6 +60,46 @@ static bool shouldDeactivateTitleBar = true;
 extern void* getUser32Function (const char*);
 
 //==============================================================================
+#ifndef WM_TOUCH
+ enum
+ {
+     WM_TOUCH         = 0x0240,
+     TOUCHEVENTF_MOVE = 0x0001,
+     TOUCHEVENTF_DOWN = 0x0002,
+     TOUCHEVENTF_UP   = 0x0004
+ };
+
+ typedef HANDLE HTOUCHINPUT;
+ typedef HANDLE HGESTUREINFO;
+
+ struct TOUCHINPUT
+ {
+     LONG         x;
+     LONG         y;
+     HANDLE       hSource;
+     DWORD        dwID;
+     DWORD        dwFlags;
+     DWORD        dwMask;
+     DWORD        dwTime;
+     ULONG_PTR    dwExtraInfo;
+     DWORD        cxContact;
+     DWORD        cyContact;
+ };
+
+ struct GESTUREINFO
+ {
+     UINT         cbSize;
+     DWORD        dwFlags;
+     DWORD        dwID;
+     HWND         hwndTarget;
+     POINTS       ptsLocation;
+     DWORD        dwInstanceID;
+     DWORD        dwSequenceID;
+     ULONGLONG    ullArguments;
+     UINT         cbExtraArgs;
+ };
+#endif
+
 #ifndef WM_NCPOINTERUPDATE
  enum
  {
@@ -389,6 +432,26 @@ const int KeyPress::F13Key                  = VK_F13            | extendedKeyMod
 const int KeyPress::F14Key                  = VK_F14            | extendedKeyModifier;
 const int KeyPress::F15Key                  = VK_F15            | extendedKeyModifier;
 const int KeyPress::F16Key                  = VK_F16            | extendedKeyModifier;
+const int KeyPress::F17Key                  = VK_F17            | extendedKeyModifier;
+const int KeyPress::F18Key                  = VK_F18            | extendedKeyModifier;
+const int KeyPress::F19Key                  = VK_F19            | extendedKeyModifier;
+const int KeyPress::F20Key                  = VK_F20            | extendedKeyModifier;
+const int KeyPress::F21Key                  = VK_F21            | extendedKeyModifier;
+const int KeyPress::F22Key                  = VK_F22            | extendedKeyModifier;
+const int KeyPress::F23Key                  = VK_F23            | extendedKeyModifier;
+const int KeyPress::F24Key                  = VK_F24            | extendedKeyModifier;
+const int KeyPress::F25Key                  = 0x31000;          // Windows doesn't support F-keys 25 or higher
+const int KeyPress::F26Key                  = 0x31001;
+const int KeyPress::F27Key                  = 0x31002;
+const int KeyPress::F28Key                  = 0x31003;
+const int KeyPress::F29Key                  = 0x31004;
+const int KeyPress::F30Key                  = 0x31005;
+const int KeyPress::F31Key                  = 0x31006;
+const int KeyPress::F32Key                  = 0x31007;
+const int KeyPress::F33Key                  = 0x31008;
+const int KeyPress::F34Key                  = 0x31009;
+const int KeyPress::F35Key                  = 0x3100a;
+
 const int KeyPress::numberPad0              = VK_NUMPAD0        | extendedKeyModifier;
 const int KeyPress::numberPad1              = VK_NUMPAD1        | extendedKeyModifier;
 const int KeyPress::numberPad2              = VK_NUMPAD2        | extendedKeyModifier;
@@ -554,6 +617,7 @@ private:
 };
 
 //==============================================================================
+Image createSnapshotOfNativeWindow (void*);
 Image createSnapshotOfNativeWindow (void* nativeWindowHandle)
 {
     auto hwnd = (HWND) nativeWindowHandle;
@@ -900,6 +964,7 @@ public:
     ~HWNDComponentPeer()
     {
         shadower = nullptr;
+        currentTouches.deleteAllTouchesForPeer (this);
 
         // do this before the next bit to avoid messages arriving for this window
         // before it's destroyed
@@ -1116,8 +1181,8 @@ public:
     {
         auto r = getWindowRect (hwnd);
 
-        if (! (isPositiveAndBelow (localPos.x, (int) (r.right - r.left))
-                && isPositiveAndBelow (localPos.y, (int) (r.bottom - r.top))))
+        if (! (isPositiveAndBelow (localPos.x, r.right - r.left)
+                && isPositiveAndBelow (localPos.y, r.bottom - r.top)))
             return false;
 
         POINT p = { localPos.x + r.left + windowBorder.getLeft(),
@@ -2295,7 +2360,7 @@ private:
     {
         auto isCancel = false;
 
-        const auto touchIndex = currentTouches.getIndexOfTouch (touch.dwID);
+        const auto touchIndex = currentTouches.getIndexOfTouch (this, touch.dwID);
         const auto time = getMouseEventTime();
         const auto pos = globalToLocal ({ touch.x / 100.0f, touch.y / 100.0f });
         const auto pressure = touchPressure;
@@ -2316,6 +2381,7 @@ private:
         else if (isUp)
         {
             modsToSend = modsToSend.withoutMouseButtons();
+            currentModifiers = modsToSend;
             currentTouches.clearTouch (touchIndex);
 
             if (! currentTouches.areAnyTouchesActive())
@@ -2544,6 +2610,14 @@ private:
             case VK_F14:
             case VK_F15:
             case VK_F16:
+            case VK_F17:
+            case VK_F18:
+            case VK_F19:
+            case VK_F20:
+            case VK_F21:
+            case VK_F22:
+            case VK_F23:
+            case VK_F24:
                 used = handleKeyUpOrDown (true);
                 used = handleKeyPress (extendedKeyModifier | (int) key, 0) || used;
                 break;
@@ -2580,8 +2654,7 @@ private:
     {
         updateKeyModifiers();
 
-        juce_wchar textChar = (juce_wchar) key;
-
+        auto textChar = (juce_wchar) key;
         const int virtualScanCode = (flags >> 16) & 0xff;
 
         if (key >= '0' && key <= '9')
@@ -3313,7 +3386,7 @@ private:
                     compositionRange.setLength (0);
 
                     target->setHighlightedRegion (Range<int>::emptyRange (compositionRange.getEnd()));
-                    target->setTemporaryUnderlining (Array<Range<int> >());
+                    target->setTemporaryUnderlining ({});
                 }
 
                 if (auto hImc = ImmGetContext (hWnd))
@@ -3341,7 +3414,7 @@ private:
                                                  Range<int>::emptyRange (-1));
 
                         reset();
-                        target->setTemporaryUnderlining (Array<Range<int> >());
+                        target->setTemporaryUnderlining ({});
                     }
                     else if ((lParam & GCS_COMPSTR) != 0) // (composition is still in-progress)
                     {
@@ -3381,7 +3454,7 @@ private:
                 HeapBlock<TCHAR> buffer;
                 buffer.calloc (stringSizeBytes / sizeof (TCHAR) + 1);
                 ImmGetCompositionString (hImc, type, buffer, (DWORD) stringSizeBytes);
-                return String (buffer);
+                return String (buffer.get());
             }
 
             return {};
@@ -3419,7 +3492,7 @@ private:
                 if (attributeSizeBytes > 0)
                 {
                     // Get attributes (8 bit flag per character):
-                    HeapBlock<char> attributes ((size_t) attributeSizeBytes);
+                    HeapBlock<char> attributes (attributeSizeBytes);
                     ImmGetCompositionString (hImc, GCS_COMPATTR, attributes, (DWORD) attributeSizeBytes);
 
                     selectionStart = 0;
@@ -4105,3 +4178,5 @@ void MouseCursor::showInAllWindows() const
 {
     showInWindow (nullptr);
 }
+
+} // namespace juce

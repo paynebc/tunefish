@@ -28,12 +28,15 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if JUCE_UNIT_TESTS
 
 namespace FunctionTestsHelpers
 {
-    void incrementArgument (int& x) { x++; };
-    double multiply (double x, double a) noexcept { return a * x; };
+    static void incrementArgument (int& x) { x++; }
+    static double multiply (double x, double a) noexcept { return a * x; }
 
     struct BigData
     {
@@ -252,3 +255,5 @@ public:
 static FunctionTests functionTests;
 
 #endif
+
+} // namespace juce

@@ -35,7 +35,7 @@
 
   ID:               juce_gui_extra
   vendor:           juce
-  version:          5.1.0
+  version:          5.2.0
   name:             JUCE extended GUI classes
   description:      Miscellaneous GUI classes for specialised tasks.
   website:          http://www.juce.com/juce
@@ -74,9 +74,6 @@
 #endif
 
 //==============================================================================
-namespace juce
-{
-
 #include "documents/juce_FileBasedDocument.h"
 #include "code_editor/juce_CodeDocument.h"
 #include "code_editor/juce_CodeEditorComponent.h"
@@ -94,11 +91,10 @@ namespace juce
 #include "misc/juce_ColourSelector.h"
 #include "misc/juce_KeyMappingEditorComponent.h"
 #include "misc/juce_PreferencesPanel.h"
+#include "misc/juce_PushNotifications.h"
 #include "misc/juce_RecentlyOpenedFilesList.h"
 #include "misc/juce_SplashScreen.h"
 #include "misc/juce_SystemTrayIconComponent.h"
 #include "misc/juce_WebBrowserComponent.h"
 #include "misc/juce_LiveConstantEditor.h"
 #include "misc/juce_AnimatedAppComponent.h"
-
-}

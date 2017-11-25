@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if JUCE_UNIT_TESTS
 
 struct ListenerBase
@@ -27,7 +30,7 @@ struct ListenerBase
     ListenerBase (int& counter) : c (counter) {}
     virtual ~ListenerBase() {}
 
-    // Required to supress VS2013 compiler warnings
+    // Required to suppress VS2013 compiler warnings
     ListenerBase& operator= (const ListenerBase&) = delete;
 
     virtual void f () = 0;
@@ -45,7 +48,7 @@ struct Listener1 : public ListenerBase
 {
     Listener1 (int& counter) : ListenerBase (counter) {}
 
-    // Required to supress VS2013 compiler warnings
+    // Required to suppress VS2013 compiler warnings
     Listener1& operator= (const Listener1&) = delete;
 
     void f () override                                         { c += 1; }
@@ -61,7 +64,7 @@ struct Listener2 : public ListenerBase
 {
     Listener2 (int& counter) : ListenerBase (counter) {}
 
-    // Required to supress VS2013 compiler warnings
+    // Required to suppress VS2013 compiler warnings
     Listener1& operator= (const Listener1&) = delete;
 
     void f () override                                         { c -= 2; }
@@ -182,3 +185,5 @@ public:
 static ListenerListTests listenerListTests;
 
 #endif
+
+} // namespace juce

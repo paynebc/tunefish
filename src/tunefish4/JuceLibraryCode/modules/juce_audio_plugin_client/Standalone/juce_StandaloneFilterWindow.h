@@ -24,7 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -255,7 +256,7 @@ public:
                                                           totalInChannels,
                                                           totalOutChannels,
                                                           totalOutChannels));
-        o.content->setSize (500, 450);
+        o.content->setSize (500, 550);
 
         o.dialogTitle                   = TRANS("Audio/MIDI Settings");
         o.dialogBackgroundColour        = o.content->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
@@ -520,22 +521,12 @@ private:
         if (newMidiDevices != lastMidiDevices)
         {
             for (auto& oldDevice : lastMidiDevices)
-            {
                 if (! newMidiDevices.contains (oldDevice))
-                {
                     deviceManager.setMidiInputEnabled (oldDevice, false);
-                    deviceManager.removeMidiInputCallback (oldDevice, &player);
-                }
-            }
 
             for (auto& newDevice : newMidiDevices)
-            {
                 if (! lastMidiDevices.contains (newDevice))
-                {
-                    deviceManager.addMidiInputCallback (newDevice, &player);
                     deviceManager.setMidiInputEnabled (newDevice, true);
-                }
-            }
         }
     }
    #endif
@@ -552,7 +543,7 @@ private:
     that the other plugin wrappers use.
 */
 class StandaloneFilterWindow    : public DocumentWindow,
-                                  public ButtonListener   // (can't use Button::Listener due to VC2005 bug)
+                                  public Button::Listener
 {
 public:
     //==============================================================================
@@ -645,6 +636,8 @@ public:
     //==============================================================================
     void closeButtonPressed() override
     {
+        pluginHolder->savePluginState();
+
         JUCEApplicationBase::quit();
     }
 
@@ -797,9 +790,13 @@ private:
             shouldShowNotification = newInputMutedValue;
             notification.setVisible (shouldShowNotification);
 
+           #if JUCE_IOS || JUCE_ANDROID
+            resized();
+           #else
             setSize (editor->getWidth(),
                      editor->getHeight()
                      + (shouldShowNotification ? NotificationArea::height : 0));
+           #endif
         }
 
         void valueChanged (Value& value) override     { inputMutedChanged (value.getValue()); }
@@ -835,7 +832,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandaloneFilterWindow)
 };
 
-StandalonePluginHolder* StandalonePluginHolder::getInstance()
+inline StandalonePluginHolder* StandalonePluginHolder::getInstance()
 {
    #if JucePlugin_Enable_IAA || JucePlugin_Build_Standalone
     if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
@@ -851,3 +848,5 @@ StandalonePluginHolder* StandalonePluginHolder::getInstance()
 
     return nullptr;
 }
+
+} // namespace juce

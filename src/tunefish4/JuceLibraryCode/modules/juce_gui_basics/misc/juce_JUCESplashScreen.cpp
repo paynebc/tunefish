@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 /*
   ==============================================================================
 
@@ -56,7 +59,7 @@ static uint32 splashDisplayTime = 0;
 static bool appUsageReported = false;
 
 
-Rectangle<float> getLogoArea (Rectangle<float> parentRect)
+static Rectangle<float> getLogoArea (Rectangle<float> parentRect)
 {
     return parentRect.reduced (6.0f)
                      .removeFromRight  ((float) splashScreenLogoWidth)
@@ -77,7 +80,7 @@ struct ReportingThreadContainer  : public ChangeListener,
     juce_DeclareSingleton_SingleThreaded_Minimal (ReportingThreadContainer)
 };
 
-juce_ImplementSingleton_SingleThreaded (ReportingThreadContainer);
+juce_ImplementSingleton_SingleThreaded (ReportingThreadContainer)
 
 //==============================================================================
 struct ReportingThread  : public Thread,
@@ -354,3 +357,5 @@ void JUCESplashScreen::mouseUp (const MouseEvent&)
 }
 
 // END SECTION A
+
+} // namespace juce

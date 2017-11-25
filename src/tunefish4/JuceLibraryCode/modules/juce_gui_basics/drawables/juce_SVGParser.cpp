@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 class SVGState
 {
 public:
@@ -72,20 +75,6 @@ public:
         bool operator() (const XmlPath& xmlPath) const
         {
             return state->parsePathElement (xmlPath, *targetPath);
-        }
-    };
-
-    struct UseShapeOp
-    {
-        const SVGState* state;
-        Path* sourcePath;
-        AffineTransform* transform;
-        Drawable* target;
-
-        bool operator() (const XmlPath& xmlPath)
-        {
-            target = state->parseShape (xmlPath, *sourcePath, true, transform);
-            return target != nullptr;
         }
     };
 
@@ -690,22 +679,6 @@ private:
     }
 
     //==============================================================================
-
-    Drawable* useShape (const XmlPath& xml, Path& path) const
-    {
-        auto translation = AffineTransform::translation ((float) xml->getDoubleAttribute ("x", 0.0),
-                                                         (float) xml->getDoubleAttribute ("y", 0.0));
-
-        UseShapeOp op = { this, &path, &translation, nullptr };
-
-        auto linkedID = getLinkedID (xml);
-
-        if (linkedID.isNotEmpty())
-            topLevelXml.applyOperationToChildWithID (linkedID, op);
-
-        return op.target;
-    }
-
     Drawable* parseShape (const XmlPath& xml, Path& path,
                           const bool shouldParseTransform = true,
                           AffineTransform* additonalTransform = nullptr) const
@@ -717,9 +690,6 @@ private:
 
             return newState.parseShape (xml, path, false, additonalTransform);
         }
-
-        if (xml->hasTagName ("use"))
-            return useShape (xml, path);
 
         auto dp = new DrawablePath();
         setCommonAttributes (*dp, xml);
@@ -1159,7 +1129,7 @@ private:
         if (getStyleAttribute (xml, "font-weight").containsIgnoreCase ("bold"))
             f.setBold (true);
 
-        return f.withPointHeight (getCoordLength (getStyleAttribute (xml, "font-size"), 1.0f));
+        return f.withPointHeight (getCoordLength (getStyleAttribute (xml, "font-size", "15"), 1.0f));
     }
 
     //==============================================================================
@@ -1295,10 +1265,10 @@ private:
 
         if (len > 2)
         {
-            const float dpi = 96.0f;
+            auto dpi = 96.0f;
 
-            const juce_wchar n1 = s [len - 2];
-            const juce_wchar n2 = s [len - 1];
+            auto n1 = s[len - 2];
+            auto n2 = s[len - 1];
 
             if (n1 == 'i' && n2 == 'n')         n *= dpi;
             else if (n1 == 'm' && n2 == 'm')    n *= dpi / 25.4f;
@@ -1430,7 +1400,7 @@ private:
     }
 
     //==============================================================================
-    static bool isIdentifierChar (const juce_wchar c)
+    static bool isIdentifierChar (juce_wchar c)
     {
         return CharacterFunctions::isLetter (c) || c == '-';
     }
@@ -1476,7 +1446,7 @@ private:
 
     static bool parseNextNumber (String::CharPointerType& text, String& value, const bool allowUnits)
     {
-        String::CharPointerType s (text);
+        auto s = text;
 
         while (s.isWhitespace() || *s == ',')
             ++s;
@@ -1761,3 +1731,5 @@ Path Drawable::parseSVGPath (const String& svgPath)
     state.parsePathString (p, svgPath);
     return p;
 }
+
+} // namespace juce

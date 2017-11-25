@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 static const char* const wavFormatName = "WAV file";
 
 //==============================================================================
@@ -39,7 +42,7 @@ StringPairArray WavAudioFormat::createBWAVMetadata (const String& description,
                                                     const String& originator,
                                                     const String& originatorRef,
                                                     Time date,
-                                                    const int64 timeReferenceSamples,
+                                                    int64 timeReferenceSamples,
                                                     const String& codingHistory)
 {
     StringPairArray m;
@@ -71,6 +74,7 @@ const char* const WavAudioFormat::riffInfoArtist                = "IART";
 const char* const WavAudioFormat::riffInfoBaseURL               = "IBSU";
 const char* const WavAudioFormat::riffInfoCinematographer       = "ICNM";
 const char* const WavAudioFormat::riffInfoComment               = "CMNT";
+const char* const WavAudioFormat::riffInfoComment2              = "ICMT";
 const char* const WavAudioFormat::riffInfoComments              = "COMM";
 const char* const WavAudioFormat::riffInfoCommissioned          = "ICMS";
 const char* const WavAudioFormat::riffInfoCopyright             = "ICOP";
@@ -111,6 +115,7 @@ const char* const WavAudioFormat::riffInfoNumberOfParts         = "PRT2";
 const char* const WavAudioFormat::riffInfoOrganisation          = "TORG";
 const char* const WavAudioFormat::riffInfoPart                  = "PRT1";
 const char* const WavAudioFormat::riffInfoProducedBy            = "IPRO";
+const char* const WavAudioFormat::riffInfoProductName           = "IPRD";
 const char* const WavAudioFormat::riffInfoProductionDesigner    = "IPDS";
 const char* const WavAudioFormat::riffInfoProductionStudio      = "ISDT";
 const char* const WavAudioFormat::riffInfoRate                  = "RATE";
@@ -136,6 +141,7 @@ const char* const WavAudioFormat::riffInfoTechnician            = "ITCH";
 const char* const WavAudioFormat::riffInfoThirdLanguage         = "IAS3";
 const char* const WavAudioFormat::riffInfoTimeCode              = "ISMP";
 const char* const WavAudioFormat::riffInfoTitle                 = "INAM";
+const char* const WavAudioFormat::riffInfoTrackNo               = "IPRT";
 const char* const WavAudioFormat::riffInfoTrackNumber           = "TRCK";
 const char* const WavAudioFormat::riffInfoURL                   = "TURL";
 const char* const WavAudioFormat::riffInfoVegasVersionMajor     = "VMAJ";
@@ -151,7 +157,7 @@ const char* const WavAudioFormat::tracktionLoopInfo    = "tracktion loop info";
 //==============================================================================
 namespace WavFileHelpers
 {
-    inline int chunkName (const char* const name) noexcept   { return (int) ByteOrder::littleEndianInt (name); }
+    inline int chunkName (const char* const name) noexcept   { return (int) ByteOrder::littleEndianInt (name[0], name[1], name[2], name[3]); }
     inline size_t roundUpSize (size_t sz) noexcept           { return (sz + 3) & ~3u; }
 
     #if JUCE_MSVC
@@ -160,11 +166,11 @@ namespace WavFileHelpers
 
     struct BWAVChunk
     {
-        char description [256];
-        char originator [32];
-        char originatorRef [32];
-        char originationDate [10];
-        char originationTime [8];
+        char description[256];
+        char originator[32];
+        char originatorRef[32];
+        char originationDate[10];
+        char originationTime[8];
         uint32 timeRefLow;
         uint32 timeRefHigh;
         uint16 version;
@@ -180,9 +186,9 @@ namespace WavFileHelpers
             values.set (WavAudioFormat::bwavOriginationDate, String::fromUTF8 (originationDate, sizeof (originationDate)));
             values.set (WavAudioFormat::bwavOriginationTime, String::fromUTF8 (originationTime, sizeof (originationTime)));
 
-            const uint32 timeLow  = ByteOrder::swapIfBigEndian (timeRefLow);
-            const uint32 timeHigh = ByteOrder::swapIfBigEndian (timeRefHigh);
-            const int64 time = (((int64) timeHigh) << 32) + timeLow;
+            auto timeLow  = ByteOrder::swapIfBigEndian (timeRefLow);
+            auto timeHigh = ByteOrder::swapIfBigEndian (timeRefHigh);
+            auto time = (((int64) timeHigh) << 32) + timeLow;
 
             values.set (WavAudioFormat::bwavTimeReference, String (time));
             values.set (WavAudioFormat::bwavCodingHistory,
@@ -191,24 +197,24 @@ namespace WavFileHelpers
 
         static MemoryBlock createFrom (const StringPairArray& values)
         {
-            MemoryBlock data (roundUpSize (sizeof (BWAVChunk) + values [WavAudioFormat::bwavCodingHistory].getNumBytesAsUTF8()));
+            MemoryBlock data (roundUpSize (sizeof (BWAVChunk) + values[WavAudioFormat::bwavCodingHistory].getNumBytesAsUTF8()));
             data.fillWith (0);
 
-            BWAVChunk* b = (BWAVChunk*) data.getData();
+            auto* b = (BWAVChunk*) data.getData();
 
             // Allow these calls to overwrite an extra byte at the end, which is fine as long
             // as they get called in the right order..
-            values [WavAudioFormat::bwavDescription]    .copyToUTF8 (b->description, 257);
-            values [WavAudioFormat::bwavOriginator]     .copyToUTF8 (b->originator, 33);
-            values [WavAudioFormat::bwavOriginatorRef]  .copyToUTF8 (b->originatorRef, 33);
-            values [WavAudioFormat::bwavOriginationDate].copyToUTF8 (b->originationDate, 11);
-            values [WavAudioFormat::bwavOriginationTime].copyToUTF8 (b->originationTime, 9);
+            values[WavAudioFormat::bwavDescription]    .copyToUTF8 (b->description, 257);
+            values[WavAudioFormat::bwavOriginator]     .copyToUTF8 (b->originator, 33);
+            values[WavAudioFormat::bwavOriginatorRef]  .copyToUTF8 (b->originatorRef, 33);
+            values[WavAudioFormat::bwavOriginationDate].copyToUTF8 (b->originationDate, 11);
+            values[WavAudioFormat::bwavOriginationTime].copyToUTF8 (b->originationTime, 9);
 
-            const int64 time = values [WavAudioFormat::bwavTimeReference].getLargeIntValue();
+            auto time = values[WavAudioFormat::bwavTimeReference].getLargeIntValue();
             b->timeRefLow = ByteOrder::swapIfBigEndian ((uint32) (time & 0xffffffff));
             b->timeRefHigh = ByteOrder::swapIfBigEndian ((uint32) (time >> 32));
 
-            values [WavAudioFormat::bwavCodingHistory].copyToUTF8 (b->codingHistory, 0x7fffffff);
+            values[WavAudioFormat::bwavCodingHistory].copyToUTF8 (b->codingHistory, 0x7fffffff);
 
             if (b->description[0] != 0
                 || b->originator[0] != 0
@@ -226,7 +232,7 @@ namespace WavFileHelpers
     } JUCE_PACKED;
 
     //==============================================================================
-    AudioChannelSet canonicalWavChannelSet (int numChannels)
+    inline AudioChannelSet canonicalWavChannelSet (int numChannels)
     {
         if (numChannels == 1)  return AudioChannelSet::mono();
         if (numChannels == 2)  return AudioChannelSet::stereo();
@@ -315,7 +321,7 @@ namespace WavFileHelpers
         static MemoryBlock createFrom (const StringPairArray& values)
         {
             MemoryBlock data;
-            const int numLoops = jmin (64, values.getValue ("NumSampleLoops", "0").getIntValue());
+            auto numLoops = jmin (64, values.getValue ("NumSampleLoops", "0").getIntValue());
 
             data.setSize (roundUpSize (sizeof (SMPLChunk) + (size_t) (jmax (0, numLoops - 1)) * sizeof (SampleLoop)), true);
 
@@ -522,7 +528,7 @@ namespace WavFileHelpers
             auto text = values.getValue (prefix + "Text", prefix);
 
             auto textLength = (int) text.getNumBytesAsUTF8() + 1; // include null terminator
-            int chunkLength = textLength + 20 + (textLength & 1);
+            auto chunkLength = textLength + 20 + (textLength & 1);
 
             out.writeInt (chunkName ("ltxt"));
             out.writeInt (chunkLength);
@@ -577,6 +583,7 @@ namespace WavFileHelpers
             WavAudioFormat::riffInfoCinematographer,
             WavAudioFormat::riffInfoComment,
             WavAudioFormat::riffInfoComments,
+            WavAudioFormat::riffInfoComment2,
             WavAudioFormat::riffInfoCommissioned,
             WavAudioFormat::riffInfoCopyright,
             WavAudioFormat::riffInfoCostumeDesigner,
@@ -616,6 +623,7 @@ namespace WavFileHelpers
             WavAudioFormat::riffInfoOrganisation,
             WavAudioFormat::riffInfoPart,
             WavAudioFormat::riffInfoProducedBy,
+            WavAudioFormat::riffInfoProductName,
             WavAudioFormat::riffInfoProductionDesigner,
             WavAudioFormat::riffInfoProductionStudio,
             WavAudioFormat::riffInfoRate,
@@ -641,6 +649,7 @@ namespace WavFileHelpers
             WavAudioFormat::riffInfoThirdLanguage,
             WavAudioFormat::riffInfoTimeCode,
             WavAudioFormat::riffInfoTitle,
+            WavAudioFormat::riffInfoTrackNo,
             WavAudioFormat::riffInfoTrackNumber,
             WavAudioFormat::riffInfoURL,
             WavAudioFormat::riffInfoVegasVersionMajor,
@@ -664,9 +673,8 @@ namespace WavFileHelpers
         {
             while (input.getPosition() < chunkEnd)
             {
-                const int infoType = input.readInt();
-
-                int64 infoLength = chunkEnd - input.getPosition();
+                auto infoType = input.readInt();
+                auto infoLength = chunkEnd - input.getPosition();
 
                 if (infoLength > 0)
                 {
@@ -675,14 +683,14 @@ namespace WavFileHelpers
                     if (infoLength <= 0)
                         return;
 
-                    for (int i = 0; i < numElementsInArray (types); ++i)
+                    for (auto& type : types)
                     {
-                        if (isMatchingTypeIgnoringCase (infoType, types[i]))
+                        if (isMatchingTypeIgnoringCase (infoType, type))
                         {
                             MemoryBlock mb;
                             input.readIntoMemoryBlock (mb, (ssize_t) infoLength);
-                            values.set (types[i], String::createStringFromData ((const char*) mb.getData(),
-                                                                                (int) mb.getSize()));
+                            values.set (type, String::createStringFromData ((const char*) mb.getData(),
+                                                                            (int) mb.getSize()));
                             break;
                         }
                     }
@@ -697,8 +705,8 @@ namespace WavFileHelpers
             if (value.isEmpty())
                 return false;
 
-            const int valueLength = (int) value.getNumBytesAsUTF8() + 1;
-            const int chunkLength = valueLength + (valueLength & 1);
+            auto valueLength = (int) value.getNumBytesAsUTF8() + 1;
+            auto chunkLength = valueLength + (valueLength & 1);
 
             out.writeInt (chunkName (paramName));
             out.writeInt (chunkLength);
@@ -716,8 +724,8 @@ namespace WavFileHelpers
             out.writeInt (chunkName ("INFO"));
             bool anyParamsDefined = false;
 
-            for (int i = 0; i < numElementsInArray (types); ++i)
-                if (writeValue (values, out, types[i]))
+            for (auto& type : types)
+                if (writeValue (values, out, type))
                     anyParamsDefined = true;
 
             return anyParamsDefined ? out.getMemoryBlock() : MemoryBlock();
@@ -822,7 +830,7 @@ namespace WavFileHelpers
         static MemoryBlock createFrom (const StringPairArray& values)
         {
             MemoryOutputStream out;
-            const String s (values[WavAudioFormat::tracktionLoopInfo]);
+            auto s = values[WavAudioFormat::tracktionLoopInfo];
 
             if (s.isNotEmpty())
             {
@@ -886,7 +894,7 @@ namespace WavFileHelpers
 
             return xml.getMemoryBlock();
         }
-    };
+    }
 
     //==============================================================================
     struct ExtensibleWavSubFormat
@@ -925,17 +933,16 @@ namespace WavFileHelpers
 class WavAudioFormatReader  : public AudioFormatReader
 {
 public:
-    WavAudioFormatReader (InputStream* const in)
-        : AudioFormatReader (in, wavFormatName)
+    WavAudioFormatReader (InputStream* in)  : AudioFormatReader (in, wavFormatName)
     {
         using namespace WavFileHelpers;
-        uint64 len = 0;
-        uint64 end = 0;
+        uint64 len = 0, end = 0;
         int cueNoteIndex = 0;
         int cueLabelIndex = 0;
         int cueRegionIndex = 0;
 
-        const int firstChunkType = input->readInt();
+        auto streamStartPos = input->getPosition();
+        auto firstChunkType = input->readInt();
 
         if (firstChunkType == chunkName ("RF64"))
         {
@@ -958,12 +965,12 @@ public:
         {
             if (isRF64 && input->readInt() == chunkName ("ds64"))
             {
-                const uint32 length = (uint32) input->readInt();
+                auto length = (uint32) input->readInt();
 
                 if (length < 28)
                     return;
 
-                const int64 chunkEnd = input->getPosition() + length + (length & 1);
+                auto chunkEnd = input->getPosition() + length + (length & 1);
                 len = (uint64) input->readInt64();
                 end = len + (uint64) startOfRIFFChunk;
                 dataLength = input->readInt64();
@@ -972,9 +979,9 @@ public:
 
             while ((uint64) input->getPosition() < end && ! input->isExhausted())
             {
-                const int chunkType = input->readInt();
-                uint32 length = (uint32) input->readInt();
-                const int64 chunkEnd = input->getPosition() + length + (length & 1);
+                auto chunkType = input->readInt();
+                auto length = (uint32) input->readInt();
+                auto chunkEnd = input->getPosition() + length + (length & 1);
 
                 if (chunkType == chunkName ("fmt "))
                 {
@@ -1000,7 +1007,7 @@ public:
                     {
                         usesFloatingPointData = true;
                     }
-                    else if (format == 0xfffe /*WAVE_FORMAT_EXTENSIBLE*/)
+                    else if (format == 0xfffe) // WAVE_FORMAT_EXTENSIBLE
                     {
                         if (length < 40) // too short
                         {
@@ -1011,15 +1018,7 @@ public:
                             input->skipNextBytes (4); // skip over size and bitsPerSample
                             auto channelMask = input->readInt();
                             metadataValues.set ("ChannelMask", String (channelMask));
-
-                            // AudioChannelSet and wav's dwChannelMask are compatible
-                            BigInteger channelBits (channelMask);
-
-                            for (auto bit = channelBits.findNextSetBit (0); bit >= 0; bit = channelBits.findNextSetBit (bit + 1))
-                                channelLayout.addChannel (static_cast<AudioChannelSet::ChannelType> (bit + 1));
-
-                            // channel layout and number of channels do not match
-                            jassert (channelLayout.size() == static_cast<int> (numChannels));
+                            channelLayout = getChannelLayoutFromMask (channelMask, numChannels);
 
                             ExtensibleWavSubFormat subFormat;
                             subFormat.data1 = (uint32) input->readInt();
@@ -1032,6 +1031,18 @@ public:
                             else if (subFormat != pcmFormat && subFormat != ambisonicFormat)
                                 bytesPerFrame = 0;
                         }
+                    }
+                    else if (format == 0x674f  // WAVE_FORMAT_OGG_VORBIS_MODE_1
+                          || format == 0x6750  // WAVE_FORMAT_OGG_VORBIS_MODE_2
+                          || format == 0x6751  // WAVE_FORMAT_OGG_VORBIS_MODE_3
+                          || format == 0x676f  // WAVE_FORMAT_OGG_VORBIS_MODE_1_PLUS
+                          || format == 0x6770  // WAVE_FORMAT_OGG_VORBIS_MODE_2_PLUS
+                          || format == 0x6771) // WAVE_FORMAT_OGG_VORBIS_MODE_3_PLUS
+                    {
+                        isSubformatOggVorbis = true;
+                        sampleRate = 0; // to mark the wav reader as failed
+                        input->setPosition (streamStartPos);
+                        return;
                     }
                     else if (format != 1)
                     {
@@ -1085,7 +1096,7 @@ public:
                 }
                 else if (chunkType == chunkName ("LIST"))
                 {
-                    const int subChunkType = input->readInt();
+                    auto subChunkType = input->readInt();
 
                     if (subChunkType == chunkName ("info") || subChunkType == chunkName ("INFO"))
                     {
@@ -1095,9 +1106,9 @@ public:
                     {
                         while (input->getPosition() < chunkEnd)
                         {
-                            const int adtlChunkType = input->readInt();
-                            const uint32 adtlLength = (uint32) input->readInt();
-                            const int64 adtlChunkEnd = input->getPosition() + (adtlLength + (adtlLength & 1));
+                            auto adtlChunkType = input->readInt();
+                            auto adtlLength = (uint32) input->readInt();
+                            auto adtlChunkEnd = input->getPosition() + (adtlLength + (adtlLength & 1));
 
                             if (adtlChunkType == chunkName ("labl") || adtlChunkType == chunkName ("note"))
                             {
@@ -1108,8 +1119,8 @@ public:
                                 else if (adtlChunkType == chunkName ("note"))
                                     prefix << "CueNote" << cueNoteIndex++;
 
-                                const uint32 identifier = (uint32) input->readInt();
-                                const int stringLength = (int) adtlLength - 4;
+                                auto identifier = (uint32) input->readInt();
+                                auto stringLength = (int) adtlLength - 4;
 
                                 MemoryBlock textBlock;
                                 input->readIntoMemoryBlock (textBlock, stringLength);
@@ -1119,15 +1130,15 @@ public:
                             }
                             else if (adtlChunkType == chunkName ("ltxt"))
                             {
-                                const String prefix ("CueRegion" + String (cueRegionIndex++));
-                                const uint32 identifier     = (uint32) input->readInt();
-                                const uint32 sampleLength   = (uint32) input->readInt();
-                                const uint32 purpose        = (uint32) input->readInt();
-                                const uint16 country        = (uint16) input->readInt();
-                                const uint16 language       = (uint16) input->readInt();
-                                const uint16 dialect        = (uint16) input->readInt();
-                                const uint16 codePage       = (uint16) input->readInt();
-                                const uint32 stringLength   = adtlLength - 20;
+                                auto prefix = "CueRegion" + String (cueRegionIndex++);
+                                auto identifier     = (uint32) input->readInt();
+                                auto sampleLength   = (uint32) input->readInt();
+                                auto purpose        = (uint32) input->readInt();
+                                auto country        = (uint16) input->readInt();
+                                auto language       = (uint16) input->readInt();
+                                auto dialect        = (uint16) input->readInt();
+                                auto codePage       = (uint16) input->readInt();
+                                auto stringLength   = adtlLength - 20;
 
                                 MemoryBlock textBlock;
                                 input->readIntoMemoryBlock (textBlock, (int) stringLength);
@@ -1186,10 +1197,10 @@ public:
         while (numSamples > 0)
         {
             const int tempBufSize = 480 * 3 * 4; // (keep this a multiple of 3)
-            char tempBuffer [tempBufSize];
+            char tempBuffer[tempBufSize];
 
-            const int numThisTime = jmin (tempBufSize / bytesPerFrame, numSamples);
-            const int bytesRead = input->read (tempBuffer, numThisTime * bytesPerFrame);
+            auto numThisTime = jmin (tempBufSize / bytesPerFrame, numSamples);
+            auto bytesRead = input->read (tempBuffer, numThisTime * bytesPerFrame);
 
             if (bytesRead < numThisTime * bytesPerFrame)
             {
@@ -1224,6 +1235,7 @@ public:
         }
     }
 
+    //==============================================================================
     AudioChannelSet getChannelLayout() override
     {
         if (channelLayout.size() == static_cast<int> (numChannels))
@@ -1232,10 +1244,41 @@ public:
         return WavFileHelpers::canonicalWavChannelSet (static_cast<int> (numChannels));
     }
 
+    static AudioChannelSet getChannelLayoutFromMask (int dwChannelMask, size_t totalNumChannels)
+    {
+        AudioChannelSet wavFileChannelLayout;
+
+        // AudioChannelSet and wav's dwChannelMask are compatible
+        BigInteger channelBits (dwChannelMask);
+
+        for (auto bit = channelBits.findNextSetBit (0); bit >= 0; bit = channelBits.findNextSetBit (bit + 1))
+            wavFileChannelLayout.addChannel (static_cast<AudioChannelSet::ChannelType> (bit + 1));
+
+        // channel layout and number of channels do not match
+        if (wavFileChannelLayout.size() != static_cast<int> (totalNumChannels))
+        {
+            // for backward compatibility with old wav files, assume 1 or 2
+            // channel wav files are mono/stereo respectively
+            if (totalNumChannels <= 2 && dwChannelMask == 0)
+                wavFileChannelLayout = AudioChannelSet::canonicalChannelSet (static_cast<int> (totalNumChannels));
+            else
+            {
+                auto discreteSpeaker = static_cast<int> (AudioChannelSet::discreteChannel0);
+
+                while (wavFileChannelLayout.size() < static_cast<int> (totalNumChannels))
+                    wavFileChannelLayout.addChannel (static_cast<AudioChannelSet::ChannelType> (discreteSpeaker++));
+            }
+        }
+
+        return wavFileChannelLayout;
+    }
+
     int64 bwavChunkStart = 0, bwavSize = 0;
     int64 dataChunkStart = 0, dataLength = 0;
     int bytesPerFrame = 0;
     bool isRF64 = false;
+    bool isSubformatOggVorbis = false;
+
     AudioChannelSet channelLayout;
 
 private:
@@ -1289,7 +1332,7 @@ public:
         if (writeFailed)
             return false;
 
-        const size_t bytes = numChannels * (size_t) numSamples * bitsPerSample / 8;
+        auto bytes = numChannels * (size_t) numSamples * bitsPerSample / 8;
         tempBlock.ensureSize (bytes, false);
 
         switch (bitsPerSample)
@@ -1353,9 +1396,10 @@ private:
 
         const size_t bytesPerFrame = numChannels * bitsPerSample / 8;
         uint64 audioDataSize = bytesPerFrame * lengthInSamples;
+        auto channelMask = getChannelMaskFromChannelLayout (channelLayout);
 
         const bool isRF64 = (bytesWritten >= 0x100000000LL);
-        const bool isWaveFmtEx = isRF64 || (numChannels > 2);
+        const bool isWaveFmtEx = isRF64 || (channelMask != 0);
 
         int64 riffChunkSize = (int64) (4 /* 'RIFF' */ + 8 + 40 /* WAVEFORMATEX */
                                        + 8 + audioDataSize + (audioDataSize & 1)
@@ -1431,7 +1475,7 @@ private:
         {
             output->writeShort (22); // cbSize (size of the extension)
             output->writeShort ((short) bitsPerSample); // wValidBitsPerSample
-            output->writeInt (getChannelMaskFromChannelLayout (channelLayout));
+            output->writeInt (channelMask);
 
             const ExtensibleWavSubFormat& subFormat = bitsPerSample < 32 ? pcmFormat : IEEEFloatFormat;
 
@@ -1475,6 +1519,14 @@ private:
 
     static int getChannelMaskFromChannelLayout (const AudioChannelSet& channelLayout)
     {
+        if (channelLayout.isDiscreteLayout())
+            return 0;
+
+        // Don't add an extended format chunk for mono and stereo. Basically, all wav players
+        // interpret a wav file with only one or two channels to be mono or stereo anyway.
+        if (channelLayout == AudioChannelSet::mono() || channelLayout == AudioChannelSet::stereo())
+            return 0;
+
         auto channels = channelLayout.getChannelTypes();
         auto wavChannelMask = 0;
 
@@ -1556,7 +1608,7 @@ public:
             jassert (numSamples <= 0); // you must make sure that the window contains all the samples you're going to attempt to read.
 
             for (int i = 0; i < numChannelsToRead; ++i)
-                results[i] = Range<float>();
+                results[i] = {};
 
             return;
         }
@@ -1590,17 +1642,13 @@ WavAudioFormat::~WavAudioFormat() {}
 
 Array<int> WavAudioFormat::getPossibleSampleRates()
 {
-    const int rates[] = { 8000, 11025, 12000, 16000, 22050, 32000, 44100,
-                          48000, 88200, 96000, 176400, 192000, 352800, 384000 };
-
-    return Array<int> (rates, numElementsInArray (rates));
+    return { 8000,  11025, 12000, 16000,  22050,  32000,  44100,
+             48000, 88200, 96000, 176400, 192000, 352800, 384000 };
 }
 
 Array<int> WavAudioFormat::getPossibleBitDepths()
 {
-    const int depths[] = { 8, 16, 24, 32 };
-
-    return Array<int> (depths, numElementsInArray (depths));
+    return { 8, 16, 24, 32 };
 }
 
 bool WavAudioFormat::canDoStereo()  { return true; }
@@ -1610,6 +1658,10 @@ bool WavAudioFormat::isChannelLayoutSupported (const AudioChannelSet& channelSet
 {
     auto channelTypes = channelSet.getChannelTypes();
 
+    // When
+    if (channelSet.isDiscreteLayout())
+        return true;
+
     // WAV supports all channel types from left ... topRearRight
     for (auto channel : channelTypes)
         if (channel < AudioChannelSet::left || channel > AudioChannelSet::topRearRight)
@@ -1618,10 +1670,17 @@ bool WavAudioFormat::isChannelLayoutSupported (const AudioChannelSet& channelSet
     return true;
 }
 
-AudioFormatReader* WavAudioFormat::createReaderFor (InputStream* sourceStream,
-                                                    const bool deleteStreamIfOpeningFails)
+AudioFormatReader* WavAudioFormat::createReaderFor (InputStream* sourceStream, bool deleteStreamIfOpeningFails)
 {
     ScopedPointer<WavAudioFormatReader> r (new WavAudioFormatReader (sourceStream));
+
+   #if JUCE_USE_OGGVORBIS
+    if (r->isSubformatOggVorbis)
+    {
+        r->input = nullptr;
+        return OggVorbisAudioFormat().createReaderFor (sourceStream, deleteStreamIfOpeningFails);
+    }
+   #endif
 
     if (r->sampleRate > 0 && r->numChannels > 0 && r->bytesPerFrame > 0)
         return r.release();
@@ -1714,7 +1773,7 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
 
         if (bwavSize > 0)
         {
-            MemoryBlock chunk (BWAVChunk::createFrom (newMetadata));
+            auto chunk = BWAVChunk::createFrom (newMetadata);
 
             if (chunk.getSize() <= (size_t) bwavSize)
             {
@@ -1724,7 +1783,7 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
                 {
                     FileOutputStream out (wavFile);
 
-                    if (! out.failedToOpen())
+                    if (out.openedOk())
                     {
                         out.setPosition (bwavPos);
                         out << chunk;
@@ -1733,7 +1792,6 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
                 }
 
                 jassert (wavFile.getSize() == oldSize);
-
                 return true;
             }
         }
@@ -1826,3 +1884,5 @@ private:
 static const WaveAudioFormatTests waveAudioFormatTests;
 
 #endif
+
+} // namespace juce

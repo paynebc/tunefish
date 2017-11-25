@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -62,7 +62,7 @@
     ListenerList::DummyBailOutChecker, which is a dummy checker that always returns false.
 */
 template <class ListenerClass,
-          class ArrayType = Array<ListenerClass*> >
+          class ArrayType = Array<ListenerClass*>>
 class ListenerList
 {
    #ifndef DOXYGEN
@@ -540,3 +540,5 @@ private:
     #undef LL_TEMPLATE
     #undef LL_PARAM
 };
+
+} // namespace juce

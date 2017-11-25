@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 ToolbarItemFactory::ToolbarItemFactory() {}
 ToolbarItemFactory::~ToolbarItemFactory() {}
 
@@ -72,7 +75,7 @@ public:
 
             if (DragAndDropContainer* const dnd = DragAndDropContainer::findParentDragContainerFor (this))
             {
-                dnd->startDragging (Toolbar::toolbarDragDescriptor, getParentComponent(), Image(), true);
+                dnd->startDragging (Toolbar::toolbarDragDescriptor, getParentComponent(), Image(), true, nullptr, &e.source);
 
                 if (ToolbarItemComponent* const tc = getToolbarItemComponent())
                 {
@@ -235,3 +238,5 @@ void ToolbarItemComponent::setEditingMode (const ToolbarEditingMode newMode)
         resized();
     }
 }
+
+} // namespace juce

@@ -72,7 +72,7 @@ ePtr eAllocAligned(eU32 size, eU32 alignment)
 
     // find aligned memory address as multiples of alignment
     const eU64 memStartAddr = (eU64)memPtr + sizeof(eU64);
-    const eU64 alignedAddr = eAlign(memStartAddr, alignment);
+    const eU64 alignedAddr = eAlign<eU64>(memStartAddr, alignment);
     ePtr alignedPtr = (ePtr)alignedAddr;
 
     // store address returned by new directly before

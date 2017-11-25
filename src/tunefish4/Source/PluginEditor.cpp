@@ -228,7 +228,8 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-    m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard)
+    m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+    m_meter(*ownerFilter, 2, 0)
 {
     setSize(1080, 800);
 
@@ -249,9 +250,14 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     //  GLOBAL GROUP
     // -------------------------------------
     _addGroupBox(this, m_grpGlobal, "GLOBAL", 10, 0, 1060, 80);
+    
+    m_grpGlobal.addChildComponent(m_meter);
+    m_meter.setVisible(true);
+    m_meter.setBounds(8, 28, 64, 40);
+    getProcessor()->setMetering(true);
 
-    _addComboBox(&m_grpGlobal, m_cmbPolyphony, "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16", 65, 40, 45, 20);    
-    _addLabel(&m_grpGlobal, m_lblGlobPolyphony, "Polyphony:", 5, 40, 50, 20);
+    _addComboBox(&m_grpGlobal, m_cmbPolyphony, "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16", 75, 45, 40, 20);
+    _addLabel(&m_grpGlobal, m_lblGlobPolyphony, "Voices:", 70, 25, 40, 20);
 
     _addComboBox(&m_grpGlobal, m_cmbPitchBendUp, "1|2|3|4|5|6|7|8|9|10|11|12", 1005, 25, 45, 20);
     _addComboBox(&m_grpGlobal, m_cmbPitchBendDown, "1|2|3|4|5|6|7|8|9|10|11|12", 1005, 47, 45, 20);
@@ -670,6 +676,8 @@ void Tunefish4AudioProcessorEditor::refreshUiFromSynth()
 
     bool parametersChanged = tfprocessor->wasProgramSwitched() || tfprocessor->isParamDirtyAny();
 
+    m_meter.refreshDisplayIfNeeded();
+    
     if (animationsOn || parametersChanged || m_wasWindowHidden)
     {
         // if the window was previously hidden, we need to fill all those comboboxes again

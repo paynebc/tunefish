@@ -24,10 +24,10 @@
   ==============================================================================
 */
 
+#if JucePlugin_Build_RTAS
+
 #include "../../juce_core/system/juce_TargetPlatform.h"
 #include "../utility/juce_CheckSettingMacros.h"
-
-#if JucePlugin_Build_RTAS
 
 #ifdef _MSC_VER
  // (this is a workaround for a build problem in VC9)
@@ -110,6 +110,11 @@
 #endif
 
 #include "../utility/juce_IncludeModuleHeaders.h"
+
+using namespace juce;
+
+namespace juce
+{
 
 #ifdef _MSC_VER
  #pragma pack (pop)
@@ -764,7 +769,7 @@ public:
             case ficFrameRate_2997DropFrame: info.frameRate = AudioPlayHead::fps2997drop; framesPerSec = 30.0 * 1000.0 / 1001.0; break;
             case ficFrameRate_30NonDrop:     info.frameRate = AudioPlayHead::fps30;       framesPerSec = 30.0; break;
             case ficFrameRate_30DropFrame:   info.frameRate = AudioPlayHead::fps30drop;   framesPerSec = 30.0; break;
-            case ficFrameRate_23976:         info.frameRate = AudioPlayHead::fps24;       framesPerSec = 24.0 * 1000.0 / 1001.0; break;
+            case ficFrameRate_23976:         info.frameRate = AudioPlayHead::fps23976;    framesPerSec = 24.0 * 1000.0 / 1001.0; break;
             default:                         info.frameRate = AudioPlayHead::fpsUnknown;  break;
         }
 
@@ -1032,6 +1037,8 @@ private:
 };
 
 void initialiseMacRTAS();
+
+} // namespace juce
 
 CProcessGroupInterface* CProcessGroup::CreateProcessGroup()
 {

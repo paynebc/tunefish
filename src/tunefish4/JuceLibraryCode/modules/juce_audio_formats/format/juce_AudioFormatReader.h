@@ -24,7 +24,10 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
+
+class AudioFormat;
 
 
 //==============================================================================
@@ -193,19 +196,19 @@ public:
 
     //==============================================================================
     /** The sample-rate of the stream. */
-    double sampleRate;
+    double sampleRate = 0;
 
     /** The number of bits per sample, e.g. 16, 24, 32. */
-    unsigned int bitsPerSample;
+    unsigned int bitsPerSample = 0;
 
     /** The total number of samples in the audio stream. */
-    int64 lengthInSamples;
+    int64 lengthInSamples = 0;
 
     /** The total number of channels in the audio stream. */
-    unsigned int numChannels;
+    unsigned int numChannels = 0;
 
     /** Indicates whether the data is floating-point or fixed. */
-    bool usesFloatingPointData;
+    bool usesFloatingPointData = false;
 
     /** A set of metadata values that the reader has pulled out of the stream.
 
@@ -299,3 +302,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFormatReader)
 };
+
+} // namespace juce

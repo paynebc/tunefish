@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,7 +33,7 @@
 
     @see Graphics::setGradientFill
 */
-class JUCE_API  ColourGradient
+class JUCE_API  ColourGradient  final
 {
 public:
     //==============================================================================
@@ -198,3 +198,5 @@ private:
 
     JUCE_LEAK_DETECTOR (ColourGradient)
 };
+
+} // namespace juce

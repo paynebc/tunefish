@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -135,7 +135,9 @@ public:
 private:
     //==============================================================================
     OwnedArray<AudioFormat> knownFormats;
-    int defaultFormatIndex;
+    int defaultFormatIndex = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFormatManager)
 };
+
+} // namespace juce

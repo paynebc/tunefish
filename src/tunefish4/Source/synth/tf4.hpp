@@ -687,7 +687,7 @@ void    eTfVoicePanic(eTfVoice &state);
 
 void    eTfInstrumentInit(eTfInstrument &instr);
 void    eTfInstrumentFree(eTfInstrument &instr);
-eF32    eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, long sampleFrames);
+eF32    eTfInstrumentProcess(eTfSynth &synth, eTfInstrument &instr, eF32 **outputs, eU32 sampleFrames);
 void    eTfInstrumentNoteOn(eTfInstrument &instr, eS32 note, eS32 velocity);
 eBool   eTfInstrumentNoteOff(eTfInstrument &instr, eS32 note);
 void    eTfInstrumentAllNotesOff(eTfInstrument &instr);

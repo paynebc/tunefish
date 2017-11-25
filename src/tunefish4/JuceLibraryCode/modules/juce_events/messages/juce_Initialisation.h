@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** Initialises Juce's GUI classes.
@@ -64,7 +64,7 @@ JUCE_API void JUCE_CALLTYPE  shutdownJuce_GUI();
     Be careful with your threading though - to be safe, you should always make sure
     that these objects are created and deleted on the message thread.
 */
-class JUCE_API  ScopedJuceInitialiser_GUI
+class JUCE_API  ScopedJuceInitialiser_GUI  final
 {
 public:
     /** The constructor simply calls initialiseJuce_GUI(). */
@@ -196,3 +196,5 @@ public:
   #endif
  #endif
 #endif
+
+} // namespace juce

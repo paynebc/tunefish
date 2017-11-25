@@ -49,7 +49,7 @@ void eRandom::SeedRandomly()
     QueryPerformanceCounter((LARGE_INTEGER *)&curTime);
     Seed(static_cast<eU32>(curTime));
 #else
-    Seed(clock());
+    Seed(static_cast<eU32>(clock()));
 #endif
 }
 

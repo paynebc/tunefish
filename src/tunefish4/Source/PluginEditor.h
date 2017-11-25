@@ -75,10 +75,10 @@ public:
 
     //==============================================================================
     // This is just a standard Juce paint method...
-    void paint (Graphics& g);
-    void sliderValueChanged (Slider* slider);
-    void comboBoxChanged (ComboBox* comboBox);
-    void buttonClicked (Button *button);
+    void paint (Graphics& g) override;
+    void sliderValueChanged (Slider* slider) override;
+    void comboBoxChanged (ComboBox* comboBox) override;
+    void buttonClicked (Button *button) override;
     void timerCallback() override;
     void visibilityChanged() override;
     void refreshUiFromSynth();
@@ -162,6 +162,7 @@ private:
     Label m_lblGlobPitchBendUp;
     Label m_lblGlobPitchBendDown;
 
+    LevelMeter m_meter;
     eTfSlider m_sldGlobVolume;
     eTfSlider m_sldGlobFrequency;
     eTfSlider m_sldGlobDetune;

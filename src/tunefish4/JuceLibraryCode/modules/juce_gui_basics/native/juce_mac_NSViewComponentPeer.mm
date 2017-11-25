@@ -24,14 +24,16 @@
   ==============================================================================
 */
 
-typedef void (*AppFocusChangeCallback)();
-extern AppFocusChangeCallback appFocusChangeCallback;
-typedef bool (*CheckEventBlockedByModalComps) (NSEvent*);
-extern CheckEventBlockedByModalComps isEventBlockedByModalComps;
+namespace juce
+{
+    typedef void (*AppFocusChangeCallback)();
+    extern AppFocusChangeCallback appFocusChangeCallback;
+    typedef bool (*CheckEventBlockedByModalComps) (NSEvent*);
+    extern CheckEventBlockedByModalComps isEventBlockedByModalComps;
+}
 
 //==============================================================================
 #if ! (defined (MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
-} // (juce namespace)
 
 @interface NSEvent (JuceDeviceDelta)
  - (CGFloat) scrollingDeltaX;
@@ -40,8 +42,10 @@ extern CheckEventBlockedByModalComps isEventBlockedByModalComps;
  - (BOOL) isDirectionInvertedFromDevice;
 @end
 
-namespace juce {
 #endif
+
+namespace juce
+{
 
 //==============================================================================
 static CGFloat getMainScreenHeight() noexcept
@@ -77,7 +81,7 @@ public:
         appFocusChangeCallback = appFocusChanged;
         isEventBlockedByModalComps = checkEventBlockedByModalComps;
 
-        NSRect r = makeNSRect (component.getLocalBounds());
+        auto r = makeNSRect (component.getLocalBounds());
 
         view = [createViewInstance() initWithFrame: r];
         setOwner (view, this);
@@ -160,7 +164,8 @@ public:
            #endif
         }
 
-        const float alpha = component.getAlpha();
+        auto alpha = component.getAlpha();
+
         if (alpha < 1.0f)
             setAlpha (alpha);
 
@@ -243,8 +248,8 @@ public:
     {
         fullScreen = isNowFullScreen;
 
-        NSRect r = makeNSRect (newBounds);
-        NSSize oldViewSize = [view frame].size;
+        auto r = makeNSRect (newBounds);
+        auto oldViewSize = [view frame].size;
 
         if (isSharedWindow)
         {
@@ -268,7 +273,7 @@ public:
 
     Rectangle<int> getBounds (const bool global) const
     {
-        NSRect r = [view frame];
+        auto r = [view frame];
         NSWindow* viewWindow = [view window];
 
         if (global && viewWindow != nil)
@@ -334,7 +339,7 @@ public:
     {
         if (! isSharedWindow)
         {
-            Rectangle<int> r (lastNonFullscreenBounds);
+            auto r = lastNonFullscreenBounds;
 
             if (isMinimised())
                 setMinimised (false);
@@ -388,18 +393,18 @@ public:
     {
         NSRect viewFrame = [view frame];
 
-        if (! (isPositiveAndBelow (localPos.getX(), (int) viewFrame.size.width)
-             && isPositiveAndBelow (localPos.getY(), (int) viewFrame.size.height)))
+        if (! (isPositiveAndBelow (localPos.getX(), viewFrame.size.width)
+             && isPositiveAndBelow (localPos.getY(), viewFrame.size.height)))
             return false;
 
         if (! SystemStats::isRunningInAppExtensionSandbox())
         {
             if (NSWindow* const viewWindow = [view window])
             {
-                const NSRect windowFrame = [viewWindow frame];
-                const NSPoint windowPoint = [view convertPoint: NSMakePoint (localPos.x, viewFrame.size.height - localPos.y) toView: nil];
-                const NSPoint screenPoint = NSMakePoint (windowFrame.origin.x + windowPoint.x,
-                                                         windowFrame.origin.y + windowPoint.y);
+                NSRect windowFrame = [viewWindow frame];
+                NSPoint windowPoint = [view convertPoint: NSMakePoint (localPos.x, viewFrame.size.height - localPos.y) toView: nil];
+                NSPoint screenPoint = NSMakePoint (windowFrame.origin.x + windowPoint.x,
+                                                   windowFrame.origin.y + windowPoint.y);
 
                 if (! isWindowAtPoint (viewWindow, screenPoint))
                     return false;
@@ -436,7 +441,7 @@ public:
     {
         if (hasNativeTitleBar())
         {
-            const Rectangle<int> screen (getFrameSize().subtractedFrom (component.getParentMonitorArea()));
+            auto screen = getFrameSize().subtractedFrom (component.getParentMonitorArea());
 
             fullScreen = component.getScreenBounds().expanded (2, 2).contains (screen);
         }
@@ -687,12 +692,12 @@ public:
 
     bool handleKeyEvent (NSEvent* ev, bool isKeyDown)
     {
-        const String unicode (nsStringToJuce ([ev characters]));
-        const int keyCode = getKeyCodeFromEvent (ev);
+        auto unicode = nsStringToJuce ([ev characters]);
+        auto keyCode = getKeyCodeFromEvent (ev);
 
        #if JUCE_DEBUG_KEYCODES
         DBG ("unicode: " + unicode + " " + String::toHexString ((int) unicode[0]));
-        String unmodified (nsStringToJuce ([ev charactersIgnoringModifiers]));
+        auto unmodified = nsStringToJuce ([ev charactersIgnoringModifiers]);
         DBG ("unmodified: " + unmodified + " " + String::toHexString ((int) unmodified[0]));
        #endif
 
@@ -702,9 +707,9 @@ public:
             {
                 bool used = false;
 
-                for (String::CharPointerType u (unicode.getCharPointer()); ! u.isEmpty();)
+                for (auto u = unicode.getCharPointer(); ! u.isEmpty();)
                 {
-                    juce_wchar textCharacter = u.getAndAdvance();
+                    auto textCharacter = u.getAndAdvance();
 
                     switch (keyCode)
                     {
@@ -790,7 +795,7 @@ public:
         if (r.size.width < 1.0f || r.size.height < 1.0f)
             return;
 
-        CGContextRef cg = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+        auto cg = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
 
         if (! component.isOpaque())
             CGContextClearRect (cg, CGContextGetClipBoundingBox (cg));
@@ -845,8 +850,8 @@ public:
         {
             const Point<int> offset (-roundToInt (r.origin.x),
                                      -roundToInt ([view frame].size.height - (r.origin.y + r.size.height)));
-            const int clipW = (int) (r.size.width  + 0.5f);
-            const int clipH = (int) (r.size.height + 0.5f);
+            auto clipW = (int) (r.size.width  + 0.5f);
+            auto clipH = (int) (r.size.height + 0.5f);
 
             RectangleList<int> clip;
             getClipRects (clip, offset, clipW, clipH);
@@ -859,7 +864,8 @@ public:
                             ! component.isOpaque());
 
                 {
-                    const int intScale = roundToInt (displayScale);
+                    auto intScale = roundToInt (displayScale);
+
                     if (intScale != 1)
                         clip.scaleAll (intScale);
 
@@ -894,9 +900,9 @@ public:
         if (isTimerRunning())
             return;
 
-        const uint32 now = Time::getMillisecondCounter();
-        uint32 msSinceLastRepaint = (lastRepaintTime >= now) ? now - lastRepaintTime
-                                                             : (std::numeric_limits<uint32>::max() - lastRepaintTime) + now;
+        auto now = Time::getMillisecondCounter();
+        auto msSinceLastRepaint = (lastRepaintTime >= now) ? now - lastRepaintTime
+                                                           : (std::numeric_limits<uint32>::max() - lastRepaintTime) + now;
 
         static uint32 minimumRepaintInterval = 1000 / 30; // 30fps
 
@@ -1032,12 +1038,12 @@ public:
     {
         if (constrainer != nullptr && ! isKioskMode())
         {
-            const float scale = getComponent().getDesktopScaleFactor();
+            auto scale = getComponent().getDesktopScaleFactor();
 
             auto pos      = ScalingHelpers::unscaledScreenPosToScaled (scale, convertToRectInt (flippedScreenRect (r)));
             auto original = ScalingHelpers::unscaledScreenPosToScaled (scale, convertToRectInt (flippedScreenRect ([window frame])));
 
-            const Rectangle<int> screenBounds (Desktop::getInstance().getDisplays().getTotalBounds (true));
+            auto screenBounds = Desktop::getInstance().getDisplays().getTotalBounds (true);
 
            #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
             const bool inLiveResize = [window inLiveResize];
@@ -1098,9 +1104,8 @@ public:
     static void updateKeysDown (NSEvent* ev, bool isKeyDown)
     {
         updateModifiers (ev);
-        int keyCode = getKeyCodeFromEvent (ev);
 
-        if (keyCode != 0)
+        if (auto keyCode = getKeyCodeFromEvent (ev))
         {
             if (isKeyDown)
                 keysCurrentlyDown.addIfNotAlreadyThere (keyCode);
@@ -1125,10 +1130,8 @@ public:
        #if JUCE_SUPPORT_CARBON
         if (TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource())
         {
-            CFDataRef layoutData = (CFDataRef) TISGetInputSourceProperty (currentKeyboard,
-                                                                          kTISPropertyUnicodeKeyLayoutData);
-
-            if (layoutData != nullptr)
+            if (auto layoutData = (CFDataRef) TISGetInputSourceProperty (currentKeyboard,
+                                                                         kTISPropertyUnicodeKeyLayoutData))
             {
                 if (auto* layoutPtr = (const UCKeyboardLayout*) CFDataGetBytePtr (layoutData))
                 {
@@ -1153,7 +1156,7 @@ public:
             unmodified = nsStringToJuce ([ev charactersIgnoringModifiers]);
         }
 
-        int keyCode = unmodified[0];
+        auto keyCode = (int) unmodified[0];
 
         if (keyCode == 0x19) // (backwards-tab)
             keyCode = '\t';
@@ -1377,14 +1380,14 @@ private:
         object_setInstanceVariable (viewOrWindow, "owner", newOwner);
     }
 
-    void getClipRects (RectangleList<int>& clip, const Point<int> offset, const int clipW, const int clipH)
+    void getClipRects (RectangleList<int>& clip, Point<int> offset, int clipW, int clipH)
     {
         const NSRect* rects = nullptr;
         NSInteger numRects = 0;
         [view getRectsBeingDrawn: &rects count: &numRects];
 
         const Rectangle<int> clipBounds (clipW, clipH);
-        const CGFloat viewH = [view frame].size.height;
+        auto viewH = [view frame].size.height;
 
         clip.ensureStorageAllocated ((int) numRects);
 
@@ -1419,6 +1422,7 @@ private:
             return false;
 
         NSWindow* const w = [e window];
+
         if (w == nil || [w worksWhenModal])
             return false;
 
@@ -1487,7 +1491,7 @@ private:
             if (! [NSApp isActive])
                 [NSApp activateIgnoringOtherApps: YES];
 
-            if (Component* const modal = Component::getCurrentlyModalComponent())
+            if (auto* modal = Component::getCurrentlyModalComponent())
                 modal->inputAttemptWhenModal();
         }
 
@@ -1732,8 +1736,8 @@ private:
         {
             if (auto* target = owner->findCurrentTextInputTarget())
             {
-                const Range<int> r ((int) theRange.location,
-                                    (int) (theRange.location + theRange.length));
+                Range<int> r ((int) theRange.location,
+                              (int) (theRange.location + theRange.length));
 
                 return [[[NSAttributedString alloc] initWithString: juceStringToNS (target->getTextInRange (r))] autorelease];
             }
@@ -1819,7 +1823,7 @@ private:
     {
         if (auto* owner = getOwner (self))
             if (owner->sendDragCallback (0, sender))
-                return NSDragOperationCopy | NSDragOperationMove | NSDragOperationGeneric;
+                return NSDragOperationGeneric;
 
         return NSDragOperationNone;
     }
@@ -2000,7 +2004,7 @@ ComponentPeer* NSViewComponentPeer::currentlyFocusedPeer = nullptr;
 Array<int> NSViewComponentPeer::keysCurrentlyDown;
 
 //==============================================================================
-bool KeyPress::isKeyCurrentlyDown (const int keyCode)
+bool KeyPress::isKeyCurrentlyDown (int keyCode)
 {
     if (NSViewComponentPeer::keysCurrentlyDown.contains (keyCode))
         return true;
@@ -2150,6 +2154,26 @@ const int KeyPress::F13Key          = NSF13FunctionKey;
 const int KeyPress::F14Key          = NSF14FunctionKey;
 const int KeyPress::F15Key          = NSF15FunctionKey;
 const int KeyPress::F16Key          = NSF16FunctionKey;
+const int KeyPress::F17Key          = NSF17FunctionKey;
+const int KeyPress::F18Key          = NSF18FunctionKey;
+const int KeyPress::F19Key          = NSF19FunctionKey;
+const int KeyPress::F20Key          = NSF20FunctionKey;
+const int KeyPress::F21Key          = NSF21FunctionKey;
+const int KeyPress::F22Key          = NSF22FunctionKey;
+const int KeyPress::F23Key          = NSF23FunctionKey;
+const int KeyPress::F24Key          = NSF24FunctionKey;
+const int KeyPress::F25Key          = NSF25FunctionKey;
+const int KeyPress::F26Key          = NSF26FunctionKey;
+const int KeyPress::F27Key          = NSF27FunctionKey;
+const int KeyPress::F28Key          = NSF28FunctionKey;
+const int KeyPress::F29Key          = NSF29FunctionKey;
+const int KeyPress::F30Key          = NSF30FunctionKey;
+const int KeyPress::F31Key          = NSF31FunctionKey;
+const int KeyPress::F32Key          = NSF32FunctionKey;
+const int KeyPress::F33Key          = NSF33FunctionKey;
+const int KeyPress::F34Key          = NSF34FunctionKey;
+const int KeyPress::F35Key          = NSF35FunctionKey;
+
 const int KeyPress::numberPad0      = 0x30020;
 const int KeyPress::numberPad1      = 0x30021;
 const int KeyPress::numberPad2      = 0x30022;
@@ -2172,3 +2196,5 @@ const int KeyPress::playKey         = 0x30000;
 const int KeyPress::stopKey         = 0x30001;
 const int KeyPress::fastForwardKey  = 0x30002;
 const int KeyPress::rewindKey       = 0x30003;
+
+} // namespace juce

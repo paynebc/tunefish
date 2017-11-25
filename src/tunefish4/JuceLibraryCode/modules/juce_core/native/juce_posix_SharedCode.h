@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 CriticalSection::CriticalSection() noexcept
 {
     pthread_mutexattr_t atts;
@@ -184,8 +187,14 @@ static MaxNumFileHandlesInitialiser maxNumFileHandlesInitialiser;
 #endif
 
 //==============================================================================
-const juce_wchar File::separator = '/';
-const String File::separatorString ("/");
+#ifndef JUCE_GCC
+ const juce_wchar File::separator = '/';
+ const StringRef File::separatorString ("/");
+#endif
+
+juce_wchar File::getSeparatorChar()    { return '/'; }
+StringRef File::getSeparatorString()   { return "/"; }
+
 
 //==============================================================================
 File File::getCurrentWorkingDirectory()
@@ -348,7 +357,7 @@ bool File::hasWriteAccess() const
         return (hasEffectiveRootFilePermissions()
              || access (fullPath.toUTF8(), W_OK) == 0);
 
-    if ((! isDirectory()) && fullPath.containsChar (separator))
+    if ((! isDirectory()) && fullPath.containsChar (getSeparatorChar()))
         return getParentDirectory().hasWriteAccess();
 
     return false;
@@ -357,6 +366,7 @@ bool File::hasWriteAccess() const
 static bool setFileModeFlags (const String& fullPath, mode_t flags, bool shouldSet) noexcept
 {
     juce_statStruct info;
+
     if (! juce_stat (fullPath, info))
         return false;
 
@@ -393,7 +403,11 @@ void File::getFileTimesInternal (int64& modificationTime, int64& accessTime, int
     {
         modificationTime  = (int64) info.st_mtime * 1000;
         accessTime        = (int64) info.st_atime * 1000;
+       #if (JUCE_MAC && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_5) || JUCE_IOS
+        creationTime      = (int64) info.st_birthtime * 1000;
+       #else
         creationTime      = (int64) info.st_ctime * 1000;
+       #endif
     }
 }
 
@@ -554,23 +568,13 @@ ssize_t FileOutputStream::writeInternal (const void* const data, const size_t nu
     return result;
 }
 
+#ifndef JUCE_ANDROID
 void FileOutputStream::flushInternal()
 {
-    if (fileHandle != 0)
-    {
-        if (fsync (getFD (fileHandle)) == -1)
-            status = getResultForErrno();
-
-       #if JUCE_ANDROID
-        // This stuff tells the OS to asynchronously update the metadata
-        // that the OS has cached aboud the file - this metadata is used
-        // when the device is acting as a USB drive, and unless it's explicitly
-        // refreshed, it'll get out of step with the real file.
-        const LocalRef<jstring> t (javaString (file.getFullPathName()));
-        android.activity.callVoidMethod (JuceAppActivity.scanFile, t.get());
-       #endif
-    }
+    if (fileHandle != 0 && fsync (getFD (fileHandle)) == -1)
+        status = getResultForErrno();
 }
+#endif
 
 Result FileOutputStream::truncate()
 {
@@ -1127,7 +1131,7 @@ public:
         // Looks like you're trying to launch a non-existent exe or a folder (perhaps on OSX
         // you're trying to launch the .app folder rather than the actual binary inside it?)
         jassert (File::getCurrentWorkingDirectory().getChildFile (exe).existsAsFile()
-                  || ! exe.containsChar (File::separator));
+                  || ! exe.containsChar (File::getSeparatorChar()));
 
         int pipeHandles[2] = { 0 };
 
@@ -1503,3 +1507,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE (Pimpl)
 };
+
+} // namespace juce

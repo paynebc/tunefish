@@ -24,8 +24,6 @@
   ==============================================================================
 */
 
-#pragma once
-
 // Wow, those Steinberg guys really don't worry too much about compiler warnings.
 #if _MSC_VER
  #pragma warning (disable: 4505)
@@ -48,6 +46,9 @@
  #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
  #pragma clang diagnostic ignored "-Wextra-semi"
+ #if __has_warning("-Wcomma")
+  #pragma clang diagnostic ignored "-Wcomma"
+ #endif
 #endif
 
 #undef DEVELOPMENT
@@ -68,6 +69,7 @@
  #include <pluginterfaces/base/ipluginbase.h>
  #include <pluginterfaces/base/ustring.h>
  #include <pluginterfaces/gui/iplugview.h>
+ #include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
  #include <pluginterfaces/vst/ivstattributes.h>
  #include <pluginterfaces/vst/ivstaudioprocessor.h>
  #include <pluginterfaces/vst/ivstcomponent.h>
@@ -83,6 +85,7 @@
  #include <pluginterfaces/vst/vsttypes.h>
  #include <pluginterfaces/vst/ivstunits.h>
  #include <pluginterfaces/vst/ivstmidicontrollers.h>
+ #include <pluginterfaces/vst/ivstchannelcontextinfo.h>
  #include <public.sdk/source/common/memorystream.h>
  #include <public.sdk/source/vst/vsteditcontroller.h>
 #else
@@ -101,6 +104,7 @@
  #include <pluginterfaces/gui/iplugview.h>
  #include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
  #include <pluginterfaces/vst/ivstmidicontrollers.h>
+ #include <pluginterfaces/vst/ivstchannelcontextinfo.h>
  #include <public.sdk/source/common/memorystream.cpp>
  #include <public.sdk/source/common/pluginview.cpp>
  #include <public.sdk/source/vst/vsteditcontroller.cpp>

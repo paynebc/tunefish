@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,7 +32,7 @@
 
     @see DatagramSocket, InterprocessConnection, InterprocessConnectionServer
 */
-class JUCE_API  StreamingSocket
+class JUCE_API  StreamingSocket  final
 {
 public:
     //==============================================================================
@@ -74,7 +74,8 @@ public:
 
         This is useful if you need to know to which port the OS has actually bound your
         socket when calling the constructor or bindToPort with zero as the
-        localPortNumber argument. Returns -1 if the function fails. */
+        localPortNumber argument. Returns -1 if the function fails.
+    */
     int getBoundPort() const noexcept;
 
     /** Tries to connect the socket to hostname:port.
@@ -174,8 +175,8 @@ public:
 private:
     //==============================================================================
     String hostName;
-    int volatile portNumber, handle;
-    bool connected, isListener;
+    int volatile portNumber = 0, handle = -1;
+    bool connected = false, isListener = false;
     mutable CriticalSection readLock;
 
     StreamingSocket (const String& hostname, int portNumber, int handle);
@@ -193,7 +194,7 @@ private:
 
     @see StreamingSocket, InterprocessConnection, InterprocessConnectionServer
 */
-class JUCE_API  DatagramSocket
+class JUCE_API  DatagramSocket  final
 {
 public:
     //==============================================================================
@@ -339,12 +340,14 @@ public:
 
 private:
     //==============================================================================
-    int handle;
-    bool isBound;
+    int handle = -1;
+    bool isBound = false;
     String lastBindAddress, lastServerHost;
-    int lastServerPort;
-    void* lastServerAddress;
+    int lastServerPort = -1;
+    void* lastServerAddress = nullptr;
     mutable CriticalSection readLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DatagramSocket)
 };
+
+} // namespace juce

@@ -20,25 +20,22 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 struct InterprocessConnection::ConnectionThread  : public Thread
 {
     ConnectionThread (InterprocessConnection& c)  : Thread ("JUCE IPC"), owner (c) {}
-
     void run() override     { owner.runThread(); }
 
-private:
     InterprocessConnection& owner;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConnectionThread)
 };
 
 //==============================================================================
-InterprocessConnection::InterprocessConnection (const bool callbacksOnMessageThread,
-                                                const uint32 magicMessageHeaderNumber)
-    : callbackConnectionState (false),
-      useMessageThread (callbacksOnMessageThread),
-      magicMessageHeader (magicMessageHeaderNumber),
-      pipeReceiveMessageTimeout (-1)
+InterprocessConnection::InterprocessConnection (bool callbacksOnMessageThread, uint32 magicMessageHeaderNumber)
+    : useMessageThread (callbacksOnMessageThread),
+      magicMessageHeader (magicMessageHeaderNumber)
 {
     thread = new ConnectionThread (*this);
 }
@@ -204,7 +201,7 @@ struct ConnectionStateMessage  : public MessageManager::MessageBase
 
     void messageCallback() override
     {
-        if (InterprocessConnection* const ipc = owner)
+        if (auto* ipc = owner.get())
         {
             if (connectionMade)
                 ipc->connectionMade();
@@ -253,7 +250,7 @@ struct DataDeliveryMessage  : public Message
 
     void messageCallback() override
     {
-        if (InterprocessConnection* const ipc = owner)
+        if (auto* ipc = owner.get())
             ipc->messageReceived (data);
     }
 
@@ -328,7 +325,7 @@ void InterprocessConnection::runThread()
     {
         if (socket != nullptr)
         {
-            const int ready = socket->waitUntilReady (true, 0);
+            auto ready = socket->waitUntilReady (true, 0);
 
             if (ready < 0)
             {
@@ -361,3 +358,5 @@ void InterprocessConnection::runThread()
             break;
     }
 }
+
+} // namespace juce

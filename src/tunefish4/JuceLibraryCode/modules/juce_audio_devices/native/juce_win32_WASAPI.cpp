@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #ifndef JUCE_WASAPI_LOGGING
  #define JUCE_WASAPI_LOGGING 0
 #endif
@@ -125,7 +128,12 @@ enum EDataFlow
 
 enum
 {
-    DEVICE_STATE_ACTIVE = 1,
+    DEVICE_STATE_ACTIVE = 1
+};
+
+enum
+{
+    AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY = 1,
     AUDCLNT_BUFFERFLAGS_SILENT = 2
 };
 
@@ -357,7 +365,8 @@ public:
           actualBufferSize (0),
           bytesPerSample (0),
           bytesPerFrame (0),
-          sampleRateHasChanged (false)
+          sampleRateHasChanged (false),
+          shouldClose (false)
     {
         clientEvent = CreateEvent (nullptr, false, false, nullptr);
 
@@ -433,6 +442,7 @@ public:
              && tryInitialisingWithBufferSize (bufferSizeSamples))
         {
             sampleRateHasChanged = false;
+            shouldClose = false;
 
             channelMaps.clear();
             for (int i = 0; i <= channels.getHighestBit(); ++i)
@@ -468,6 +478,11 @@ public:
         sampleRateHasChanged = true;
     }
 
+    void deviceBecameInactive()
+    {
+        shouldClose = true;
+    }
+
     //==============================================================================
     ComSmartPtr<IMMDevice> device;
     ComSmartPtr<IAudioClient> client;
@@ -482,7 +497,7 @@ public:
     Array<int> channelMaps;
     UINT32 actualBufferSize;
     int bytesPerSample, bytesPerFrame;
-    bool sampleRateHasChanged;
+    bool sampleRateHasChanged, shouldClose;
 
     virtual void updateFormat (bool isFloat) = 0;
 
@@ -498,10 +513,17 @@ private:
         JUCE_COMRESULT OnSimpleVolumeChanged (float, BOOL, LPCGUID)            { return S_OK; }
         JUCE_COMRESULT OnChannelVolumeChanged (DWORD, float*, DWORD, LPCGUID)  { return S_OK; }
         JUCE_COMRESULT OnGroupingParamChanged (LPCGUID, LPCGUID)               { return S_OK; }
-        JUCE_COMRESULT OnStateChanged (AudioSessionState)                      { return S_OK; }
+        JUCE_COMRESULT OnStateChanged(AudioSessionState state)
+        {
+            if (state == AudioSessionStateInactive || state == AudioSessionStateExpired)
+                owner.deviceBecameInactive();
+
+            return S_OK;
+        }
 
         JUCE_COMRESULT OnSessionDisconnected (AudioSessionDisconnectReason reason)
         {
+            Logger::writeToLog("OnSessionDisconnected");
             if (reason == DisconnectReasonFormatChanged)
                 owner.deviceSampleRateChanged();
 
@@ -726,6 +748,7 @@ public:
         reservoirMask = nextPowerOfTwo (reservoirSize) - 1;
         reservoir.setSize ((reservoirMask + 1) * bytesPerFrame, true);
         reservoirReadPos = reservoirWritePos = 0;
+        xruns = 0;
 
         if (! check (client->Start()))
             return false;
@@ -758,6 +781,9 @@ public:
 
         while (check (captureClient->GetBuffer (&inputData, &numSamplesAvailable, &flags, nullptr, nullptr)) && numSamplesAvailable > 0)
         {
+            if ((flags & AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY) != 0)
+                xruns++;
+
             int samplesLeft = (int) numSamplesAvailable;
 
             while (samplesLeft > 0)
@@ -822,7 +848,7 @@ public:
 
     ComSmartPtr<IAudioCaptureClient> captureClient;
     MemoryBlock reservoir;
-    int reservoirSize, reservoirMask;
+    int reservoirSize, reservoirMask, xruns;
     volatile int reservoirReadPos, reservoirWritePos;
 
     ScopedPointer<AudioData::Converter> converter;
@@ -862,7 +888,7 @@ public:
     void updateFormatWithType (DestType*)
     {
         typedef AudioData::Pointer<AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::Const> NativeType;
-        converter = new AudioData::ConverterInstance<NativeType, AudioData::Pointer<DestType, AudioData::LittleEndian, AudioData::Interleaved, AudioData::NonConst> > (1, actualNumChannels);
+        converter = new AudioData::ConverterInstance<NativeType, AudioData::Pointer<DestType, AudioData::LittleEndian, AudioData::Interleaved, AudioData::NonConst>> (1, actualNumChannels);
     }
 
     void updateFormat (bool isFloat) override
@@ -969,7 +995,8 @@ public:
           isStarted (false),
           currentBufferSizeSamples (0),
           currentSampleRate (0),
-          callback (nullptr)
+          callback (nullptr),
+          deviceBecameInactive (false)
     {
     }
 
@@ -1058,7 +1085,7 @@ public:
     BigInteger getActiveOutputChannels() const override     { return outputDevice != nullptr ? outputDevice->channels : BigInteger(); }
     BigInteger getActiveInputChannels() const override      { return inputDevice  != nullptr ? inputDevice->channels  : BigInteger(); }
     String getLastError() override                          { return lastError; }
-
+    int getXRunCount () const noexcept override             { return inputDevice != nullptr ? inputDevice->xruns : -1; }
 
     String open (const BigInteger& inputChannels, const BigInteger& outputChannels,
                  double sampleRate, int bufferSizeSamples) override
@@ -1106,6 +1133,8 @@ public:
 
         if (inputDevice != nullptr)   ResetEvent (inputDevice->clientEvent);
         if (outputDevice != nullptr)  ResetEvent (outputDevice->clientEvent);
+
+        deviceBecameInactive = false;
 
         startThread (8);
         Thread::sleep (5);
@@ -1226,8 +1255,14 @@ public:
 
         while (! threadShouldExit())
         {
-            if (inputDevice != nullptr)
+            if (outputDevice != nullptr && outputDevice->shouldClose)
+                deviceBecameInactive = true;
+
+            if (inputDevice != nullptr && ! deviceBecameInactive)
             {
+                if (inputDevice->shouldClose)
+                    deviceBecameInactive = true;
+
                 if (outputDevice == nullptr)
                 {
                     if (WaitForSingleObject (inputDevice->clientEvent, 1000) == WAIT_TIMEOUT)
@@ -1253,6 +1288,7 @@ public:
                 }
             }
 
+            if (! deviceBecameInactive)
             {
                 const ScopedTryLock sl (startStopLock);
 
@@ -1263,7 +1299,7 @@ public:
                     outs.clear();
             }
 
-            if (outputDevice != nullptr)
+            if (outputDevice != nullptr && !deviceBecameInactive)
             {
                 // Note that this function is handed the input device so it can check for the event and make sure
                 // the input reservoir is filled up correctly even when bufferSize > device actualBufferSize
@@ -1276,7 +1312,7 @@ public:
                 }
             }
 
-            if (sampleRateHasChanged)
+            if (sampleRateHasChanged || deviceBecameInactive)
             {
                 triggerAsyncUpdate();
                 break; // Quit the thread... will restart it later!
@@ -1303,7 +1339,7 @@ private:
     bool isOpen_, isStarted;
     int currentBufferSizeSamples;
     double currentSampleRate;
-    bool sampleRateChangedByOutput;
+    bool sampleRateChangedByOutput, deviceBecameInactive;
 
     AudioIODeviceCallback* callback;
     CriticalSection startStopLock;
@@ -1354,12 +1390,17 @@ private:
 
         outputDevice = nullptr;
         inputDevice = nullptr;
-        initialise();
 
-        open (lastKnownInputChannels, lastKnownOutputChannels,
-              getChangedSampleRate(), currentBufferSizeSamples);
+        // sample rate change
+        if (! deviceBecameInactive)
+        {
+            initialise();
 
-        start (callback);
+            open (lastKnownInputChannels, lastKnownOutputChannels,
+                  getChangedSampleRate(), currentBufferSizeSamples);
+
+            start (callback);
+        }
     }
 
     double getChangedSampleRate() const
@@ -1481,7 +1522,7 @@ private:
 
         HRESULT STDMETHODCALLTYPE OnDeviceAdded (LPCWSTR)                             { return notify(); }
         HRESULT STDMETHODCALLTYPE OnDeviceRemoved (LPCWSTR)                           { return notify(); }
-        HRESULT STDMETHODCALLTYPE OnDeviceStateChanged (LPCWSTR, DWORD)               { return notify(); }
+        HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR, DWORD)                { return notify(); }
         HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged (EDataFlow, ERole, LPCWSTR)  { return notify(); }
         HRESULT STDMETHODCALLTYPE OnPropertyValueChanged (LPCWSTR, const PROPERTYKEY) { return notify(); }
 
@@ -1687,3 +1728,5 @@ float JUCE_CALLTYPE SystemAudioVolume::getGain()              { return WasapiCla
 bool  JUCE_CALLTYPE SystemAudioVolume::setGain (float gain)   { return WasapiClasses::MMDeviceMasterVolume().setGain (gain); }
 bool  JUCE_CALLTYPE SystemAudioVolume::isMuted()              { return WasapiClasses::MMDeviceMasterVolume().isMuted(); }
 bool  JUCE_CALLTYPE SystemAudioVolume::setMuted (bool mute)   { return WasapiClasses::MMDeviceMasterVolume().setMuted (mute); }
+
+} // namespace juce

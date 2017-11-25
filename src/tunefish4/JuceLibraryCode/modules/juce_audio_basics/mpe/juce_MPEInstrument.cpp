@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 namespace
 {
     const uint8 noLSBValueReceived = 0xff;
@@ -2137,8 +2140,8 @@ private:
 
     void expectDoubleWithinRelativeError (double actual, double expected, double maxRelativeError)
     {
-        const double maxAbsoluteError = jmax (1.0, std::fabs (expected)) * maxRelativeError;
-        expect (std::fabs (expected - actual) < maxAbsoluteError);
+        const double maxAbsoluteError = jmax (1.0, std::abs (expected)) * maxRelativeError;
+        expect (std::abs (expected - actual) < maxAbsoluteError);
     }
 
     //==============================================================================
@@ -2148,3 +2151,5 @@ private:
 static MPEInstrumentTests MPEInstrumentUnitTests;
 
 #endif // JUCE_UNIT_TESTS
+
+} // namespace juce

@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 struct FlexBoxLayoutCalculation
 {
     using Coord = double;
@@ -34,8 +37,8 @@ struct FlexBoxLayoutCalculation
                           || fb.flexDirection == FlexBox::Direction::rowReverse),
          containerLineLength (isRowDirection ? parentWidth : parentHeight)
     {
-        lineItems.calloc ((size_t) (numItems * numItems));
-        lineInfo.calloc ((size_t) numItems);
+        lineItems.calloc (numItems * numItems);
+        lineInfo.calloc (numItems);
     }
 
     struct ItemWithState
@@ -761,7 +764,8 @@ FlexBox::FlexBox (JustifyContent jc) noexcept  : justifyContent (jc) {}
 
 FlexBox::FlexBox (Direction d, Wrap w, AlignContent ac, AlignItems ai, JustifyContent jc) noexcept
     : flexDirection (d), flexWrap (w), alignContent (ac), alignItems (ai), justifyContent (jc)
-{}
+{
+}
 
 void FlexBox::performLayout (Rectangle<float> targetArea)
 {
@@ -786,16 +790,13 @@ void FlexBox::performLayout (Rectangle<float> targetArea)
         {
             item.currentBounds += targetArea.getPosition();
 
-            if (auto comp = item.associatedComponent)
-            {
-                auto position = item.currentBounds.getPosition().roundToInt();
-                comp->setBounds (position.getX(),
-                                 position.getY(),
-                                 roundToInt (item.currentBounds.getRight())  - position.getX(),
-                                 roundToInt (item.currentBounds.getBottom()) - position.getY());
-            }
+            if (auto* comp = item.associatedComponent)
+                comp->setBounds (Rectangle<int>::leftTopRightBottom ((int) item.currentBounds.getX(),
+                                                                     (int) item.currentBounds.getY(),
+                                                                     (int) item.currentBounds.getRight(),
+                                                                     (int) item.currentBounds.getBottom()));
 
-            if (auto box = item.associatedFlexBox)
+            if (auto* box = item.associatedFlexBox)
                 box->performLayout (item.currentBounds);
         }
     }
@@ -844,10 +845,12 @@ FlexItem FlexItem::withWidth (float newWidth) const noexcept         { auto fi =
 FlexItem FlexItem::withMinWidth (float newMinWidth) const noexcept   { auto fi = *this; fi.minWidth = newMinWidth; return fi; }
 FlexItem FlexItem::withMaxWidth (float newMaxWidth) const noexcept   { auto fi = *this; fi.maxWidth = newMaxWidth; return fi; }
 
-FlexItem FlexItem::withMinHeight (float newMinHeight) const noexcept { auto fi = *this; fi.minHeight = newMinHeight; return fi; };
-FlexItem FlexItem::withMaxHeight (float newMaxHeight) const noexcept { auto fi = *this; fi.maxHeight = newMaxHeight; return fi; };
+FlexItem FlexItem::withMinHeight (float newMinHeight) const noexcept { auto fi = *this; fi.minHeight = newMinHeight; return fi; }
+FlexItem FlexItem::withMaxHeight (float newMaxHeight) const noexcept { auto fi = *this; fi.maxHeight = newMaxHeight; return fi; }
 FlexItem FlexItem::withHeight (float newHeight) const noexcept       { auto fi = *this; fi.height = newHeight; return fi; }
 
 FlexItem FlexItem::withMargin (Margin m) const noexcept              { auto fi = *this; fi.margin = m; return fi; }
 FlexItem FlexItem::withOrder (int newOrder) const noexcept           { auto fi = *this; fi.order = newOrder; return fi; }
 FlexItem FlexItem::withAlignSelf (AlignSelf a) const noexcept        { auto fi = *this; fi.alignSelf = a; return fi; }
+
+} // namespace juce

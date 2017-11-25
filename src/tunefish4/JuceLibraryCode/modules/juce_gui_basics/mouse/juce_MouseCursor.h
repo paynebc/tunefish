@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -34,7 +34,7 @@
     This object can either be used to represent one of the standard mouse
     cursor shapes, or a custom one generated from an image.
 */
-class JUCE_API  MouseCursor
+class JUCE_API  MouseCursor  final
 {
 public:
     //==============================================================================
@@ -178,3 +178,5 @@ private:
 
     JUCE_LEAK_DETECTOR (MouseCursor)
 };
+
+} // namespace juce

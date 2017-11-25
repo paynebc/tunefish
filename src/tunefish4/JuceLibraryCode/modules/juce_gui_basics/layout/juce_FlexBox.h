@@ -24,6 +24,8 @@
   ==============================================================================
 */
 
+namespace juce
+{
 
 /**
     Represents a FlexBox container, which contains and manages the layout of a set
@@ -35,7 +37,7 @@
 
     @see FlexItem
 */
-class JUCE_API  FlexBox
+class JUCE_API  FlexBox  final
 {
 public:
     /** Possible values for the flexDirection property. */
@@ -102,3 +104,5 @@ public:
 private:
     JUCE_LEAK_DETECTOR (FlexBox)
 };
+
+} // namespace juce

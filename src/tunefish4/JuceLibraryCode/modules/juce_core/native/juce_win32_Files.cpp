@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #ifndef INVALID_FILE_ATTRIBUTES
  #define INVALID_FILE_ATTRIBUTES ((DWORD) -1)
 #endif
@@ -125,8 +128,13 @@ namespace WindowsFileHelpers
 }
 
 //==============================================================================
-const juce_wchar File::separator = '\\';
-const String File::separatorString ("\\");
+#ifndef JUCE_GCC
+ const juce_wchar File::separator = '\\';
+ const StringRef File::separatorString ("\\");
+#endif
+
+juce_wchar File::getSeparatorChar()    { return '\\'; }
+StringRef File::getSeparatorString()   { return "\\"; }
 
 void* getUser32Function (const char*);
 
@@ -682,7 +690,7 @@ File File::getLinkedTarget() const
                     CloseHandle (h);
 
                     const StringRef prefix ("\\\\?\\");
-                    const String path (buffer);
+                    const String path (buffer.get());
 
                     // It turns out that GetFinalPathNameByHandleW prepends \\?\ to the path.
                     // This is not a bug, it's feature. See MSDN for more information.
@@ -1071,3 +1079,5 @@ int NamedPipe::write (const void* sourceBuffer, int numBytesToWrite, int timeOut
     ScopedReadLock sl (lock);
     return pimpl != nullptr ? pimpl->write (sourceBuffer, numBytesToWrite, timeOutMilliseconds) : -1;
 }
+
+} // namespace juce

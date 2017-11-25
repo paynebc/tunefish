@@ -44,7 +44,10 @@
 
  #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 406
   #define JUCE_STDLIB_HAS_STD_FUNCTION_SUPPORT 1
-  #define JUCE_COMPILER_SUPPORTS_THREAD_LOCAL 1
+ #endif
+
+ #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 500
+  #define JUCE_HAS_CONSTEXPR 1
  #endif
 
  #ifndef JUCE_EXCEPTIONS_DISABLED
@@ -68,10 +71,6 @@
 
  #if (defined (_LIBCPP_VERSION) || ! (JUCE_MAC || JUCE_IOS))
   #define JUCE_STDLIB_HAS_STD_FUNCTION_SUPPORT 1
-
-  #if ! JUCE_PROJUCER_LIVE_BUILD
-   #define JUCE_COMPILER_SUPPORTS_THREAD_LOCAL 1
-  #endif
  #endif
 
  #if __has_feature (cxx_generalized_initializers) && (defined (_LIBCPP_VERSION) || ! (JUCE_MAC || JUCE_IOS))
@@ -84,6 +83,10 @@
 
  #if __has_feature (cxx_override_control) && (! defined (JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL))
   #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
+ #endif
+
+ #if __has_feature(cxx_relaxed_constexpr)
+  #define JUCE_HAS_CONSTEXPR 1
  #endif
 
  #ifndef JUCE_COMPILER_SUPPORTS_ARC
@@ -111,11 +114,14 @@
   #define JUCE_COMPILER_SUPPORTS_VARIADIC_TEMPLATES 1
   #define JUCE_DELETED_FUNCTION = delete
   #define JUCE_STDLIB_HAS_STD_FUNCTION_SUPPORT 1
-  #define JUCE_COMPILER_SUPPORTS_THREAD_LOCAL 1
  #endif
 
  #if _MSC_VER >= 1900
   #define JUCE_COMPILER_SUPPORTS_NOEXCEPT 1
+ #endif
+
+ #if _MSC_VER >= 1910
+  #define JUCE_HAS_CONSTEXPR 1
  #endif
 
  #ifndef JUCE_EXCEPTIONS_DISABLED
@@ -135,6 +141,12 @@
      older ones it's just an empty definition.
  */
  #define JUCE_DELETED_FUNCTION
+#endif
+
+#if JUCE_HAS_CONSTEXPR
+ #define JUCE_CONSTEXPR constexpr
+#else
+ #define JUCE_CONSTEXPR
 #endif
 
 #if ! DOXYGEN

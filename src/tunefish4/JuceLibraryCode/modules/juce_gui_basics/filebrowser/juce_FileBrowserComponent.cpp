@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 FileBrowserComponent::FileBrowserComponent (int flags_,
                                             const File& initialFileOrDirectory,
                                             const FileFilter* fileFilter_,
@@ -219,7 +222,7 @@ void FileBrowserComponent::setRoot (const File& newRootDirectory)
         String path (newRootDirectory.getFullPathName());
 
         if (path.isEmpty())
-            path = File::separatorString;
+            path = File::getSeparatorString();
 
         StringArray rootNames, rootPaths;
         getRoots (rootNames, rootPaths);
@@ -245,12 +248,13 @@ void FileBrowserComponent::setRoot (const File& newRootDirectory)
     currentRoot = newRootDirectory;
     fileList->setDirectory (currentRoot, true, true);
 
-    if (FileTreeComponent* tree = dynamic_cast<FileTreeComponent*> (fileListComponent.get()))
+    if (auto* tree = dynamic_cast<FileTreeComponent*> (fileListComponent.get()))
         tree->refresh();
 
-    String currentRootName (currentRoot.getFullPathName());
+    auto currentRootName = currentRoot.getFullPathName();
+
     if (currentRootName.isEmpty())
-        currentRootName = File::separatorString;
+        currentRootName = File::getSeparatorString();
 
     currentPathBox.setText (currentRootName, dontSendNotification);
 
@@ -428,9 +432,9 @@ void FileBrowserComponent::textEditorTextChanged (TextEditor&)
 
 void FileBrowserComponent::textEditorReturnKeyPressed (TextEditor&)
 {
-    if (filenameBox.getText().containsChar (File::separator))
+    if (filenameBox.getText().containsChar (File::getSeparatorChar()))
     {
-        const File f (currentRoot.getChildFile (filenameBox.getText()));
+        auto f = currentRoot.getChildFile (filenameBox.getText());
 
         if (f.isDirectory())
         {
@@ -606,3 +610,5 @@ void FileBrowserComponent::timerCallback()
             refresh();
     }
 }
+
+} // namespace juce

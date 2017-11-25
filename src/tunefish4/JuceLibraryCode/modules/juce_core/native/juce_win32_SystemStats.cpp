@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if ! JUCE_MINGW
  #pragma intrinsic (__cpuid)
  #pragma intrinsic (__rdtsc)
@@ -104,6 +107,13 @@ String SystemStats::getCpuModel()
 
 static int findNumberOfPhysicalCores() noexcept
 {
+   #if JUCE_MINGW
+    // Not implemented in MinGW
+    jassertfalse;
+
+    return 1;
+   #else
+
     int numPhysicalCores = 0;
     DWORD bufferSize = 0;
     GetLogicalProcessorInformation (nullptr, &bufferSize);
@@ -119,6 +129,7 @@ static int findNumberOfPhysicalCores() noexcept
     }
 
     return numPhysicalCores;
+   #endif // JUCE_MINGW
 }
 
 //==============================================================================
@@ -227,7 +238,19 @@ String SystemStats::getOperatingSystemName()
 
 String SystemStats::getDeviceDescription()
 {
-    return {};
+   #if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+    return "Windows (Desktop)";
+   #elif WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
+    return "Windows (Store)";
+   #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
+    return "Windows (Phone)";
+   #elif WINAPI_FAMILY == WINAPI_FAMILY_SYSTEM
+    return "Windows (System)";
+   #elif WINAPI_FAMILY == WINAPI_FAMILY_SERVER
+    return "Windows (Server)";
+   #else
+    return "Windows";
+   #endif
 }
 
 bool SystemStats::isOperatingSystem64Bit()
@@ -467,3 +490,5 @@ String SystemStats::getDisplayLanguage()
 
     return mainLang;
 }
+
+} // namespace juce

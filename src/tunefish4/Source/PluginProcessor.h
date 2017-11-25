@@ -27,6 +27,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "runtime/system.hpp"
 #include "tfsynthprogram.hpp"
+#include "tflookandfeel.h"
 #include "synth/tf4.hpp"
 
 const eU32 TF_PLUG_NUM_PROGRAMS = 1000;
@@ -35,7 +36,7 @@ const eU32 TF_PLUG_NUM_PROGRAMS = 1000;
 //==============================================================================
 /**
  */
-class Tunefish4AudioProcessor  : public AudioProcessor
+class Tunefish4AudioProcessor  : public AudioProcessor, public LevelMeterSource
 {
 public:
     //==============================================================================
@@ -102,6 +103,9 @@ public:
 
     bool                    writeFactoryPatchHeader(File headerFile) const;
 
+    void                    setMetering (bool on);
+    float                   getMeterLevel (int channel, int meter = 0) override;
+    
 public:
     MidiKeyboardState       keyboardState;
 
@@ -118,6 +122,9 @@ private:
     String                  pluginLocation;
     CriticalSection         csSynth;
     eS32                    recorderIndex;
+    
+    Atomic<float>           meterLevels[2];
+    Atomic<int>             metering;
 
     eF32 *                  adapterBuffer[2];
     eU32                    adapterWriteOffset;

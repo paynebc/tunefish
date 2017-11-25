@@ -26,7 +26,7 @@
 static File presetsDirectory()
 {
     String folder(JucePlugin_Manufacturer);
-    folder << File::separatorString << JucePlugin_Name;
+    folder << File::getSeparatorString() << JucePlugin_Name;
 
 #if JUCE_MAC
     // /home/<Username>/Library/Audio/Presets/<JucePlugin_Manufacturer>/<JucePlugin_Name>
@@ -51,6 +51,10 @@ Tunefish4AudioProcessor::Tunefish4AudioProcessor() :
     adapterWriteOffset(0),
     adapterDataAvailable(0)
 {
+    meterLevels[0] = 0;
+    meterLevels[1] = 0;
+    metering.set(0);
+    
     pluginLocation = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getFullPathName();
 
     adapterBuffer[0] = new eF32[TF_BUFFERSIZE];
@@ -210,6 +214,16 @@ CriticalSection & Tunefish4AudioProcessor::getSynthCriticalSection()
     return csSynth;
 }
 
+void Tunefish4AudioProcessor::setMetering (bool on)
+{
+    metering.set(on);
+}
+
+float Tunefish4AudioProcessor::getMeterLevel (int channel, int meter)
+{
+    return meterLevels[channel].get();
+}
+
 //==============================================================================
 void Tunefish4AudioProcessor::prepareToPlay (double sampleRate, int )
 {
@@ -279,6 +293,16 @@ void Tunefish4AudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffe
 
     processEvents(midiMessages, messageOffset, requestedLen);
     midiMessages.clear();
+    
+    // Master Volume & Pan, Metering
+    if (buffer.getNumChannels() == 2)
+    {
+        if (metering.get())
+        {
+            meterLevels[0].set (buffer.getMagnitude (0, 0, buffer.getNumSamples()));
+            meterLevels[1].set (buffer.getMagnitude (1, 0, buffer.getNumSamples()));
+        }
+    }
 }
 
 void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messageOffset, eU32 frameSize)

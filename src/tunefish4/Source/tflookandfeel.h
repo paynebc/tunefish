@@ -23,7 +23,6 @@
 #define TF_LOOKANDFEEL_H
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
 
 class Fonts
 {
@@ -58,5 +57,78 @@ public:
                            float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle,
                            Slider&) override;
 };
+
+/**************************************************************************************
+ *      LevelMeter
+ **************************************************************************************/
+
+#define MaxMeterChannels 2
+#define MaxMeterLEDs 16
+
+class LevelMeter;
+
+/** A simple interface that can supply one or more LevelMeters with current values */
+
+class LevelMeterSource
+{
+public:
+    LevelMeterSource () {};
+    virtual ~LevelMeterSource () {};
+    
+    /** Derived classes must provide linear scale float values.
+     Logarithmic scaling is applied at display time, if necessary.
+     */
+    virtual float getMeterLevel (int channel, int meter = 0) = 0;
+};
+
+
+/**
+ This is a simple level meter component that can take up to 2 channels
+ and be refreshed only if needed. The constructor takes an optional meter id,
+ which can be used to distinguish multiple meters fed by the same LevelMeterSource.
+ By default the meter uses a logarithmic scale mapping signals from 0-1.
+ */
+
+class LevelMeter : public Component
+{
+public:
+    LevelMeter (LevelMeterSource& source_,
+                int numChannels_,
+                int meterId_ = 0,
+                int numLEDs_ = MaxMeterLEDs,
+                bool linearDisplay = false,
+                bool peakBox = true);
+    
+    virtual ~LevelMeter();
+    
+    /** Update meter levels from source and trigger re-display only if necessary.
+     Must call this on the message thread */
+    void refreshDisplayIfNeeded ();
+    
+    void resized() override;
+    void paint (Graphics& g, int channel, int level);
+    void paint (Graphics& g) override;
+    
+private:
+    
+    int map (float level);
+    
+    LevelMeterSource& source;
+    bool linear;
+    bool peak;
+    int meterId;
+    int numChannels;
+    int numLEDs;
+    
+    Rectangle<int> gauges[MaxMeterChannels];
+    Colour colours[MaxMeterLEDs];
+    Colour background;
+    int ledHeight;
+    int ledWidth[MaxMeterLEDs];
+    int levels[MaxMeterChannels];
+    
+    JUCE_LEAK_DETECTOR (LevelMeter);
+};
+
 
 #endif

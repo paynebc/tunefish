@@ -26,8 +26,6 @@
 
 #if JUCE_PLUGINHOST_LADSPA && JUCE_LINUX
 
-} // (juce namespace)
-
 #include <ladspa.h>
 
 namespace juce
@@ -62,9 +60,9 @@ public:
 
     typedef ReferenceCountedObjectPtr<LADSPAModuleHandle> Ptr;
 
-    static Array <LADSPAModuleHandle*>& getActiveModules()
+    static Array<LADSPAModuleHandle*>& getActiveModules()
     {
-        static Array <LADSPAModuleHandle*> activeModules;
+        static Array<LADSPAModuleHandle*> activeModules;
         return activeModules;
     }
 
@@ -573,7 +571,7 @@ private:
 LADSPAPluginFormat::LADSPAPluginFormat() {}
 LADSPAPluginFormat::~LADSPAPluginFormat() {}
 
-void LADSPAPluginFormat::findAllTypesForFile (OwnedArray <PluginDescription>& results,
+void LADSPAPluginFormat::findAllTypesForFile (OwnedArray<PluginDescription>& results,
                                               const String& fileOrIdentifier)
 {
     if (! fileMightContainThisPluginType (fileOrIdentifier))
@@ -714,5 +712,7 @@ FileSearchPath LADSPAPluginFormat::getDefaultLocationsToSearch()
                                                                 "/usr/lib/ladspa;/usr/local/lib/ladspa;~/.ladspa")
                              .replace (":", ";"));
 }
+
+} // namespace juce
 
 #endif

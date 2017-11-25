@@ -24,6 +24,8 @@
   ==============================================================================
 */
 
+namespace juce
+{
 
 Colour LookAndFeel_V4::ColourScheme::getUIColour (UIColour index) const noexcept
 {
@@ -198,6 +200,8 @@ void LookAndFeel_V4::positionDocumentWindowButtons (DocumentWindow&,
                                                     Button* closeButton,
                                                     bool positionTitleBarButtonsOnLeft)
 {
+    titleBarH = jmin (titleBarH, titleBarH - titleBarY);
+
     const int buttonW = (int) (titleBarH * 1.2);
 
     int x = positionTitleBarButtonsOnLeft ? titleBarX
@@ -333,11 +337,9 @@ void LookAndFeel_V4::drawToggleButton (Graphics& g, ToggleButton& button,
     if (! button.isEnabled())
         g.setOpacity (0.5f);
 
-    const auto textX = roundToInt (tickWidth) + 10;
-
     g.drawFittedText (button.getButtonText(),
-                      textX, 0,
-                      button.getWidth() - textX - 2, button.getHeight(),
+                      button.getLocalBounds().withTrimmedLeft (roundToInt (tickWidth) + 10)
+                                             .withTrimmedRight (2),
                       Justification::centredLeft, 10);
 }
 
@@ -472,10 +474,12 @@ void LookAndFeel_V4::drawProgressBar (Graphics& g, ProgressBar& progressBar,
     if (width == height)
         drawCircularProgressBar (g, progressBar, textToShow);
     else
-        drawLinearProgressBar (g, progressBar, width, height, progress);
+        drawLinearProgressBar (g, progressBar, width, height, progress, textToShow);
 }
 
-void LookAndFeel_V4::drawLinearProgressBar (Graphics& g, ProgressBar& progressBar, int width, int height, double progress)
+void LookAndFeel_V4::drawLinearProgressBar (Graphics& g, ProgressBar& progressBar,
+                                            int width, int height,
+                                            double progress, const String& textToShow)
 {
     const auto background = progressBar.findColour (ProgressBar::backgroundColourId);
     const auto foreground = progressBar.findColour (ProgressBar::foregroundColourId);
@@ -521,6 +525,14 @@ void LookAndFeel_V4::drawLinearProgressBar (Graphics& g, ProgressBar& progressBa
 
         g.setTiledImageFill (im, 0, 0, 0.85f);
         g.fillPath (p);
+    }
+
+    if (textToShow.isNotEmpty())
+    {
+        g.setColour (Colour::contrasting (background, foreground));
+        g.setFont (height * 0.6f);
+
+        g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
     }
 }
 
@@ -944,8 +956,8 @@ void LookAndFeel_V4::drawLinearSlider (Graphics& g, int x, int y, int width, int
 
         const auto trackWidth = jmin (6.0f, slider.isHorizontal() ? height * 0.25f : width * 0.25f);
 
-        const Point<float> startPoint (slider.isHorizontal() ? x : width * 0.5f,
-                                       slider.isHorizontal() ? height * 0.5f : height + y);
+        const Point<float> startPoint (slider.isHorizontal() ? x : x + width * 0.5f,
+                                       slider.isHorizontal() ? y + height * 0.5f : height + y);
 
         const Point<float> endPoint (slider.isHorizontal() ? width + x : startPoint.x,
                                      slider.isHorizontal() ? startPoint.y : y);
@@ -1295,7 +1307,7 @@ void LookAndFeel_V4::initialiseColours()
 
         TextEditor::backgroundColourId,             currentColourScheme.getUIColour (ColourScheme::UIColour::widgetBackground).getARGB(),
         TextEditor::textColourId,                   currentColourScheme.getUIColour (ColourScheme::UIColour::defaultText).getARGB(),
-        TextEditor::highlightColourId,              currentColourScheme.getUIColour (ColourScheme::UIColour::highlightedFill).getARGB(),
+        TextEditor::highlightColourId,              currentColourScheme.getUIColour (ColourScheme::UIColour::defaultFill).withAlpha (0.4f).getARGB(),
         TextEditor::highlightedTextColourId,        currentColourScheme.getUIColour (ColourScheme::UIColour::highlightedText).getARGB(),
         TextEditor::outlineColourId,                currentColourScheme.getUIColour (ColourScheme::UIColour::outline).getARGB(),
         TextEditor::focusedOutlineColourId,         currentColourScheme.getUIColour (ColourScheme::UIColour::outline).getARGB(),
@@ -1352,7 +1364,7 @@ void LookAndFeel_V4::initialiseColours()
         Slider::rotarySliderOutlineColourId,        currentColourScheme.getUIColour (ColourScheme::UIColour::widgetBackground).getARGB(),
         Slider::textBoxTextColourId,                currentColourScheme.getUIColour (ColourScheme::UIColour::defaultText).getARGB(),
         Slider::textBoxBackgroundColourId,          currentColourScheme.getUIColour (ColourScheme::UIColour::widgetBackground).withAlpha (0.0f).getARGB(),
-        Slider::textBoxHighlightColourId,           currentColourScheme.getUIColour (ColourScheme::UIColour::highlightedFill).getARGB(),
+        Slider::textBoxHighlightColourId,           currentColourScheme.getUIColour (ColourScheme::UIColour::defaultFill).withAlpha (0.4f).getARGB(),
         Slider::textBoxOutlineColourId,             currentColourScheme.getUIColour (ColourScheme::UIColour::outline).getARGB(),
 
         ResizableWindow::backgroundColourId,        currentColourScheme.getUIColour (ColourScheme::UIColour::windowBackground).getARGB(),
@@ -1412,7 +1424,7 @@ void LookAndFeel_V4::initialiseColours()
         0x1005008, /*MidiKeyboardComponent::shadowColourId*/                  0x4c000000,
 
         0x1004500, /*CodeEditorComponent::backgroundColourId*/                currentColourScheme.getUIColour (ColourScheme::UIColour::widgetBackground).getARGB(),
-        0x1004502, /*CodeEditorComponent::highlightColourId*/                 currentColourScheme.getUIColour (ColourScheme::UIColour::highlightedFill).getARGB(),
+        0x1004502, /*CodeEditorComponent::highlightColourId*/                 currentColourScheme.getUIColour (ColourScheme::UIColour::defaultFill).withAlpha (0.4f).getARGB(),
         0x1004503, /*CodeEditorComponent::defaultTextColourId*/               currentColourScheme.getUIColour (ColourScheme::UIColour::defaultText).getARGB(),
         0x1004504, /*CodeEditorComponent::lineNumberBackgroundId*/            currentColourScheme.getUIColour (ColourScheme::UIColour::highlightedFill).withAlpha (0.5f).getARGB(),
         0x1004505, /*CodeEditorComponent::lineNumberTextId*/                  currentColourScheme.getUIColour (ColourScheme::UIColour::defaultFill).getARGB(),
@@ -1431,3 +1443,5 @@ void LookAndFeel_V4::initialiseColours()
     for (int i = 0; i < numElementsInArray (coloursToUse); i += 2)
         setColour ((int) coloursToUse [i], Colour ((uint32) coloursToUse [i + 1]));
 }
+
+} // namespace juce
