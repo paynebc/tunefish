@@ -61,8 +61,9 @@ void eTfPlayerLoadSong(eTfPlayer &player, const eU8 *data, eU32 len, eF32 delay)
   {
     synth.instr[i] = new eTfInstrument;
     eTfInstrumentInit(*synth.instr[i]);
-    eventCounts[i] = stream.ReadU16();
-    song.events[i].resize(eventCounts[i] * sizeof(eTfEvent));
+	eU16 eventCount = stream.ReadU16();
+	eventCounts[i] = eventCount;
+    eArrayInit(reinterpret_cast<ePtrArray*>(&song.events[i]), sizeof(eTfEvent), eventCount);
   }
 
   //  read instruments
