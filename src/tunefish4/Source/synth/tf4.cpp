@@ -1141,6 +1141,8 @@ void eTfVoiceReset(eTfVoice &state)
 {
     state.noteIsOn = eFALSE;
     state.playing = eFALSE;
+	state.pitchBendSemitones = 0.0f;
+	state.pitchBendCents = 0.0f;
     eTfModMatrixReset(state.modMatrix);
     eTfGeneratorReset(state.generator);
     eTfNoiseReset(state.noiseGen);
