@@ -20,7 +20,11 @@ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tf4player.hpp"
+#ifdef eENIGMA
+#include "../system/datastream.hpp"
+#else
 #include "datastream.hpp"
+#endif
 
 void eTfPlayerInit(eTfPlayer &player)
 {

@@ -23,162 +23,163 @@ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMINMAX
 #include <windows.h>
 
+#ifdef eENIGMA
+#include "system.hpp"
+#else
+#include "../tunefish4/Source/runtime/system.hpp"
 #include "threading.hpp"
-
-eThread::eThread(eInt flags, eThreadFunc threadFunc) :
-m_prio((eThreadPriority)(flags&(~eTHCF_SUSPENDED))),
-m_threadFunc(threadFunc)
-{
-  const eU32 tf = (flags&eTHCF_SUSPENDED ? CREATE_SUSPENDED : 0);
-  m_handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)_threadTrunk, this, tf, (LPDWORD)&m_tid);
-  eASSERT(m_handle);
-
-#ifdef eEDITOR
-  m_ctx.thread = this;
-  m_ctx.tid = m_tid;
 #endif
 
-  setPriority(m_prio);
+eThread::eThread(eThreadFunc threadFunc) :
+    Handle(nullptr),
+    ThreadFunc(threadFunc)
+{
 }
 
 eThread::~eThread()
 {
-  join();
+    Join();
 }
 
-void eThread::sleep(eU32 ms)
+void eThread::Sleep(eU32 ms)
 {
-  Sleep(ms);
+    ::Sleep(ms);
 }
 
-void eThread::join()
+void eThread::Start(eInt flags)
 {
-  if (m_handle)
-  {
-    WaitForSingleObject((HANDLE)m_handle, INFINITE);
-    CloseHandle((HANDLE)m_handle);
-    m_handle = nullptr;
-  }
+    eASSERT(!Handle);
+    const eU32 tf = (flags&eTHCF_SUSPENDED ? CREATE_SUSPENDED : 0);
+    Handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadTrunk, this, tf, (LPDWORD)&Tid);
+    eASSERT(Handle);
+    SetPriority((eThreadPriority)(flags&(~eTHCF_SUSPENDED)));
+
+#ifdef eEDITOR
+    Ctx.Thread = this;
+    Ctx.Tid = Tid;
+#endif
 }
 
-void eThread::yield()
+void eThread::Join()
 {
-  sleep(1);
+    if (Handle)
+    {
+        WaitForSingleObject((HANDLE)Handle, INFINITE);
+        CloseHandle((HANDLE)Handle);
+        Handle = nullptr;
+    }
 }
 
-void eThread::resume()
+void eThread::Resume()
 {
-  ResumeThread(m_handle);
+    ResumeThread(Handle);
 }
 
-void eThread::suspend()
+void eThread::Suspend()
 {
-  SuspendThread(m_handle);
+    SuspendThread(Handle);
 }
 
-void eThread::terminate(eU32 exitCode)
+void eThread::Terminate(eU32 exitCode)
 {
-  TerminateThread(m_handle, exitCode);
+    TerminateThread(Handle, exitCode);
 }
 
-void eThread::setPriority(eThreadPriority prio)
+void eThread::SetPriority(eThreadPriority prio)
 {
-  int tp[] =
-  {
-    THREAD_PRIORITY_LOWEST,        // low
-    THREAD_PRIORITY_NORMAL,        // normal
-    THREAD_PRIORITY_TIME_CRITICAL, // high
-  };
+    const eInt tp[] =
+    {
+        THREAD_PRIORITY_LOWEST,        // low
+        THREAD_PRIORITY_NORMAL,        // normal
+        THREAD_PRIORITY_TIME_CRITICAL, // high
+    };
 
-  const eU32 index = (prio == eTHP_LOW ? 0 : (prio == eTHP_NORMAL ? 1 : 2));
-  SetThreadPriority(m_handle, tp[index]);
-  m_prio = prio;
-}
-
-eU32 eThread::getId() const
-{
-  return m_tid;
-}
-
-eThreadPriority eThread::getPriority() const
-{
-  return m_prio;
+    const eU32 index = (prio == eTHP_LOW ? 0 : (prio == eTHP_NORMAL ? 1 : 2));
+    SetThreadPriority(Handle, tp[index]);
+    Prio = prio;
 }
 
 #ifdef eEDITOR
-static eThreadCtx g_mainThreadCtx;
-static eTHREADLOCAL eThreadCtx *g_curThreadCtx = nullptr;
+static eThreadCtx MainThreadCtx;
+static eTHREADLOCAL eThreadCtx *CurThreadCtx = nullptr;
 
-eThreadCtx & eThread::getThisContext()
+eThreadCtx & eThread::GetThisContext()
 {
-  return (g_curThreadCtx ? *g_curThreadCtx : g_mainThreadCtx);
-}
-
-eThreadCtx & eThread::getContext()
-{
-  return m_ctx;
-}
-
-const eThreadCtx & eThread::getContext() const
-{
-  return m_ctx;
+    return (CurThreadCtx ? *CurThreadCtx : MainThreadCtx);
 }
 #endif
 
 eU32 eThread::operator () ()
 {
-  // either a callback func must be specified
-  // or this function must be overloaded
-  //    eASSERT(eFALSE);
-  return 0;
+    // either a callback func must be specified
+    // or this function must be overloaded
+    eASSERT(eFALSE);
+    return 0;
 }
 
-eU32 eThread::_threadTrunk(ePtr arg)
+eU32 eThread::ThreadTrunk(ePtr arg)
 {
-  eThread *thread = (eThread *)arg;
+    eThread *thread = (eThread *)arg;
 #ifdef eEDITOR
-  g_curThreadCtx = &thread->m_ctx;
+    CurThreadCtx = &thread->Ctx;
 #endif
-  return (*thread)();
+    return (*thread)();
 }
 
 eMutex::eMutex() :
-m_locked(eFALSE)
+    IsLocked(eFALSE)
 {
-  CRITICAL_SECTION *cs = new CRITICAL_SECTION;
-  InitializeCriticalSection(cs);
-  m_handle = (ePtr)cs;
+    CRITICAL_SECTION *cs = new CRITICAL_SECTION;
+    InitializeCriticalSection(cs);
+    Handle = (ePtr)cs;
 }
 
 eMutex::~eMutex()
 {
-  eASSERT(!m_locked);
-  CRITICAL_SECTION *cs = (CRITICAL_SECTION *)m_handle;
-  DeleteCriticalSection(cs);
-  eDelete(cs);
+    eASSERT(!IsLocked);
+    CRITICAL_SECTION *cs = (CRITICAL_SECTION *)Handle;
+    DeleteCriticalSection(cs);
+    eDelete(cs);
 }
 
-void eMutex::enter()
+void eMutex::Enter()
 {
-  EnterCriticalSection((CRITICAL_SECTION *)m_handle);
-  eASSERT(!m_locked);
-  m_locked = eTRUE;
+    EnterCriticalSection((CRITICAL_SECTION *)Handle);
+    eASSERT(!IsLocked);
+    IsLocked = eTRUE;
 }
 
-void eMutex::tryEnter()
+void eMutex::TryEnter()
 {
-  if (TryEnterCriticalSection((CRITICAL_SECTION *)m_handle))
-    m_locked = eTRUE;
+    if (TryEnterCriticalSection((CRITICAL_SECTION *)Handle))
+        IsLocked = eTRUE;
 }
 
-void eMutex::leave()
+void eMutex::Leave()
 {
-  eASSERT(m_locked);
-  m_locked = eFALSE;
-  LeaveCriticalSection((CRITICAL_SECTION *)m_handle);
+    eASSERT(IsLocked);
+    IsLocked = eFALSE;
+    LeaveCriticalSection((CRITICAL_SECTION *)Handle);
 }
 
-eBool eMutex::isLocked() const
+eSemaphore::eSemaphore(eU32 InCount, eU32 InMaxCount) :
+    MaxCount(InMaxCount)
 {
-  return m_locked;
+    SemaphoreHandle = CreateSemaphore(nullptr, InCount, InMaxCount, nullptr);
+}
+eSemaphore::~eSemaphore() 
+{
+    CloseHandle(SemaphoreHandle);
+}
+
+void eSemaphore::Wait(eU32 Count)
+{
+    // TODO: no clue how to wait for multiple semaphore handles at once with windows semaphores, so we do it one by one
+    for (eU32 Idx = 0; Idx < Count; Idx++)
+        WaitForSingleObject(SemaphoreHandle, INFINITE);
+}
+
+void eSemaphore::Signal(eU32 Count)
+{
+    ReleaseSemaphore(SemaphoreHandle, Count, nullptr);
 }

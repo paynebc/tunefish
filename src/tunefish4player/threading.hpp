@@ -18,27 +18,32 @@ You should have received a copy of the GNU General Public License
 along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 ---------------------------------------------------------------------
 */
-
 #ifndef THREADING_HPP
 #define THREADING_HPP
 
-#include "../tunefish4/Source/runtime/system.hpp"
-
 // callback function for threads (if you prefer
 // the c-style and don't want to derive)
-typedef eU32(*eThreadFunc)(ePtr arg);
+typedef eU32 (* eThreadFunc)(ePtr arg);
 
 enum eThreadCreateFlag
 {
-  eTHCF_SUSPENDED = 1,
+    eTHCF_SUSPENDED     = 1,
 };
 
 enum eThreadPriority
 {
-  eTHP_LOW = 2,
-  eTHP_NORMAL = 4,
-  eTHP_HIGH = 8,
+    eTHP_LOW            = 2,
+    eTHP_NORMAL         = 4,
+    eTHP_HIGH           = 8,
 };
+
+#ifdef eEDITOR
+struct eThreadCtx
+{
+    eU32                Tid;
+    class eThread *     Thread;
+};
+#endif
 
 // either derive from eThread and overwrite the
 // function call operator (), or provide a thread
@@ -46,77 +51,86 @@ enum eThreadPriority
 class eThread
 {
 public:
-  eThread(eInt flags = eTHP_NORMAL, eThreadFunc threadFunc = nullptr);
-  virtual ~eThread();
+    eThread(eThreadFunc threadFunc=nullptr);
+    virtual ~eThread();
 
-  static void         sleep(eU32 ms);
-  void                join();
-  void                yield();
-  void                resume();
-  void                suspend();
-  void                terminate(eU32 exitCode = 0);
-  void                setPriority(eThreadPriority prio);
+    void                Start(eInt flags=eTHP_NORMAL);
+    void                Join();
+    void                Resume();
+    void                Suspend();
+    void                Terminate(eU32 exitCode=0);
+    void                SetPriority(eThreadPriority prio);
 
+    static void         Sleep(eU32 ms);
 #ifdef eEDITOR
-  static eThreadCtx & getThisContext();
-  eThreadCtx &        getContext();
-  const eThreadCtx &  getContext() const;
+    static eThreadCtx & GetThisContext();
 #endif
-  eU32                getId() const;
-  eThreadPriority     getPriority() const;
 
-  virtual eU32        operator () ();
+    virtual eU32        operator () ();
 
 private:
-  static eU32         _threadTrunk(ePtr arg);
+    static eU32         ThreadTrunk(ePtr arg);
+
+public:
+#ifdef eEDITOR
+    eThreadCtx          Ctx;
+#endif
+    eThreadPriority     Prio;
+    eU32                Tid;
 
 private:
-#ifdef eEDITOR
-  eThreadCtx          m_ctx;
-#endif
-  ePtr                m_handle;
-  eThreadFunc         m_threadFunc;
-  eThreadPriority     m_prio;
-  eU32                m_tid;
+    ePtr                Handle;
+    eThreadFunc         ThreadFunc;
 };
 
 class eMutex
 {
 public:
-  eMutex();
-  ~eMutex();
+    eMutex();
+    eMutex(const eMutex &mtx) = delete;
+    eMutex & operator = (const eMutex &mtx) = delete;
+    ~eMutex();
 
-  void                enter();
-  void                tryEnter();
-  void                leave();
+    void                Enter();
+    void                TryEnter();
+    void                Leave();
 
-  eBool               isLocked() const;
+public:
+    eBool               IsLocked;
 
 private:
-  eMutex(const eMutex &mtx) = delete;
-  eMutex & operator = (const eMutex &mtx) = delete;
-
-private:
-  ePtr                m_handle;
-  eBool               m_locked;
+    ePtr                Handle;
 };
 
 class eScopedLock
 {
 public:
-  eScopedLock(eMutex &mutex) :
-    m_mutex(mutex)
-  {
-    m_mutex.enter();
-  }
+    eScopedLock(eMutex &mutex) : m_mutex(mutex)
+    {
+        m_mutex.Enter();
+    }
 
-  ~eScopedLock()
-  {
-    m_mutex.leave();
-  }
+    ~eScopedLock()
+    {
+        m_mutex.Leave();
+    }
 
 private:
-  eMutex & m_mutex;
+    eMutex & m_mutex;
+};
+
+class eSemaphore
+{
+public:
+    eSemaphore(eU32 InCount, eU32 InMaxCount);
+    ~eSemaphore();
+
+    void Wait(eU32 Count = 1);
+    void Signal(eU32 Count = 1);
+
+    const   eU32    MaxCount;
+private:
+    void*  SemaphoreHandle;
 };
 
 #endif

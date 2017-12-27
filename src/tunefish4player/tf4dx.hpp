@@ -24,9 +24,8 @@ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tf4player.hpp"
 
-eBool	eTfDxInit(eU32 sampleRate);
+eBool eTfDxInit(eU32 sampleRate);
 void  eTfDxShutdown();
-
 void  eTfDxAddPlayer(eTfPlayer &player);
 void  eTfDxRemovePlayer(eTfPlayer &player);
 void  eTfDxFill(const eU8 *data, eU32 count);

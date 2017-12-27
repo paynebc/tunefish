@@ -22,12 +22,17 @@ along with Tunefish.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TF4PLAYER_HPP
 #define TF4PLAYER_HPP
 
+#ifdef eENIGMA
+#include "../system/system.hpp"
+#include "tf4.hpp"
+#else
 #include "../tunefish4/Source/runtime/system.hpp"
 #include "../tunefish4/Source/synth/tf4.hpp"
+#endif
 
 struct eTfPlayer
 {
-  eTfSong	  song;
+  eTfSong	song;
   eTfSynth  synth;
 
   eF32      volume;
