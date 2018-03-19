@@ -1,4 +1,17 @@
 
+- v4.2.0  -  April ??, 2018
+-----------------------------------------------------
+
+- Upgrade to JUCE 5.3.0
+- VST3 Plugin now included
+- Factory patches now stored inside Plugin. No separate programs folder is needed anymore.
+- changes in programs are now saved in user directory
+- fixed a pitch bending issue
+- added meters
+- added keyboard
+- added patch loader and factory writer
+- several small fixes
+
 - v4.1.0  -  July 22nd, 2017
 -----------------------------------------------------
 

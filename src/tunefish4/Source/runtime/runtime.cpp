@@ -192,19 +192,6 @@ void eStrCopy(eChar *dst, const eChar *src)
     }
 }
 
-void eStrLCopy(eChar *dst, const eChar *src, eU32 count)
-{
-    // copy string characters
-    while (count && (*dst++ = *src++))
-        count--;
-
-    // pad out with zeros
-    if (count)
-        eMemSet(dst, '\0', count-1);
-    else // enforce null-terminator
-        dst[count-1] = '\0';
-}
-
 eChar * eStrClone(const eChar *str)
 {
     eChar *clone = new eChar[eStrLength(str)+1];
@@ -229,34 +216,6 @@ eChar * eStrAppend(eChar *dst, const eChar *src)
     // append source string
     eStrCopy(dstEnd, src);
     return dst;
-}
-
-// compares two strings and returns an integer to
-// indicate whether the first is less than the second,
-// the two are equal, or whether the first is greater
-// than the second. comparison is done byte by byte on
-// an unsigned basis which is to say that null (0) is
-// less than any other character (1-255).
-//
-// returns -1 if first string < second string.
-// returns  0 if first string = second string.
-// returns +1 if first string > second string.
-eInt eStrCompare(const eChar *str0, const eChar *str1)
-{
-    eInt res = 0;
-
-    while (!(res = *(eU8 *)str0-*(eU8 *)str1) && *str1)
-    {
-        str0++;
-        str1++;
-    }
-
-    return (res < 0 ? -1 : (res > 0 ? 1 : 0));
-}
-
-eBool eStrEqual(const eChar *str0, const eChar *str1)
-{
-    return (eStrCompare(str0, str1) == 0);
 }
 
 eChar * eStrUpper(eChar *str)
@@ -762,32 +721,4 @@ eBool eIsAligned(eConstPtr data, eU32 alignment)
     eASSERT((alignment&(alignment-1)) == 0);
     return (((eU64)data&(alignment-1)) == 0);
 }
-
-// hashing functions for integers. can be used
-// to build more complex hashing functions for
-// different data types.
-eU32 eHashInt(eInt key)
-{
-    eU32 hash = (eU32)key;
-    hash = (hash^61)^(hash>>16);
-    hash = hash+(hash<<3);
-    hash = hash^(hash>>4);
-    hash = hash*0x27d4eb2d;
-    hash = hash^(hash>>15);
-    return hash;
-}
-
-// Implements the DJB2 hash function as first
-// reported by Dan Bernstein.
-eU32 eHashStr(const eChar *str)
-{
-    eU32 hash = 5381;
-    eChar c;
-
-    while ((c = *str++))
-        hash = ((hash<<5)+hash)+c; // does a hash*33+c
-
-    return hash;
-}
-
 

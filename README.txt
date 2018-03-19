@@ -6,7 +6,7 @@ System requirements:
 -------------------------------------------------
 Mac OS X 10.9 with Intel CPU 
 Windows 7 or newer 32/64bit
-Ubuntu 16.04 32/64bit (Should work fine on other distributions but was built on this config)
+Ubuntu 17.10 64bit (Should work fine on other distributions but was built on this config)
 
 Installation:
 -------------------------------------------------
@@ -60,3 +60,4 @@ https://github.com/cognitone/sprike
 Sound design:
 J.Ruegg				(https://soundcloud.com/jruegg)
 Payne				(https://soundcloud.com/payne-music)
+Anders Lund Olsen 

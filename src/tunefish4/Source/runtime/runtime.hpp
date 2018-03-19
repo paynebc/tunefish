@@ -62,12 +62,9 @@ void    eMemMove(ePtr dst, eConstPtr src, eU32 count);
 eBool   eMemEqual(eConstPtr mem0, eConstPtr mem1, eU32 count);
 void    eStrClear(eChar *str);
 void    eStrCopy(eChar *dst, const eChar *src);
-void    eStrLCopy(eChar *dst, const eChar *src, eU32 count);
 eChar * eStrClone(const eChar *str);
 eU32    eStrLength(const eChar *str);
 eChar * eStrAppend(eChar *dst, const eChar *src);
-eInt    eStrCompare(const eChar *str0, const eChar *str1);
-eBool   eStrEqual(const eChar *str0, const eChar *str1);
 eChar * eStrUpper(eChar *str);
 eChar * eIntToStr(eInt val);
 eChar * eFloatToStr(eF32 val);
@@ -111,12 +108,6 @@ eBool   eIsNan(eF32 x);
 eF32    eDegToRad(eF32 degrees);
 eF32    eRadToDeg(eF32 radians);
 eBool   eIsAligned(eConstPtr data, eU32 alignment);
-eU32    eHashInt(eInt key);
-eU32    eHashStr(const eChar *str);
-eU32    eNextPowerOf2(eU32 x);
-eBool   eIsPowerOf2(eU32 x);
-eU32    eBzr(eU32 x);
-eBool   eClosedIntervalsOverlap(eInt start0, eInt end0, eInt start1, eInt end1);
 
 // negative safe modulo  -1 % 5 will return -1.  eNsMod(-1, 5) will return 4.
 eFORCEINLINE eInt eNsMod(eInt x, eInt y)

@@ -126,6 +126,7 @@ private:
     TextButton m_btnMovingWaveforms;
     TextButton m_btnRecord;
     TextButton m_btnFactoryWriter;
+	TextButton m_btnPresetFileLoader;
 
     // -------------------------------------
     //  COMPONENT GROUPS

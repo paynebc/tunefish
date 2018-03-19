@@ -204,6 +204,11 @@ void Tunefish4AudioProcessor::changeProgramName (int index, const String& newNam
     programs[index].setName(newName.toRawUTF8());
 }
 
+const String Tunefish4AudioProcessor::getCurrentProgramName() const
+{
+	return programs[currentProgramIndex].getName();
+}
+
 eTfSynth* Tunefish4AudioProcessor::getSynth() const
 {
     return synth;
@@ -221,7 +226,14 @@ void Tunefish4AudioProcessor::setMetering (bool on)
 
 float Tunefish4AudioProcessor::getMeterLevel (int channel, int meter)
 {
-    return meterLevels[channel].get();
+	switch (meter)
+	{
+	case 0: // main meters
+		return meterLevels[channel].get();
+
+	default:
+		return 0.0f;
+	}
 }
 
 //==============================================================================
@@ -389,42 +401,7 @@ bool Tunefish4AudioProcessor::loadProgram(eU32 index)
         return true;
     }
     
-    ScopedPointer<FileInputStream> stream = file.createInputStream();
-    if (stream == nullptr)
-    {
-        NativeMessageBox::showMessageBox(AlertWindow::AlertIconType::WarningIcon,
-            "Error",
-            "Failed opening " + file.getFullPathName());
-        return false;
-    }
-
-    programs[index].setName(stream->readNextLine());
-
-    while (true)
-    {
-        String line = stream->readNextLine();
-
-        if (line.length() == 0)
-            return true;
-
-        StringArray parts;
-        parts.addTokens(line, ";", String::empty);
-
-        if (parts.size() == 2)
-        {
-            String key = parts[0];
-            eF32 value = parts[1].getFloatValue();
-
-            for (eU32 i = 0; i<TF_PARAM_COUNT; i++)
-            {
-                if (key == TF_NAMES[i])
-                {
-                    programs[index].setParam(i, value);
-                    break;
-                }
-            }
-        }
-    }
+	return loadPresetFile(file, false, index);
 }
 
 bool Tunefish4AudioProcessor::loadProgramAll()
@@ -566,6 +543,58 @@ bool Tunefish4AudioProcessor::writeFactoryPatchHeader(File headerFile) const
            
     delete out;
     return true;
+}
+
+bool Tunefish4AudioProcessor::loadPresetFile(File file, bool applyToSynth, int index)
+{
+	if (index == -1)
+		index = currentProgramIndex;
+	
+	ScopedPointer<FileInputStream> stream = file.createInputStream();
+	if (stream == nullptr)
+	{
+		NativeMessageBox::showMessageBox(AlertWindow::AlertIconType::WarningIcon,
+			"Error",
+			"Failed opening " + file.getFullPathName());
+		return false;
+	}
+
+	programs[index].setName(stream->readNextLine());
+
+	while (true)
+	{
+		String line = stream->readNextLine();
+
+		if (line.length() == 0)
+			break;
+
+		StringArray parts;
+		parts.addTokens(line, ";", String::empty);
+
+		if (parts.size() == 2)
+		{
+			String key = parts[0];
+			eF32 value = parts[1].getFloatValue();
+
+			for (eU32 i = 0; i<TF_PARAM_COUNT; i++)
+			{
+				if (key == TF_NAMES[i])
+				{
+					programs[index].setParam(i, value);
+					break;
+				}
+			}
+		}
+	}
+
+	if (applyToSynth)
+	{
+		programs[index].applyToSynth(tf);
+		saveProgram();
+		resetParamDirty(true);
+	}
+
+	return true;
 }
 
 //==============================================================================

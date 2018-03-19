@@ -77,6 +77,7 @@ public:
     void                    setCurrentProgram (int index) override;
     const String            getProgramName (int index) override;
     void                    changeProgramName (int index, const String& newName) override;
+	const String            getCurrentProgramName() const;
 
     eTfSynth *              getSynth() const;
     CriticalSection &       getSynthCriticalSection();
@@ -102,6 +103,7 @@ public:
     void                    resetParamDirty(eBool dirty = eFALSE);
 
     bool                    writeFactoryPatchHeader(File headerFile) const;
+	bool					loadPresetFile(File file, bool applyToSynth = false, int index = -1);
 
     void                    setMetering (bool on);
     float                   getMeterLevel (int channel, int meter = 0) override;

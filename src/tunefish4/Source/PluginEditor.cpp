@@ -29,6 +29,9 @@
 // this is used for writing all patches to a C++ header file for use as factory patches
 #define HAVE_PATCH_WRITER
 
+// this is used for reading patches from a .txt file
+#define HAVE_PATCH_LOADER
+
 const char* MOD_SOURCES = "none|LFO1|LFO2|ADSR1|ADSR2";
 const char* MOD_TARGETS = "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8";
 const char* FX_SECTIONS = "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ";
@@ -288,11 +291,15 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     _addTextButton(&m_grpGlobal, m_btnAbout, String("Tunefish ") + JucePlugin_VersionString, 575, 25, 160, 20);
 
 #ifdef HAVE_RECORDING
-    _addTextToggleButton(&m_grpGlobal, m_btnRecord, "Record", "", 745, 25, 90, 20);
+    _addTextToggleButton(&m_grpGlobal, m_btnRecord, "Record", "", 745, 20, 90, 17);
 #endif
 
 #ifdef HAVE_PATCH_WRITER
-    _addTextButton(&m_grpGlobal, m_btnFactoryWriter, "FactoryWriter", 745, 50, 90, 20);
+    _addTextButton(&m_grpGlobal, m_btnFactoryWriter, "Factory writer", 745, 38, 90, 17);
+#endif
+
+#ifdef HAVE_PATCH_LOADER
+	_addTextButton(&m_grpGlobal, m_btnPresetFileLoader, "Load preset", 745, 56, 90, 17);
 #endif
 
     // -------------------------------------
@@ -493,7 +500,6 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     // -------------------------------------
     addAndMakeVisible(&m_midiKeyboard);
     m_midiKeyboard.setBounds(10, getHeight() - 80, getWidth() - 20, 80);
-
 
     _fillProgramCombobox();
     _resetTimer();
@@ -1316,13 +1322,30 @@ void Tunefish4AudioProcessorEditor::buttonClicked (Button *button)
     }
     else if (button == &m_btnFactoryWriter)
     {
-        FileChooser myChooser("Please select a file to save to", File::getSpecialLocation(File::userHomeDirectory), "*.hpp");
-        if (myChooser.browseForFileToSave(true))
-        {
-            File file = myChooser.getResult();
-            tfProcessor->writeFactoryPatchHeader(file);
-        }
+		if (AlertWindow::showOkCancelBox(AlertWindow::InfoIcon, "FactoryWriter", "This will write all current presets into a C/C++ header file. This is for developent purposes only! Do you want to continue?"))
+		{
+			FileChooser myChooser("Please select a file to save to", File::getSpecialLocation(File::userHomeDirectory), "*.hpp");
+			if (myChooser.browseForFileToSave(true))
+			{
+				File file = myChooser.getResult();
+				tfProcessor->writeFactoryPatchHeader(file);
+			}
+		}
     }
+	else if (button == &m_btnPresetFileLoader)
+	{
+		FileChooser myChooser("Please select a preset file to load", File::getSpecialLocation(File::userHomeDirectory), "*.txt");
+		if (myChooser.browseForFileToOpen())
+		{
+			File file = myChooser.getResult();
+			if (tfProcessor->loadPresetFile(file, true))
+			{
+				auto selectedId = m_cmbInstrument.getSelectedId();
+				m_cmbInstrument.changeItemText(selectedId, tfProcessor->getCurrentProgramName());
+				refreshUiFromSynth();
+			}
+		}
+	}
     else if (button == &m_btnAbout)
     {
         AboutComponent::openAboutWindow(this);
@@ -1486,7 +1509,7 @@ AboutComponent::AboutComponent() :
         Colours::black);
 
     text2.setJustification(Justification::centred);
-    text2.append(String::fromUTF8("© 2017 Brain Control"),
+    text2.append(String::fromUTF8("© 2018 Brain Control"),
         Fonts::getInstance()->normal(),
         Colours::black);
 
