@@ -627,11 +627,9 @@ struct eTfEvent
 		this->instr = instr;
 		this->note = note;
 		this->velocity = velocity;
-		this->row = 0;
 	}
 
 	eF32			time;
-	eU16			row;
 	eU8				instr;
 	eU8				note;
 	eU8				velocity;
@@ -644,6 +642,7 @@ struct eTfSong
 	eU32				tempo;
 };
 
+void	eTfSignalMix16(eS16 *master, eS16 *in, eU32 length);
 eBool   eTfSignalMix(eF32 **master, eF32 **in, eU32 length, eF32 volume);
 void    eTfSignalToS16(eF32 **sig, eS16 *out, const eF32 gain, eU32 length);
 void    eTfSignalToPeak(eF32 **sig, eF32 *peak_left, eF32 *peak_right, eU32 length);

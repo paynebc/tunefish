@@ -81,7 +81,7 @@ public:
 	{
 		if (eTfDxNeedMore())
 		{
-			const eU8 *data = nullptr;
+			const eS16 *data = nullptr;
 
 			for (eU32 i = 0; i < s_tfdx.players.size(); i++)
 			{
@@ -96,7 +96,7 @@ public:
 	}
 
 private:
-	eU8 m_silence[TF_FRAMESIZE * 2 * sizeof(eS16)];
+	eS16 m_silence[TF_FRAMESIZE * 2];
 };
 
 eBool eTfDxInit(eU32 sampleRate)
@@ -173,7 +173,7 @@ void eTfDxRemovePlayer(eTfPlayer &player)
 		s_tfdx.players.removeAt(index);
 }
 
-void eTfDxFill(const eU8 *data, eU32 count)
+void eTfDxFill(const eS16 *data, eU32 count)
 {
 	if (!s_tfdx.dsoundBuffer)
 		return;
@@ -193,7 +193,7 @@ void eTfDxFill(const eU8 *data, eU32 count)
 	eMemCopy(write0, data, length0);
 
 	if (write1)
-		eMemCopy(write1, data + length0, length1);
+		eMemCopy(write1, reinterpret_cast<const eU8*>(data) + length0, length1);
 
 	hr = s_tfdx.dsoundBuffer->Unlock(write0, length0, write1, length1);
 	eASSERT(!FAILED(hr));

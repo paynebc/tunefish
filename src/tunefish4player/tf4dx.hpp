@@ -28,7 +28,7 @@ eBool eTfDxInit(eU32 sampleRate);
 void  eTfDxShutdown();
 void  eTfDxAddPlayer(eTfPlayer &player);
 void  eTfDxRemovePlayer(eTfPlayer &player);
-void  eTfDxFill(const eU8 *data, eU32 count);
+void  eTfDxFill(const eS16 *data, eU32 count);
 eBool eTfDxNeedMore();
 
 #endif

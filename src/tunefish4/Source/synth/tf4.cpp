@@ -44,6 +44,19 @@
 // HELPER FUNCTIONS
 // ------------------------------------------------------------------------------------
 
+void eTfSignalMix16(eS16 *master, eS16 *in, eU32 length)
+{
+	for (eU32 i=0; i<length; i++)
+	{
+		eS32 sample = master[i] + in[i];
+		if (sample < -32768)
+			sample = 32768;
+		if (sample > 32767)
+			sample = 32767;
+		master[i] = sample;
+	}
+}
+
 eBool eTfSignalMix(eF32 **master, eF32 **in, eU32 length, eF32 volume)
 {
     eF32 *signal1 = master[0];
