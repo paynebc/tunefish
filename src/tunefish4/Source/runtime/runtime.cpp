@@ -411,62 +411,6 @@ eInt eAbs(eInt x)
 #endif
 }
 
-eF64 ePow64(eF64 a, eF64 b)
-{
-#ifdef ePLAYER
-    __asm
-    {
-      fld     qword ptr[b]
-      fld     qword ptr[a]
-
-      ftst
-      fstsw   ax
-      sahf
-      jz      zero
-
-      fyl2x
-      fist    dword ptr[a]
-      sub     esp, 12
-      mov     dword ptr[esp], 0
-      mov     dword ptr[esp + 4], 0x80000000
-      fisub   dword ptr[a]
-      mov     eax, dword ptr[a]
-      add     eax, 0x3fff
-      mov[esp + 8], eax
-      jle     underflow
-      cmp     eax, 0x8000
-      jge     overflow
-      f2xm1
-      fld1
-      fadd
-      fld     tbyte ptr[esp]
-      add     esp, 12
-      fmul
-      jmp     end
-
-      underflow :
-      fstp    st
-      fldz
-      add     esp, 12
-      jmp     end
-
-      overflow :
-      push    0x7f800000
-      fstp    st
-      fld     dword ptr[esp]
-      add     esp, 16
-      jmp     end
-
-      zero :
-      fstp    st(1)
-
-      end :
-    }
-#else
-    return 0.0f;
-#endif
-}
-
 eF32 ePow(eF32 base, eF32 exp)
 {
 #ifdef ePLAYER

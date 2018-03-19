@@ -232,7 +232,7 @@ void WinMainCRTStartup()
 	FILE *fp = fopen("c:\\dev\\no_remorse.raw", "wb");
 	fwrite(songBuffer, sizeof(eS16), songSamples, fp);
 	fclose(fp);
-  */
+    */
 
 	// playback
 	// --------------------------------------------------------------------------------------

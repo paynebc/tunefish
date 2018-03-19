@@ -53,7 +53,7 @@ void eTfSignalMix16(eS16 *master, eS16 *in, eU32 length)
 			sample = 32768;
 		if (sample > 32767)
 			sample = 32767;
-		master[i] = sample;
+		master[i] = static_cast<eS16>(sample);
 	}
 }
 
