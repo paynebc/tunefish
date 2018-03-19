@@ -130,11 +130,6 @@ eINLINE void eUndenormalise(eF32 &sample)
         sample = 0.0f;
 }
 
-template<class T> eU32 eHashPtr(const T * const &ptr)
-{
-    return eHashInt((eInt)ptr);
-}
-
 eINLINE eU16 eLoword(eU32 x)
 {
     return (eU16)(x&0xffff);
