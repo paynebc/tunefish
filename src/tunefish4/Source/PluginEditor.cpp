@@ -234,6 +234,7 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
     m_meter(*ownerFilter, 2, 0)
 {
+	setLookAndFeel(TfLookAndFeel::getInstance());
     setSize(1080, 800);
 
     // Init configuration 
@@ -507,6 +508,8 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
 
 Tunefish4AudioProcessorEditor::~Tunefish4AudioProcessorEditor()
 {
+	setLookAndFeel(nullptr);
+	getProcessor()->setMetering(false);
     TfLookAndFeel::deleteInstance();
     Fonts::deleteInstance();
 }
@@ -521,7 +524,6 @@ void Tunefish4AudioProcessorEditor::_addRotarySlider(Component *parent, Slider &
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, 60, 40);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(TfLookAndFeel::getInstance());
     slider.setColour(Slider::rotarySliderFillColourId, colour);
 
     _addLabel(parent, label, text, x, y+30, 60, 20);
@@ -538,7 +540,6 @@ void Tunefish4AudioProcessorEditor::_addRotarySliderNoLabel(Component *parent, S
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, 40, 40);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(TfLookAndFeel::getInstance());
     slider.setColour(Slider::rotarySliderFillColourId, colour);
 }
 
@@ -552,7 +553,6 @@ void Tunefish4AudioProcessorEditor::_addLinearSlider(Component *parent, Slider &
     slider.setRange (0.0, 1.0, 0.0);
     slider.setBounds (x, y, w, h-20);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setLookAndFeel(TfLookAndFeel::getInstance());
 
     _addLabel(parent, label, text, x, y+h-20, w, 20);
     label.setJustificationType(Justification::centredBottom);
@@ -565,7 +565,6 @@ void Tunefish4AudioProcessorEditor::_addGroupBox(Component *parent, GroupCompone
     group.setVisible(true);
     group.setText(text);
     group.setBounds(x, y, w, h);
-    group.setLookAndFeel(TfLookAndFeel::getInstance());
 }
 
 void Tunefish4AudioProcessorEditor::_addTextButton(Component *parent, TextButton &button, String text, eU32 x, eU32 y, eU32 w, eU32 h)
@@ -574,7 +573,6 @@ void Tunefish4AudioProcessorEditor::_addTextButton(Component *parent, TextButton
 
     button.setVisible(true);
     button.addListener(this);
-    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setButtonText(text);
     button.setBounds(x, y, w, h);
 }
@@ -589,7 +587,6 @@ void Tunefish4AudioProcessorEditor::_addTextToggleButton(Component *parent, Text
     button.setVisible(true);
     button.addListener(this);
     button.setClickingTogglesState(true);
-    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setButtonText(text);
     button.setBounds(x, y, w, h);
 
@@ -605,7 +602,6 @@ void Tunefish4AudioProcessorEditor::_addImageToggleButton(Component *parent, Dra
     button.addListener(this);
     button.setRadioGroupId(group.hashCode());
     button.setClickingTogglesState(true);
-    button.setLookAndFeel(TfLookAndFeel::getInstance());
     button.setImages(&image);
     button.setBounds(x, y, w, h);
 }
@@ -619,7 +615,6 @@ void Tunefish4AudioProcessorEditor::_addComboBox(Component *parent, ComboBox &co
 
     combobox.setVisible(true);
     combobox.addListener(this);
-    combobox.setLookAndFeel(TfLookAndFeel::getInstance());
     combobox.setBounds(x, y, w, h);
     combobox.addItemList(itemArray, 1);
 }
@@ -639,7 +634,6 @@ void Tunefish4AudioProcessorEditor::_addLabel(Component *parent, Label &label, S
     label.setJustificationType(Justification::left);
     label.setFont (Font (11.0f));
     label.setText(text, NotificationType::dontSendNotification);
-    label.setLookAndFeel(TfLookAndFeel::getInstance());
 }
 
 void Tunefish4AudioProcessorEditor::_fillProgramCombobox()
