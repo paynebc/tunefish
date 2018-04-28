@@ -26,17 +26,19 @@ VST SDK has to be put in directory ~/SDKs
 
 The following additional packages are needed on Ubuntu 14.04 to compile:
 
-* libgl1-mesa-dev
-* libfreetype6-dev
-* libasound-dev
-* libxrandr-dev
-* libxinerama-dev
-* libxcursor-dev
+* libgl1-mesa-dev 
+* libfreetype6-dev 
+* libasound2-dev 
+* libxrandr-dev 
+* libxinerama-dev 
+* libxcursor-dev 
+* libcurl4-openssl-dev 
+* libgtk-3-dev
 
 Install them using:
 
 ```
-sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev libgkt-3-dev
+sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev libgtk-3-dev
 ```
 
 run make in directory
