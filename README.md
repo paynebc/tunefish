@@ -34,11 +34,12 @@ The following additional packages are needed on Ubuntu 14.04 to compile:
 * libxcursor-dev 
 * libcurl4-openssl-dev 
 * libgtk-3-dev
+* webkit2gtk-4.0
 
 Install them using:
 
 ```
-sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev libgtk-3-dev
+sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev libgtk-3-dev webkit2gtk-4.0
 ```
 
 run make in directory
