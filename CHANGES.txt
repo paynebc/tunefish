@@ -1,5 +1,5 @@
 
-- v4.2.0  -  April ??, 2018
+- v4.2.0  -  Mai 4th, 2018
 -----------------------------------------------------
 
 - Upgrade to JUCE 5.3.0
@@ -11,6 +11,7 @@
 - added keyboard
 - added patch loader and factory writer
 - several small fixes
+- new patches made by Anders Lund Olsen
 
 - v4.1.0  -  July 22nd, 2017
 -----------------------------------------------------

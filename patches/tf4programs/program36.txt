@@ -1,4 +1,4 @@
-INIT 35
+Metal rods
 Gain;0.5
 GenBandw;1
 GenHarmn;1

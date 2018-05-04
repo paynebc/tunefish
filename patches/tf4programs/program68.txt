@@ -1,5 +1,5 @@
 Hollow Flute
-Gain;0.321737
+Gain;0.301737
 GenBandw;0.636
 GenHarmn;0.139596
 GenDamp;0
@@ -11,7 +11,7 @@ GenOct;0.5
 GenGlid;0
 GetDetn;0.144
 GenFreq;0
-GenPoly;1
+GenPoly;0.466667
 GenDriv;0.02101
 GenUnis;0.222222
 GenSprd;0.576848

@@ -11,6 +11,11 @@ src/tunefish4/Builds/VisualStudio2015/Debug/
 src/tunefish4/Builds/VisualStudio2015/Release/
 src/tunefish4/Builds/VisualStudio2015/x64/
 src/tunefish4/Builds/VisualStudio2015/Win32/
+src/tunefish4/Builds/VisualStudio2017/Debug/
+src/tunefish4/Builds/VisualStudio2017/Release/
+src/tunefish4/Builds/VisualStudio2017/x64/
+src/tunefish4/Builds/VisualStudio2017/Win32/
+src/tunefish4/Builds/VisualStudio2017/.vs/
 src/tunefish4player/debug/
 src/tunefish4player/debug_fast/
 src/tunefish4player/x64/
