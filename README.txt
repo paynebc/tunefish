@@ -60,4 +60,4 @@ https://github.com/cognitone/sprike
 Sound design:
 J.Ruegg				(https://soundcloud.com/jruegg)
 Payne				(https://soundcloud.com/payne-music)
-Anders Lund Olsen 		(http://alodk.dk)
+Anders Lund Olsen 		(http://alodk.dk/tunefish/tunefish.html)
