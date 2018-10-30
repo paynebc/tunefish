@@ -45,8 +45,6 @@ sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-d
 run make in directory
 /src/tunefish4/Builds/LinuxMakefile
 
-VST SDK has to be put in directory ~/SDKs
-
 ### Running
 
 Copy the tunefish4.dll/.so/.component/vst (depending on platform) to your desired plugins directory. Run your sequencer.
