@@ -906,7 +906,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"~/SDKs/VST_SDK/VST3_SDK",
+					"${HOME}/SDKs/VST_SDK/VST3_SDK",
 					../../JuceLibraryCode,
 					../../JuceLibraryCode/modules,
 					../../JuceLibraryCode/modules/juce_audio_plugin_client,
@@ -1288,7 +1288,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"~/SDKs/VST_SDK/VST3_SDK",
+					"${HOME}/SDKs/VST_SDK/VST3_SDK",
 					../../JuceLibraryCode,
 					../../JuceLibraryCode/modules,
 					../../JuceLibraryCode/modules/juce_audio_plugin_client,
