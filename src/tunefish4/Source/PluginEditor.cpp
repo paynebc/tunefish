@@ -645,7 +645,11 @@ void Tunefish4AudioProcessorEditor::_fillProgramCombobox()
 
     for (eU32 i=0; i<programCount; i++)
     {
-        m_cmbInstrument.addItem(getProcessor()->getProgramName(i), i+1);
+        auto name = getProcessor()->getProgramName(i);
+        if (name.isEmpty())
+            name = "Untitled";
+        
+        m_cmbInstrument.addItem(name, i+1);
     }
 
     m_cmbInstrument.setSelectedItemIndex(currentProgram, dontSendNotification);
