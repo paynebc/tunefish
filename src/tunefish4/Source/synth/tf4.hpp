@@ -46,6 +46,7 @@ const eU32 TF_MAXMODULATIONTYPES    = 4;
 const eU32 TF_FORMANTCOUNT          = 5;
 const eF32 TF_EFFECT_SWITCHOFF_TIME = 2.0f;
 const eF32 TF_12TH_ROOT_OF_2        = 1.059463094359f;
+const eU32 TF_MAX_STEPSEQUENCE_LEN  = 64;
 
 #include "tf4fx.hpp"
 
@@ -607,6 +608,20 @@ struct eTfInstrument
     eF32            effectsInactiveTime;
 };
 
+struct eTfStepSequencer
+{
+    eU32            steps;
+    eF32            tempo;
+    eU32            bpm;
+    eBool           playing;
+    eF32            time;
+    eS32            instrument[TF_MAX_STEPSEQUENCE_LEN];
+    eU32            velocity[TF_MAX_STEPSEQUENCE_LEN];
+    eF32            delay[TF_MAX_STEPSEQUENCE_LEN];
+    eF32            sustain[TF_MAX_STEPSEQUENCE_LEN];
+    eTfSynth *      synth;
+};
+
 struct eTfSynth
 {
     eU32            sampleRate;
@@ -617,6 +632,7 @@ struct eTfSynth
     eF32            lfoNoiseTable[TF_LFONOISETABLESIZE];
     eF32            whiteNoiseTable[TF_NOISETABLESIZE];
     eTfInstrument * instr[TF_MAX_INSTR];
+    eTfStepSequencer stepSequencer;
 };
 
 struct eTfEvent
@@ -695,7 +711,24 @@ void    eTfInstrumentPanic(eTfInstrument &instr);
 eU32    eTfInstrumentGetPolyphony(eTfInstrument &instr);
 eU32    eTfInstrumentAllocateVoice(eTfInstrument &instr);
 
-void    eTfSynthInit(eTfSynth &synth);
+void    eTfStepSequencerInit(eTfStepSequencer &seq, eTfSynth &synth);
+void    eTfStepSequencerFree(eTfStepSequencer &seq);
+void    eTfStepSequencerSetBpm(eTfStepSequencer &seq, eU32 bpm);
+void    eTfStepSequencerSetSteps(eTfStepSequencer &seq, eU32 steps);
+void    eTfStepSequencerSetInstrument(eTfStepSequencer &seq, eU32 step, eU32 instrument);
+void    eTfStepSequencerSetVelocity(eTfStepSequencer &seq, eU32 step, eU32 velocity);
+void    eTfStepSequencerSetDelay(eTfStepSequencer &seq, eU32 step, eF32 delay);
+void    eTfStepSequencerSetSustain(eTfStepSequencer &seq, eU32 step, eF32 sustain);
+eU32    eTfStepSequencerGetBpm(eTfStepSequencer &seq);
+eU32    eTfStepSequencerGetSteps(eTfStepSequencer &seq);
+eU32    eTfStepSequencerGetInstrument(eTfStepSequencer &seq, eU32 step);
+eU32    eTfStepSequencerGetVelocity(eTfStepSequencer &seq, eU32 step);
+eF32    eTfStepSequencerGetDelay(eTfStepSequencer &seq, eU32 step);
+eF32    eTfStepSequencerGetSustain(eTfStepSequencer &seq, eU32 step);
+void    eTfStepSequencerPlay(eTfStepSequencer &seq);
+void    eTfStepSequencerStop(eTfStepSequencer &seq);
+eF32    eTfStepSequencerProcess(eTfStepSequencer &seq, eF32 **outputs, eU32 sampleFrames);
 
+void    eTfSynthInit(eTfSynth &synth);
 
 #endif

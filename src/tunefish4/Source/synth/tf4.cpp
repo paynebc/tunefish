@@ -1566,6 +1566,106 @@ eU32 eTfInstrumentAllocateVoice(eTfInstrument &instr)
 }
 
 // ------------------------------------------------------------------------------------
+// STEPSEQUENCER
+// ------------------------------------------------------------------------------------
+
+void eTfStepSequencerInit(eTfStepSequencer &seq, eTfSynth &synth)
+{
+    eMemSet(&seq, 0, sizeof(eTfStepSequencer));
+    seq.synth = &synth;
+    seq.steps = 64;
+}
+
+void eTfStepSequencerFree(eTfStepSequencer &seq)
+{
+    // nothing to do here yet
+}
+
+void efStepSequencerSetBpm(eTfStepSequencer &seq, eU32 bpm)
+{
+    seq.bpm = bpm;
+}
+
+void eTfStepSequencerSetSteps(eTfStepSequencer &seq, eU32 steps)
+{
+    seq.steps = steps;
+}
+
+void eTfStepSequencerSetInstrument(eTfStepSequencer &seq, eU32 step, eU32 instrument)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    seq.instrument[step] = instrument;
+}
+
+void eTfStepSequencerSetVelocity(eTfStepSequencer &seq, eU32 step, eU32 velocity)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    seq.velocity[step] = velocity;
+}
+
+void eTfStepSequencerSetDelay(eTfStepSequencer &seq, eU32 step, eF32 delay)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    seq.delay[step] = delay;
+}
+
+void eTfStepSequencerSetSustain(eTfStepSequencer &seq, eU32 step, eF32 sustain)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    seq.sustain[step] = sustain;
+}
+
+eU32 eTfStepSequencerGetBpm(eTfStepSequencer &seq)
+{
+    return seq.bpm;
+}
+
+eU32 eTfStepSequencerGetSteps(eTfStepSequencer &seq)
+{
+    return seq.steps;
+}
+
+eU32 eTfStepSequencerGetInstrument(eTfStepSequencer &seq, eU32 step)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    return seq.instrument[step];
+}
+
+eU32 eTfStepSequencerGetVelocity(eTfStepSequencer &seq, eU32 step)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    return seq.velocity[step];
+}
+
+eF32 eTfStepSequencerGetDelay(eTfStepSequencer &seq, eU32 step)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    return seq.delay[step];
+}
+
+eF32 eTfStepSequencerGetSustain(eTfStepSequencer &seq, eU32 step)
+{
+    eASSERT(step < TF_MAX_STEPSEQUENCE_LEN);
+    return seq.sustain[step];
+}
+
+void eTfStepSequencerPlay(eTfStepSequencer &seq)
+{
+    seq.playing = true;
+    seq.time = 0.0f;
+}
+
+void eTfStepSequencerStop(eTfStepSequencer &seq)
+{
+    seq.playing = false;
+}
+
+eF32 eTfStepSequencerProcess(eTfStepSequencer &seq, eF32 **outputs, eU32 sampleFrames)
+{
+    return 0.0f;
+}
+
+// ------------------------------------------------------------------------------------
 // SYNTH
 // ------------------------------------------------------------------------------------
 
