@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -105,6 +105,9 @@ public:
     /** Returns the node section of the UUID. */
     uint64 getNode() const noexcept;
 
+    /** Returns a hash of the UUID. */
+    uint64 hash() const noexcept;
+
     //==============================================================================
     /** Returns a pointer to the internal binary representation of the ID.
 
@@ -132,3 +135,13 @@ private:
 };
 
 } // namespace juce
+
+#if ! DOXYGEN
+namespace std
+{
+    template <> struct hash<juce::Uuid>
+    {
+        size_t operator() (const juce::Uuid& u) const noexcept   { return (size_t) u.hash(); }
+    };
+}
+#endif

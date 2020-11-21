@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -30,7 +29,8 @@
 #if ! (JucePlugin_Build_VST || JucePlugin_Build_VST3 \
         || JucePlugin_Build_AU || JucePlugin_Build_AUv3 \
         ||JucePlugin_Build_RTAS || JucePlugin_Build_AAX \
-        || JucePlugin_Build_Standalone || JucePlugin_Build_LV2)
+        || JucePlugin_Build_Standalone || JucePlugin_Build_LV2 \
+        || JucePlugin_Build_Unity)
  #error "You need to enable at least one plugin format!"
 #endif
 
@@ -73,7 +73,7 @@
  #define JucePlugin_Build_RTAS 0
 #endif
 
-#if ! (defined (_MSC_VER) || defined (__APPLE_CPP__) || defined (__APPLE_CC__))
+#if ! (defined (_MSC_VER) || defined (__APPLE_CPP__) || defined (__APPLE_CC__) || defined (LINUX) || defined (__linux__))
  #undef JucePlugin_Build_VST3
  #define JucePlugin_Build_VST3 0
 #endif
@@ -91,30 +91,3 @@
  #undef JucePlugin_Build_AAX
  #define JucePlugin_Build_AAX 0
 #endif
-
-//==============================================================================
-#if JucePlugin_Build_VST
-
- #if JucePlugin_VersionCode < 0x010000   // Major < 0
-
-  #if (JucePlugin_VersionCode & 0x00FF00) > (9 * 0x100) // check if Minor number exceeeds 9
-   #warning When version has "major" = 0, VST2 has trouble displaying "minor" exceeding 9
-  #endif
-
-  #if (JucePlugin_VersionCode & 0xFF) > 9   // check if Bugfix number exceeeds 9
-   #warning When version has "major" = 0, VST2 has trouble displaying "bugfix" exceeding 9
-  #endif
-
- #elif JucePlugin_VersionCode >= 0x650000   // Major >= 101
-
-  #if (JucePlugin_VersionCode & 0x00FF00) > (99 * 0x100) // check if Minor number exceeeds 99
-   #warning When version has "major" > 100, VST2 has trouble displaying "minor" exceeding 99
-  #endif
-
-  #if (JucePlugin_VersionCode & 0xFF) > 99  // check if Bugfix number exceeeds 99
-   #warning When version has "major" > 100, VST2 has trouble displaying "bugfix" exceeding 99
-  #endif
-
- #endif // JucePlugin_VersionCode
-
-#endif // JucePlugin_Build_VST

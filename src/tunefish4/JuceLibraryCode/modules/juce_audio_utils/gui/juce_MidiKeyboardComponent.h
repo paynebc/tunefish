@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -48,7 +47,7 @@ namespace juce
     @tags{Audio}
 */
 class JUCE_API  MidiKeyboardComponent  : public Component,
-                                         public MidiKeyboardStateListener,
+                                         public MidiKeyboardState::Listener,
                                          public ChangeBroadcaster,
                                          private Timer
 {
@@ -67,13 +66,13 @@ public:
     /** Creates a MidiKeyboardComponent.
 
         @param state        the midi keyboard model that this component will represent
-        @param orientation  whether the keyboard is horizonal or vertical
+        @param orientation  whether the keyboard is horizontal or vertical
     */
     MidiKeyboardComponent (MidiKeyboardState& state,
                            Orientation orientation);
 
     /** Destructor. */
-    ~MidiKeyboardComponent();
+    ~MidiKeyboardComponent() override;
 
     //==============================================================================
     /** Changes the velocity used in midi note-on messages that are triggered by clicking
@@ -128,6 +127,12 @@ public:
 
     /** Returns the width that was set by setKeyWidth(). */
     float getKeyWidth() const noexcept                              { return keyWidth; }
+
+    /** Changes the width used to draw the buttons that scroll the keyboard up/down in octaves. */
+    void setScrollButtonWidth (int widthInPixels);
+
+    /** Returns the width that was set by setScrollButtonWidth(). */
+    int getScrollButtonWidth() const noexcept                       { return scrollButtonWidth; }
 
     /** Changes the keyboard's current direction. */
     void setOrientation (Orientation newOrientation);
@@ -364,9 +369,13 @@ protected:
     virtual bool mouseDownOnKey (int midiNoteNumber, const MouseEvent& e);
 
     /** Callback when the mouse is dragged from one key onto another.
+
+        Return true if you want the drag to trigger the new note, or false if you
+        want to handle it yourself and not have the note played.
+
         @see mouseDownOnKey
     */
-    virtual void mouseDraggedToKey (int midiNoteNumber, const MouseEvent& e);
+    virtual bool mouseDraggedToKey (int midiNoteNumber, const MouseEvent& e);
 
     /** Callback when the mouse is released from a key.
         @see mouseDownOnKey
@@ -396,6 +405,7 @@ private:
     float blackNoteWidthRatio = 0.7f;
     float xOffset = 0;
     float keyWidth = 16.0f;
+    int scrollButtonWidth = 12;
     Orientation orientation;
 
     int midiChannel = 1, midiInChannelMask = 0xffff;
@@ -407,8 +417,8 @@ private:
 
     int rangeStart = 0, rangeEnd = 127;
     float firstKey = 12 * 4.0f;
-    bool canScroll = true, useMousePositionForVelocity = true, shouldCheckMousePos = false;
-    ScopedPointer<Button> scrollDown, scrollUp;
+    bool canScroll = true, useMousePositionForVelocity = true;
+    std::unique_ptr<Button> scrollDown, scrollUp;
 
     Array<KeyPress> keyPresses;
     Array<int> keyPressNotes;

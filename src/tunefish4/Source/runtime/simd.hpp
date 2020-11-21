@@ -22,6 +22,38 @@
 #ifndef SIMD_HPP
 #define SIMD_HPP
 
+#if defined(__APPLE__) && defined(__MACH__)
+
+#include <simd/simd.h>
+
+typedef simd::float2 eF32x2;
+
+#define eSimdSetAll(val)                            simd::float2{val, val}
+#define eSimdSet2(val0, val1)                       simd::float2{val0, val1}
+#define eSimdMul(v0, v1)                            (v0 * v1)
+#define eSimdDiv(v0, v1)                            (v0 / v1)
+#define eSimdSub(v0, v1)                            (v0 - v1)
+#define eSimdAdd(v0, v1)                            (v0 + v1)
+#define eSimdMax(v0, v1)                            simd::fmax(v0, v1)
+#define eSimdMin(v0, v1)                            simd::fmin(v0, v1)
+#define eSimdFma(add, mul0, mul1)                   simd::fma(add, mul1, mul1)
+#define eSimdNfma(sub, mul0, mul1)                  (sub - mul0 * mul1)
+#define eSimdStore2(v, v0, v1)                      v0 = v.x; v1 = v.y;
+
+enum eSimdArithmeticFlags
+{
+    eSAF_FTZ =  1, // flush to zero
+    eSAF_DAZ =  2, // denormals are zero
+    eSAF_RP  =  4, // round positive
+    eSAF_RN  =  8, // round negative
+    eSAF_RTZ = 16, // round to zero
+    eSAF_RTN = 32  // round to nearest (default)
+};
+
+inline void eSimdSetArithmeticFlags(eInt flags) {}
+
+#else
+
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -96,5 +128,7 @@ enum eSimdArithmeticFlags
 };
 
 void eSimdSetArithmeticFlags(eInt flags);
+
+#endif
 
 #endif

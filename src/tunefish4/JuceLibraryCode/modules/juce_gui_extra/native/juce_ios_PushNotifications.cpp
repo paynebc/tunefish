@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,10 +26,6 @@
 namespace juce
 {
 
-#if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-template <> struct ContainerDeletePolicy<NSObject<UIApplicationDelegate, UNUserNotificationCenterDelegate>> { static void destroy (NSObject* o) { [o release]; } };
-#endif
-
 namespace PushNotificationsDelegateDetails
 {
     //==============================================================================
@@ -41,7 +36,7 @@ namespace PushNotificationsDelegateDetails
     {
         if (iOSEarlierThan10)
         {
-            auto* action = [[UIMutableUserNotificationAction alloc] init];
+            auto action = [[UIMutableUserNotificationAction alloc] init];
 
             action.identifier     = juceStringToNS (a.identifier);
             action.title          = juceStringToNS (a.title);
@@ -58,7 +53,7 @@ namespace PushNotificationsDelegateDetails
         }
         else
         {
-          #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+           #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
             if (a.style == Action::text)
             {
                 return [UNTextInputNotificationAction actionWithIdentifier: juceStringToNS (a.identifier)
@@ -71,9 +66,9 @@ namespace PushNotificationsDelegateDetails
             return [UNNotificationAction actionWithIdentifier: juceStringToNS (a.identifier)
                                                         title: juceStringToNS (a.title)
                                                       options: NSUInteger (a.destructive << 1 | (! a.triggerInBackground) << 2)];
-          #else
+           #else
             return nullptr;
-          #endif
+           #endif
         }
     }
 
@@ -81,10 +76,10 @@ namespace PushNotificationsDelegateDetails
     {
         if (iOSEarlierThan10)
         {
-            auto* category = [[UIMutableUserNotificationCategory alloc] init];
+            auto category = [[UIMutableUserNotificationCategory alloc] init];
             category.identifier = juceStringToNS (c.identifier);
 
-            auto* actions = [NSMutableArray arrayWithCapacity: (NSUInteger) c.actions.size()];
+            auto actions = [NSMutableArray arrayWithCapacity: (NSUInteger) c.actions.size()];
 
             for (const auto& a : c.actions)
             {
@@ -101,8 +96,8 @@ namespace PushNotificationsDelegateDetails
         }
         else
         {
-          #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-            auto* actions = [NSMutableArray arrayWithCapacity: (NSUInteger) c.actions.size()];
+           #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+            auto actions = [NSMutableArray arrayWithCapacity: (NSUInteger) c.actions.size()];
 
             for (const auto& a : c.actions)
             {
@@ -114,16 +109,16 @@ namespace PushNotificationsDelegateDetails
                                                           actions: actions
                                                 intentIdentifiers: @[]
                                                           options: c.sendDismissAction ? UNNotificationCategoryOptionCustomDismissAction : 0];
-          #else
+           #else
             return nullptr;
-          #endif
+           #endif
         }
     }
 
     //==============================================================================
     UILocalNotification* juceNotificationToUILocalNotification (const PushNotifications::Notification& n)
     {
-        auto* notification = [[UILocalNotification alloc] init];
+        auto notification = [[UILocalNotification alloc] init];
 
         notification.alertTitle = juceStringToNS (n.title);
         notification.alertBody  = juceStringToNS (n.body);
@@ -144,11 +139,11 @@ namespace PushNotificationsDelegateDetails
         return notification;
     }
 
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     UNNotificationRequest* juceNotificationToUNNotificationRequest (const PushNotifications::Notification& n)
     {
         // content
-        auto* content = [[UNMutableNotificationContent alloc] init];
+        auto content = [[UNMutableNotificationContent alloc] init];
 
         content.title              = juceStringToNS (n.title);
         content.subtitle           = juceStringToNS (n.subtitle);
@@ -178,7 +173,7 @@ namespace PushNotificationsDelegateDetails
         }
 
         // request
-        // each notification on iOS 10 needs to have an identifer, otherwise it will not show up
+        // each notification on iOS 10 needs to have an identifier, otherwise it will not show up
         jassert (n.identifier.isNotEmpty());
         UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier: juceStringToNS (n.identifier)
                                                                               content: content
@@ -188,7 +183,7 @@ namespace PushNotificationsDelegateDetails
 
         return request;
     }
-  #endif
+   #endif
 
     String getUserResponseFromNSDictionary (NSDictionary* dictionary)
     {
@@ -233,11 +228,11 @@ namespace PushNotificationsDelegateDetails
             propsVarObject->setProperty (propertyName, properties.getValueAt (i));
         }
 
-        return var (propsVarObject);
+        return var (propsVarObject.get());
     }
 
     //==============================================================================
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     double getIntervalSecFromUNNotificationTrigger (UNNotificationTrigger* t)
     {
         if (t != nil)
@@ -292,7 +287,7 @@ namespace PushNotificationsDelegateDetails
     {
         return unNotificationRequestToJuceNotification (n.request);
     }
-  #endif
+   #endif
 
     PushNotifications::Notification uiLocalNotificationToJuceNotification (UILocalNotification* n)
     {
@@ -304,7 +299,9 @@ namespace PushNotificationsDelegateDetails
         if (n.fireDate != nil)
         {
             NSDate* dateNow = [NSDate date];
-            notif.triggerIntervalSec = [dateNow timeIntervalSinceDate: n.fireDate];
+            NSDate* fireDate = n.fireDate;
+
+            notif.triggerIntervalSec = [dateNow timeIntervalSinceDate: fireDate];
         }
 
         notif.soundToPlay = URL (nsStringToJuce (n.soundName));
@@ -343,7 +340,7 @@ namespace PushNotificationsDelegateDetails
         return category;
     }
 
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     Action unNotificationActionToAction (UNNotificationAction* a)
     {
         Action action;
@@ -381,7 +378,7 @@ namespace PushNotificationsDelegateDetails
 
         return category;
     }
-  #endif
+   #endif
 
     PushNotifications::Notification nsDictionaryToJuceNotification (NSDictionary* dictionary)
     {
@@ -421,14 +418,14 @@ struct PushNotificationsDelegate
 {
     PushNotificationsDelegate() : delegate ([getClass().createInstance() init])
     {
-        Class::setThis (delegate, this);
+        Class::setThis (delegate.get(), this);
 
         id<UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
 
         SEL selector = NSSelectorFromString (@"setPushNotificationsDelegateToUse:");
 
         if ([appDelegate respondsToSelector: selector])
-            [appDelegate performSelector: selector withObject: delegate];
+            [appDelegate performSelector: selector withObject: delegate.get()];
     }
 
     virtual ~PushNotificationsDelegate() {}
@@ -460,32 +457,32 @@ struct PushNotificationsDelegate
                                                                                 NSDictionary* responseInfo,
                                                                                 void (^completionHandler)()) = 0;
 
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     virtual void willPresentNotificationWithCompletionHandler (UNNotification* notification,
                                                                void (^completionHandler)(UNNotificationPresentationOptions options)) = 0;
 
     virtual void didReceiveNotificationResponseWithCompletionHandler (UNNotificationResponse* response,
                                                                       void (^completionHandler)()) = 0;
-  #endif
+   #endif
 
 protected:
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-    ScopedPointer<NSObject<UIApplicationDelegate, UNUserNotificationCenterDelegate>> delegate;
-  #else
-    ScopedPointer<NSObject<UIApplicationDelegate>> delegate;
-  #endif
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+    std::unique_ptr<NSObject<UIApplicationDelegate, UNUserNotificationCenterDelegate>, NSObjectDeleter> delegate;
+   #else
+    std::unique_ptr<NSObject<UIApplicationDelegate>, NSObjectDeleter> delegate;
+   #endif
 
 private:
     //==============================================================================
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     struct Class    : public ObjCClass<NSObject<UIApplicationDelegate, UNUserNotificationCenterDelegate>>
     {
         Class() : ObjCClass<NSObject<UIApplicationDelegate, UNUserNotificationCenterDelegate>> ("JucePushNotificationsDelegate_")
-  #else
+   #else
     struct Class    : public ObjCClass<NSObject<UIApplicationDelegate>>
     {
         Class() : ObjCClass<NSObject<UIApplicationDelegate>> ("JucePushNotificationsDelegate_")
-  #endif
+   #endif
         {
             addIvar<PushNotificationsDelegate*> ("self");
 
@@ -499,10 +496,10 @@ private:
             addMethod (@selector (application:handleActionWithIdentifier:forLocalNotification:completionHandler:),                   handleActionForLocalNotificationCompletionHandler,              "v@:@@@@");
             addMethod (@selector (application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:),  handleActionForLocalNotificationWithResponseCompletionHandler,  "v@:@@@@@");
 
-          #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+           #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
             addMethod (@selector (userNotificationCenter:willPresentNotification:withCompletionHandler:),                            willPresentNotificationWithCompletionHandler,                   "v@:@@@");
             addMethod (@selector (userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),                     didReceiveNotificationResponseWithCompletionHandler,            "v@:@@@");
-          #endif
+           #endif
 
             registerClass();
         }
@@ -547,7 +544,7 @@ private:
                                                                                    NSDictionary* responseInfo,
                                                                                    void (^completionHandler)())                                 { getThis (self). handleActionForLocalNotificationWithResponseCompletionHandler (actionIdentifier, notification, responseInfo, completionHandler); }
 
-      #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+       #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
         static void willPresentNotificationWithCompletionHandler        (id self, SEL, UNUserNotificationCenter*,
                                                                          UNNotification* notification,
                                                                          void (^completionHandler)(UNNotificationPresentationOptions options))  { getThis (self).willPresentNotificationWithCompletionHandler (notification, completionHandler); }
@@ -555,7 +552,7 @@ private:
         static void didReceiveNotificationResponseWithCompletionHandler (id self, SEL, UNUserNotificationCenter*,
                                                                          UNNotificationResponse* response,
                                                                          void (^completionHandler)())                                           { getThis (self).didReceiveNotificationResponseWithCompletionHandler (response, completionHandler); }
-      #endif
+       #endif
     };
 
     //==============================================================================
@@ -589,7 +586,7 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
     {
         settings = settingsToUse;
 
-        auto* categories = [NSMutableSet setWithCapacity: (NSUInteger) settings.categories.size()];
+        auto categories = [NSMutableSet setWithCapacity: (NSUInteger) settings.categories.size()];
 
         if (iOSEarlierThan10)
         {
@@ -845,12 +842,22 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
 
     void registeredForRemoteNotifications (NSData* deviceTokenToUse) override
     {
-        NSString* deviceTokenString = [[[[deviceTokenToUse description]
-                                          stringByReplacingOccurrencesOfString: nsStringLiteral ("<") withString: nsStringLiteral ("")]
-                                          stringByReplacingOccurrencesOfString: nsStringLiteral (">") withString: nsStringLiteral ("")]
-                                          stringByReplacingOccurrencesOfString: nsStringLiteral (" ") withString: nsStringLiteral ("")];
+        deviceToken = [deviceTokenToUse]() -> String
+        {
+            auto length = deviceTokenToUse.length;
 
-        deviceToken = nsStringToJuce (deviceTokenString);
+            if (auto* buffer = (const unsigned char*) deviceTokenToUse.bytes)
+            {
+                NSMutableString* hexString = [NSMutableString stringWithCapacity: (length * 2)];
+
+                for (NSUInteger i = 0; i < length; ++i)
+                    [hexString appendFormat:@"%02x", buffer[i]];
+
+                return nsStringToJuce ([hexString copy]);
+            }
+
+            return {};
+        }();
 
         initialised = true;
 
@@ -923,7 +930,7 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
         completionHandler();
     }
 
-  #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     void willPresentNotificationWithCompletionHandler (UNNotification* notification,
                                                        void (^completionHandler)(UNNotificationPresentationOptions options)) override
     {
@@ -961,7 +968,7 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
         owner.listeners.call ([&] (Listener& l) { l.handleNotificationAction (! remote, n, actionString, responseString); });
         completionHandler();
     }
-  #endif
+   #endif
 
     void subscribeToTopic (const String& topic)     { ignoreUnused (topic); }
     void unsubscribeFromTopic (const String& topic) { ignoreUnused (topic); }

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -38,16 +37,18 @@ class JUCE_API  LookAndFeel_V1    : public LookAndFeel_V2
 {
 public:
     LookAndFeel_V1();
-    ~LookAndFeel_V1();
+    ~LookAndFeel_V1() override;
 
     //==============================================================================
     void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override;
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
-    void drawToggleButton (Graphics&, ToggleButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawToggleButton (Graphics&, ToggleButton&,
+                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawTickBox (Graphics&, Component&, float x, float y, float w, float h,
-                      bool ticked, bool isEnabled, bool isMouseOverButton, bool isButtonDown) override;
+                      bool ticked, bool isEnabled,
+                      bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawProgressBar (Graphics&, ProgressBar&, int width, int height,
                           double progress, const String& textToShow) override;
@@ -55,7 +56,7 @@ public:
     //==============================================================================
     void drawScrollbarButton (Graphics&, ScrollBar&, int width, int height,
                               int buttonDirection, bool isScrollbarVertical,
-                              bool isMouseOverButton, bool isButtonDown) override;
+                              bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawScrollbar (Graphics&, ScrollBar&, int x, int y, int width, int height,
                         bool isScrollbarVertical, int thumbStartPosition, int thumbSize,

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -136,7 +136,7 @@ public:
         class Visitor
         {
         public:
-            virtual ~Visitor() {}
+            virtual ~Visitor() = default;
             virtual void visit (const Scope&) = 0;
         };
 
@@ -243,10 +243,6 @@ private:
     //==============================================================================
     class Term;
     struct Helpers;
-    friend class Term;
-    friend struct Helpers;
-    friend struct ContainerDeletePolicy<Term>;
-    friend class ReferenceCountedObjectPtr<Term>;
     ReferenceCountedObjectPtr<Term> term;
 
     explicit Expression (Term*);

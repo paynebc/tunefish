@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -118,7 +117,7 @@ Typeface::~Typeface()
 Typeface::Ptr Typeface::getFallbackTypeface()
 {
     const Font fallbackFont (Font::getFallbackFontName(), Font::getFallbackFontStyle(), 10.0f);
-    return fallbackFont.getTypeface();
+    return Typeface::Ptr (fallbackFont.getTypeface());
 }
 
 EdgeTable* Typeface::getEdgeTableForGlyph (int glyphNumber, const AffineTransform& transform, float fontHeight)
@@ -140,9 +139,8 @@ EdgeTable* Typeface::getEdgeTableForGlyph (int glyphNumber, const AffineTransfor
 struct Typeface::HintingParams
 {
     HintingParams (Typeface& t)
-        : cachedSize (0), top (0), middle (0), bottom (0)
     {
-        Font font (&t);
+        Font font (t);
         font = font.withHeight ((float) standardHeight);
 
         top = getAverageY (font, "BDEFPRTZOQ", true);
@@ -209,7 +207,7 @@ private:
         float middle, upperScale, upperOffset, lowerScale, lowerOffset;
     };
 
-    float cachedSize;
+    float cachedSize = 0;
     Scaling cachedScale;
 
     static float getAverageY (const Font& font, const char* chars, bool getTop)
@@ -244,11 +242,11 @@ private:
             }
         }
 
-        return num < 4 ? 0.0f : total / (num * (float) standardHeight);
+        return num < 4 ? 0.0f : total / ((float) num * (float) standardHeight);
     }
 
     enum { standardHeight = 100 };
-    float top, middle, bottom;
+    float top = 0, middle = 0, bottom = 0;
 };
 
 void Typeface::applyVerticalHintingTransform (float fontSize, Path& path)

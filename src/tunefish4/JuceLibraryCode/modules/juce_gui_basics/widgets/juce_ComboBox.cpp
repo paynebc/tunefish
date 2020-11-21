@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -83,7 +82,7 @@ void ComboBox::addItem (const String& newItemText, int newItemId)
     // you can't add empty strings to the list..
     jassert (newItemText.isNotEmpty());
 
-    // IDs must be non-zero, as zero is used to indicate a lack of selecion.
+    // IDs must be non-zero, as zero is used to indicate a lack of selection.
     jassert (newItemId != 0);
 
     // you shouldn't use duplicate item IDs!
@@ -369,16 +368,8 @@ void ComboBox::paint (Graphics& g)
                                    label->getRight(), 0, getWidth() - label->getRight(), getHeight(),
                                    *this);
 
-    if (textWhenNothingSelected.isNotEmpty()
-         && label->getText().isEmpty()
-         && ! label->isBeingEdited())
-    {
-        g.setColour (findColour (textColourId).withMultipliedAlpha (0.5f));
-        g.setFont (label->getLookAndFeel().getLabelFont (*label));
-        g.drawFittedText (textWhenNothingSelected, label->getBounds().reduced (2, 1),
-                          label->getJustificationType(),
-                          jmax (1, (int) (label->getHeight() / label->getFont().getHeight())));
-    }
+    if (textWhenNothingSelected.isNotEmpty() && label->getText().isEmpty() && ! label->isBeingEdited())
+        getLookAndFeel().drawComboBoxTextWhenNothingSelected (g, *this, *label);
 }
 
 void ComboBox::resized()
@@ -407,7 +398,7 @@ void ComboBox::lookAndFeelChanged()
     repaint();
 
     {
-        ScopedPointer<Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
+        std::unique_ptr<Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
         jassert (newLabel != nullptr);
 
         if (label != nullptr)
@@ -497,6 +488,8 @@ void ComboBox::showPopupIfNotActive()
         // showPopup asynchronously, we are giving the other popups a chance to properly
         // close themselves
         MessageManager::callAsync ([safePointer]() mutable { if (safePointer != nullptr) safePointer->showPopup(); });
+
+        repaint();
     }
 }
 
@@ -523,6 +516,9 @@ static void comboBoxPopupMenuFinishedCallback (int result, ComboBox* combo)
 
 void ComboBox::showPopup()
 {
+    if (! menuActive)
+        menuActive = true;
+
     auto menu = currentMenu;
 
     if (menu.getNumItems() > 0)
@@ -542,12 +538,10 @@ void ComboBox::showPopup()
         menu.addItem (1, noChoicesMessage, false, false);
     }
 
-    menu.setLookAndFeel (&getLookAndFeel());
-    menu.showMenuAsync (PopupMenu::Options().withTargetComponent (this)
-                                            .withItemThatMustBeVisible (getSelectedId())
-                                            .withMinimumWidth (getWidth())
-                                            .withMaximumNumColumns (1)
-                                            .withStandardItemHeight (label->getHeight()),
+    auto& lf = getLookAndFeel();
+
+    menu.setLookAndFeel (&lf);
+    menu.showMenuAsync (lf.getOptionsForComboBoxPopupMenu (*this, *label),
                         ModalCallbackFunction::forComponent (comboBoxPopupMenuFinishedCallback, this));
 }
 

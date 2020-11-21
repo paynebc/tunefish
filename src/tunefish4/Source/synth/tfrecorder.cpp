@@ -172,15 +172,12 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 	if (!fileJSON.deleteFile())
 		return eFALSE;
 
-    FileOutputStream *outBin = fileBin.createOutputStream();
-    FileOutputStream *outLog = fileLog.createOutputStream();
-    FileOutputStream *outJSON = fileJSON.createOutputStream();
+    auto outBin = fileBin.createOutputStream();
+    auto outLog = fileLog.createOutputStream();
+    auto outJSON = fileJSON.createOutputStream();
 
     if (!outBin || !outLog || !outJSON)
     {
-        eDelete(outBin);
-        eDelete(outLog);
-        eDelete(outJSON);
         return eFALSE;
     }
 
@@ -206,21 +203,21 @@ eBool eTfRecorder::saveToFile(File &fileBin)
     outBin->write(reinterpret_cast<const char *>(&synthCount), sizeof(eU16));
     outBin->write(reinterpret_cast<const char *>(&m_tempo), sizeof(eU16));
 
-    outJSON->writeText("var tf_synthcount = ", false, false);
-    outJSON->writeText(String(synthCount), false, false);
-    outJSON->writeText(";\r\n", false, false);
+    outJSON->writeText("var tf_synthcount = ", false, false, nullptr);
+    outJSON->writeText(String(synthCount), false, false, nullptr);
+    outJSON->writeText(";\r\n", false, false, nullptr);
 
-    outJSON->writeText("var tf_tempo = ", false, false);
-    outJSON->writeText(String(m_tempo), false, false);
-    outJSON->writeText(";\r\n", false, false);
+    outJSON->writeText("var tf_tempo = ", false, false, nullptr);
+    outJSON->writeText(String(m_tempo), false, false, nullptr);
+    outJSON->writeText(";\r\n", false, false, nullptr);
 
-	outLog->writeText("Instruments: ", false, false);
-    outLog->writeText(String(synthCount), false, false);
-    outLog->writeText("\r\n", false, false);
+	outLog->writeText("Instruments: ", false, false, nullptr);
+    outLog->writeText(String(synthCount), false, false, nullptr);
+    outLog->writeText("\r\n", false, false, nullptr);
 
-    outLog->writeText("Tempo: ", false, false);
-    outLog->writeText(String(m_tempo), false, false);
-    outLog->writeText("\r\n", false, false);
+    outLog->writeText("Tempo: ", false, false, nullptr);
+    outLog->writeText(String(m_tempo), false, false, nullptr);
+    outLog->writeText("\r\n", false, false, nullptr);
 
 	for(eU32 i=0;i<TF_MAX_INSTR; i++) 
 	{
@@ -228,18 +225,18 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 		{
 			outBin->write(reinterpret_cast<const char *>(&eventCount[i]), sizeof(eU16));
 
-            outLog->writeText("Eventcount for instr ", false, false);
-            outLog->writeText(String(i), false, false);
-            outLog->writeText(": ", false, false);
-            outLog->writeText(String(eventCount[i]), false, false);
-            outLog->writeText("\r\n", false, false);
+            outLog->writeText("Eventcount for instr ", false, false, nullptr);
+            outLog->writeText(String(i), false, false, nullptr);
+            outLog->writeText(": ", false, false, nullptr);
+            outLog->writeText(String(eventCount[i]), false, false, nullptr);
+            outLog->writeText("\r\n", false, false, nullptr);
 		}
 	}
 
-    outLog->writeText("Instruments\r\n", false, false);
-    outLog->writeText("-----------------------------------------\r\n", false, false);
+    outLog->writeText("Instruments\r\n", false, false, nullptr);
+    outLog->writeText("-----------------------------------------\r\n", false, false, nullptr);
 
-	outBin->writeText("INST", false, false);
+	outBin->writeText("INST", false, false, nullptr);
 
 	// optimize instruments
 	for(eU32 i=0;i<TF_MAX_INSTR; i++) 
@@ -253,7 +250,7 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 	}
 
 	// write instruments  (grouped by instruments)
-    outJSON->writeText("var tf_instruments = [\r\n", false, false);
+    outJSON->writeText("var tf_instruments = [\r\n", false, false, nullptr);
 	for(eU32 i=0;i<TF_MAX_INSTR; i++) 
 	{
 		Tunefish4AudioProcessor *synth = m_synths[i];
@@ -262,36 +259,36 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 		{
 			eTfSynth *tf = synth->getSynth();
 
-			outLog->writeText("Params for instr ", false, false);
-            outLog->writeText(String(i), false, false);
-            outLog->writeText("\r\n", false, false);
-            outLog->writeText("-----------------------------------------\r\n", false, false);
+			outLog->writeText("Params for instr ", false, false, nullptr);
+            outLog->writeText(String(i), false, false, nullptr);
+            outLog->writeText("\r\n", false, false, nullptr);
+            outLog->writeText("-----------------------------------------\r\n", false, false, nullptr);
             
-            outJSON->writeText("[", false, false);
+            outJSON->writeText("[", false, false, nullptr);
 
 			for(eU32 j=0; j<TF_PARAM_COUNT; j++)
 			{
 				eF32 value = tf->instr[0]->params[j];
 				eU8 ivalue = static_cast<eU8>(value * 100.0f);
 
-                outLog->writeText(TF_NAMES[j], false, false);
-                outLog->writeText(": ", false, false);
-                outLog->writeText(String(value), false, false);
-                outLog->writeText(" -> ", false, false);
-                outLog->writeText(String(ivalue), false, false);
-                outLog->writeText("\r\n", false, false);
+                outLog->writeText(TF_NAMES[j], false, false, nullptr);
+                outLog->writeText(": ", false, false, nullptr);
+                outLog->writeText(String(value), false, false, nullptr);
+                outLog->writeText(" -> ", false, false, nullptr);
+                outLog->writeText(String(ivalue), false, false, nullptr);
+                outLog->writeText("\r\n", false, false, nullptr);
 
-                outJSON->writeText(String(value), false, false);
+                outJSON->writeText(String(value), false, false, nullptr);
                 if (j < TF_PARAM_COUNT-1)
-                    outJSON->writeText(", ", false, false);
+                    outJSON->writeText(", ", false, false, nullptr);
 
 				outBin->write(reinterpret_cast<const char *>(&ivalue), sizeof(eU8));
 			}
 
-            outJSON->writeText("],\r\n", false, false);
+            outJSON->writeText("],\r\n", false, false, nullptr);
 		}
 	}
-    outJSON->writeText("];\r\n", false, false);
+    outJSON->writeText("];\r\n", false, false, nullptr);
 
 	/*
 	// write instruments  (grouped by paramindex)		
@@ -314,8 +311,8 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 	}
     */
 	
-    outLog->writeText("Events (Time, iTime, Instrument, Note, Velocity)\r\n", false, false);
-    outLog->writeText("-----------------------------------------\r\n", false, false);
+    outLog->writeText("Events (Time, iTime, Instrument, Note, Velocity)\r\n", false, false, nullptr);
+    outLog->writeText("-----------------------------------------\r\n", false, false, nullptr);
 
 	// calculate speed values
     const eU32 rows_per_beat = 4;
@@ -323,38 +320,38 @@ eBool eTfRecorder::saveToFile(File &fileBin)
     const eF32 rows_per_sec = static_cast<eF32>(rows_per_min) / 60.0f;
 
     // write events
-    outJSON->writeText("var tf_song = [\r\n", false, false);
+    outJSON->writeText("var tf_song = [\r\n", false, false, nullptr);
 	for(eU32 i=0;i<m_events.size();i++)
 	{
 		eTfEvent &e = m_events[i];
 
-        outLog->writeText("Event: ", false, false);
-        outLog->writeText(String(e.time), false, false);
-        outLog->writeText("\t", false, false);
-        outLog->writeText(String(static_cast<eU32>(e.time * rows_per_sec)), false, false);
-		outLog->writeText("\t", false, false);
-		outLog->writeText(String(e.instr), false, false);
-		outLog->writeText("\t", false, false);
-		outLog->writeText(String(e.note), false, false);
-		outLog->writeText("\t", false, false);
-		outLog->writeText(String(e.velocity), false, false);
-		outLog->writeText("\r\n", false, false);
+        outLog->writeText("Event: ", false, false, nullptr);
+        outLog->writeText(String(e.time), false, false, nullptr);
+        outLog->writeText("\t", false, false, nullptr);
+        outLog->writeText(String(static_cast<eU32>(e.time * rows_per_sec)), false, false, nullptr);
+		outLog->writeText("\t", false, false, nullptr);
+		outLog->writeText(String(e.instr), false, false, nullptr);
+		outLog->writeText("\t", false, false, nullptr);
+		outLog->writeText(String(e.note), false, false, nullptr);
+		outLog->writeText("\t", false, false, nullptr);
+		outLog->writeText(String(e.velocity), false, false, nullptr);
+		outLog->writeText("\r\n", false, false, nullptr);
 
         eU16 row = static_cast<eU16>(eFtoL(eRoundNearest(e.time * rows_per_sec)));
 
-        outJSON->writeText("[", false, false);
-        outJSON->writeText(String(row), false, false);
-        outJSON->writeText(", ", false, false);
-        outJSON->writeText(String(e.instr), false, false);
-        outJSON->writeText(", ", false, false);
-        outJSON->writeText(String(e.note), false, false);
-        outJSON->writeText(", ", false, false);
-        outJSON->writeText(String(e.velocity), false, false);
-        outJSON->writeText("],\r\n", false, false);
+        outJSON->writeText("[", false, false, nullptr);
+        outJSON->writeText(String(row), false, false, nullptr);
+        outJSON->writeText(", ", false, false, nullptr);
+        outJSON->writeText(String(e.instr), false, false, nullptr);
+        outJSON->writeText(", ", false, false, nullptr);
+        outJSON->writeText(String(e.note), false, false, nullptr);
+        outJSON->writeText(", ", false, false, nullptr);
+        outJSON->writeText(String(e.velocity), false, false, nullptr);
+        outJSON->writeText("],\r\n", false, false, nullptr);
 	}
-    outJSON->writeText("];\r\n", false, false);
+    outJSON->writeText("];\r\n", false, false, nullptr);
 
-	outBin->writeText("SONG", false, false);
+	outBin->writeText("SONG", false, false, nullptr);
 
 	for(eU32 i=0;i<TF_MAX_INSTR; i++) 
 	{
@@ -400,11 +397,11 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 		}
 	}
 
-    outBin->writeText("ENDS", false, false);
+    outBin->writeText("ENDS", false, false, nullptr);
 
-    delete outBin;
-    delete outLog;
-    delete outJSON;
+    outBin.reset();
+    outLog.reset();
+    outJSON.reset();
 
 	m_cs.exit();
 
@@ -416,23 +413,23 @@ eBool eTfRecorder::saveToFile(File &fileBin)
     if (!headerOut.deleteFile())
         return eFALSE;
 
-    FileInputStream *inHeader = headerIn.createInputStream();
+    auto inHeader = headerIn.createInputStream();
     
     if (!inHeader)
         return eFALSE;
 
     MemoryBlock input;
     size_t inputLen = inHeader->readIntoMemoryBlock(input);
-    eDelete(inHeader);
+    inHeader.reset();
 
-    FileOutputStream *outHeader = headerOut.createOutputStream();
+    auto outHeader = headerOut.createOutputStream();
 
     if (!outHeader)
     {
         return eFALSE;
     }
 	
-    outHeader->writeText("const unsigned char song[] = {\r\n", false, false);
+    outHeader->writeText("const unsigned char song[] = {\r\n", false, false, nullptr);
 	
 	for(eS32 i=0;i<inputLen;i++)
 	{
@@ -441,24 +438,22 @@ eBool eTfRecorder::saveToFile(File &fileBin)
 		eBool firstInRow = i % 16 == 0;
 
 		if (firstInRow)
-            outHeader->writeText("\t", false, false);
+            outHeader->writeText("\t", false, false, nullptr);
 
 		String numstr = String::toHexString(static_cast<const eU8>(input[i]));        
 		if (numstr.length() == 1)
 			numstr = "0" + numstr;
 
-        outHeader->writeText(String("0x") + numstr, false, false);
+        outHeader->writeText(String("0x") + numstr, false, false, nullptr);
 
 		if (!lastByte)
-            outHeader->writeText(", ", false, false);
+            outHeader->writeText(", ", false, false, nullptr);
 
 		if (lastInRow || lastByte)
-            outHeader->writeText("\r\n", false, false);
+            outHeader->writeText("\r\n", false, false, nullptr);
 	}
 
-    outHeader->writeText("};\r\n", false, false);
-
-    eDelete(outHeader);
+    outHeader->writeText("};\r\n", false, false, nullptr);
 
 	return eTRUE;
 }

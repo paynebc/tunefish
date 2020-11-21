@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -52,7 +51,7 @@ public:
     explicit ImageButton (const String& name = String());
 
     /** Destructor. */
-    ~ImageButton();
+    ~ImageButton() override;
 
     //==============================================================================
     /** Sets up the images to draw in various states.
@@ -131,7 +130,7 @@ public:
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawImageButton (Graphics&, Image*,
                                       int imageX, int imageY, int imageW, int imageH,
@@ -143,7 +142,7 @@ protected:
     /** @internal */
     bool hitTest (int x, int y) override;
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics&, bool, bool) override;
 
 private:
     //==============================================================================

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -88,7 +87,7 @@ public:
                           FilePreviewComponent* previewComp);
 
     /** Destructor. */
-    ~FileBrowserComponent();
+    ~FileBrowserComponent() override;
 
     //==============================================================================
     /** Returns the number of files that the user has got selected.
@@ -183,7 +182,7 @@ public:
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         // These return a pointer to an internally cached drawable - make sure you don't keep
         // a copy of this pointer anywhere, as it may become invalid in the future.
@@ -267,7 +266,7 @@ protected:
 
 private:
     //==============================================================================
-    ScopedPointer<DirectoryContentsList> fileList;
+    std::unique_ptr<DirectoryContentsList> fileList;
     const FileFilter* fileFilter;
 
     int flags;
@@ -275,12 +274,12 @@ private:
     Array<File> chosenFiles;
     ListenerList<FileBrowserListener> listeners;
 
-    ScopedPointer<DirectoryContentsDisplayComponent> fileListComponent;
+    std::unique_ptr<DirectoryContentsDisplayComponent> fileListComponent;
     FilePreviewComponent* previewComp;
     ComboBox currentPathBox;
     TextEditor filenameBox;
     Label fileLabel;
-    ScopedPointer<Button> goUpButton;
+    std::unique_ptr<Button> goUpButton;
     TimeSliceThread thread;
     bool wasProcessActive;
 

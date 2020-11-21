@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -64,7 +63,7 @@ void BubbleComponent::setPosition (Component* componentToPointTo, int distanceFr
     if (Component* p = getParentComponent())
         target = p->getLocalArea (componentToPointTo, componentToPointTo->getLocalBounds());
     else
-        target = componentToPointTo->getScreenBounds();
+        target = componentToPointTo->getScreenBounds().transformedBy (getTransform().inverted());
 
     setPosition (target, distanceFromTarget, arrowLength);
 }
@@ -86,8 +85,8 @@ void BubbleComponent::setPosition (Rectangle<int> rectangleToPointTo,
     const int totalW = content.getWidth()  + distanceFromTarget * 2;
     const int totalH = content.getHeight() + distanceFromTarget * 2;
 
-    const Rectangle<int> availableSpace (getParentComponent() != nullptr ? getParentComponent()->getLocalBounds()
-                                                                         : getParentMonitorArea());
+    auto availableSpace = (getParentComponent() != nullptr ? getParentComponent()->getLocalBounds()
+                                                           : getParentMonitorArea().transformedBy (getTransform().inverted()));
 
     int spaceAbove = ((allowablePlacements & above) != 0) ? jmax (0, rectangleToPointTo.getY()  - availableSpace.getY()) : -1;
     int spaceBelow = ((allowablePlacements & below) != 0) ? jmax (0, availableSpace.getBottom() - rectangleToPointTo.getBottom()) : -1;

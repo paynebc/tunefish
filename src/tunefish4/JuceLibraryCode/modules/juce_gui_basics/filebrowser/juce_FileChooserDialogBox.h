@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -81,6 +80,11 @@ public:
                                 if they try to select a file that already exists. (This
                                 flag is only used when saving files)
         @param backgroundColour the background colour for the top level window
+        @param parentComponent  an optional component which should be the parent
+                                for the file chooser. If this is a nullptr then the
+                                dialog box will be a top-level window. AUv3s on iOS
+                                must specify this parameter as opening a top-level window
+                                in an AUv3 is forbidden due to sandbox restrictions.
 
         @see FileBrowserComponent, FilePreviewComponent
     */
@@ -88,10 +92,11 @@ public:
                           const String& instructions,
                           FileBrowserComponent& browserComponent,
                           bool warnAboutOverwritingExistingFiles,
-                          Colour backgroundColour);
+                          Colour backgroundColour,
+                          Component* parentComponent = nullptr);
 
     /** Destructor. */
-    ~FileChooserDialogBox();
+    ~FileChooserDialogBox() override;
 
     //==============================================================================
    #if JUCE_MODAL_LOOPS_PERMITTED

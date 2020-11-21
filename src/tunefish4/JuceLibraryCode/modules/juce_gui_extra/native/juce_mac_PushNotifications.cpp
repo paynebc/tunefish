@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,10 +23,10 @@
   ==============================================================================
 */
 
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+
 namespace juce
 {
-
-template <> struct ContainerDeletePolicy<NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>> { static void destroy (NSObject* o) { [o release]; } };
 
 namespace PushNotificationsDelegateDetailsOsx
 {
@@ -38,7 +37,7 @@ namespace PushNotificationsDelegateDetailsOsx
                                                               bool isEarlierThanMavericks,
                                                               bool isEarlierThanYosemite)
     {
-        auto* notification = [[NSUserNotification alloc] init];
+        auto notification = [[NSUserNotification alloc] init];
 
         notification.title           = juceStringToNS (n.title);
         notification.subtitle        = juceStringToNS (n.subtitle);
@@ -50,7 +49,7 @@ namespace PushNotificationsDelegateDetailsOsx
 
         if (n.repeat && n.triggerIntervalSec >= 60)
         {
-            auto* dateComponents = [[NSDateComponents alloc] init];
+            auto dateComponents = [[NSDateComponents alloc] init];
             auto intervalSec = NSInteger (n.triggerIntervalSec);
             dateComponents.second = intervalSec;
             dateComponents.nanosecond = NSInteger ((n.triggerIntervalSec - intervalSec) * 1000000000);
@@ -117,7 +116,7 @@ namespace PushNotificationsDelegateDetailsOsx
             {
                 if (n.actions.size() > 1)
                 {
-                    auto* additionalActions = [NSMutableArray arrayWithCapacity: (NSUInteger) n.actions.size() - 1];
+                    auto additionalActions = [NSMutableArray arrayWithCapacity: (NSUInteger) n.actions.size() - 1];
 
                     for (int a = 1; a < n.actions.size(); ++a)
                         [additionalActions addObject: [NSUserNotificationAction actionWithIdentifier: juceStringToNS (n.actions[a].identifier)
@@ -153,7 +152,9 @@ namespace PushNotificationsDelegateDetailsOsx
         else
         {
             NSDate* dateNow = [NSDate date];
-            notif.triggerIntervalSec = [dateNow timeIntervalSinceDate: n.deliveryDate];
+            NSDate* deliveryDate = n.deliveryDate;
+
+            notif.triggerIntervalSec = [dateNow timeIntervalSinceDate: deliveryDate];
         }
 
         notif.soundToPlay = URL (nsStringToJuce (n.soundName));
@@ -267,16 +268,16 @@ struct PushNotificationsDelegate
 {
     PushNotificationsDelegate() : delegate ([getClass().createInstance() init])
     {
-        Class::setThis (delegate, this);
+        Class::setThis (delegate.get(), this);
 
         id<NSApplicationDelegate> appDelegate = [[NSApplication sharedApplication] delegate];
 
         SEL selector = NSSelectorFromString (@"setPushNotificationsDelegate:");
 
         if ([appDelegate respondsToSelector: selector])
-            [appDelegate performSelector: selector withObject: delegate];
+            [appDelegate performSelector: selector withObject: delegate.get()];
 
-        [NSUserNotificationCenter defaultUserNotificationCenter].delegate = delegate;
+        [NSUserNotificationCenter defaultUserNotificationCenter].delegate = delegate.get();
     }
 
     virtual ~PushNotificationsDelegate()
@@ -297,7 +298,7 @@ struct PushNotificationsDelegate
     virtual bool shouldPresentNotification (NSUserNotification* notification) = 0;
 
 protected:
-    ScopedPointer<NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>> delegate;
+    std::unique_ptr<NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>, NSObjectDeleter> delegate;
 
 private:
     struct Class    : public ObjCClass<NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>>
@@ -369,7 +370,7 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
         NSRemoteNotificationType types = NSUInteger ((bool) settings.allowBadge);
 
         if (isAtLeastMountainLion)
-            types |= ((bool) settings.allowSound << 1 | (bool) settings.allowAlert << 2);
+            types |= (NSUInteger) ((bool) settings.allowSound << 1 | (bool) settings.allowAlert << 2);
 
         [[NSApplication sharedApplication] registerForRemoteNotificationTypes: types];
     }
@@ -471,12 +472,22 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
     //PushNotificationsDelegate
     void registeredForRemoteNotifications (NSData* deviceTokenToUse) override
     {
-        auto* deviceTokenString = [[[[deviceTokenToUse description]
-                                      stringByReplacingOccurrencesOfString: nsStringLiteral ("<") withString: nsStringLiteral ("")]
-                                      stringByReplacingOccurrencesOfString: nsStringLiteral (">") withString: nsStringLiteral ("")]
-                                      stringByReplacingOccurrencesOfString: nsStringLiteral (" ") withString: nsStringLiteral ("")];
+        deviceToken = [deviceTokenToUse]() -> String
+        {
+            auto length = deviceTokenToUse.length;
 
-        deviceToken = nsStringToJuce (deviceTokenString);
+            if (auto* buffer = (const unsigned char*) deviceTokenToUse.bytes)
+            {
+                NSMutableString* hexString = [NSMutableString stringWithCapacity: (length * 2)];
+
+                for (NSUInteger i = 0; i < length; ++i)
+                    [hexString appendFormat:@"%02x", buffer[i]];
+
+                return nsStringToJuce ([hexString copy]);
+            }
+
+            return {};
+        }();
 
         initialised = true;
 
@@ -522,7 +533,7 @@ struct PushNotifications::Pimpl : private PushNotificationsDelegate
         }
     }
 
-    bool shouldPresentNotification (NSUserNotification* notification) override { return true; }
+    bool shouldPresentNotification (NSUserNotification*) override { return true; }
 
     void subscribeToTopic (const String& topic)     { ignoreUnused (topic); }
     void unsubscribeFromTopic (const String& topic) { ignoreUnused (topic); }
@@ -553,3 +564,5 @@ private:
 };
 
 } // namespace juce
+
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE

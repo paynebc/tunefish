@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -101,10 +101,10 @@ char* MemoryOutputStream::prepareToWrite (size_t numBytes)
 
 bool MemoryOutputStream::write (const void* const buffer, size_t howMany)
 {
-    jassert (buffer != nullptr);
-
     if (howMany == 0)
         return true;
+
+    jassert (buffer != nullptr);
 
     if (auto* dest = prepareToWrite (howMany))
     {

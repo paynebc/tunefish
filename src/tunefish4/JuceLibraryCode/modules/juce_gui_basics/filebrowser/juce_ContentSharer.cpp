@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,7 +26,7 @@
 namespace juce
 {
 
-#if JUCE_IOS || JUCE_ANDROID
+#if JUCE_CONTENT_SHARING
 //==============================================================================
 class ContentSharer::PrepareImagesThread    : private Thread
 {
@@ -44,7 +43,7 @@ public:
         startThread();
     }
 
-    ~PrepareImagesThread()
+    ~PrepareImagesThread() override
     {
         signalThreadShouldExit();
         waitForThreadToExit (10000);
@@ -63,7 +62,7 @@ private:
             if (! tempFile.create().wasOk())
                 break;
 
-            ScopedPointer<FileOutputStream> outputStream = tempFile.createOutputStream();
+            std::unique_ptr<FileOutputStream> outputStream (tempFile.createOutputStream());
 
             if (outputStream == nullptr)
                 break;
@@ -77,12 +76,12 @@ private:
 
     void finish()
     {
-        MessageManager::callAsync ([this] () { owner.filesToSharePrepared(); });
+        MessageManager::callAsync ([this]() { owner.filesToSharePrepared(); });
     }
 
     ContentSharer& owner;
     const Array<Image> images;
-    ScopedPointer<ImageFileFormat> imageFileFormat;
+    std::unique_ptr<ImageFileFormat> imageFileFormat;
     String extension;
 };
 
@@ -98,7 +97,7 @@ public:
         startThread();
     }
 
-    ~PrepareDataThread()
+    ~PrepareDataThread() override
     {
         signalThreadShouldExit();
         waitForThreadToExit (10000);
@@ -111,9 +110,7 @@ private:
 
         if (tempFile.create().wasOk())
         {
-            ScopedPointer<FileOutputStream> outputStream = tempFile.createOutputStream();
-
-            if (outputStream != nullptr)
+            if (auto outputStream = std::unique_ptr<FileOutputStream> (tempFile.createOutputStream()))
             {
                 size_t pos = 0;
                 size_t totalSize = data.getSize();
@@ -139,7 +136,7 @@ private:
 
     void finish()
     {
-        MessageManager::callAsync ([this] () { owner.filesToSharePrepared(); });
+        MessageManager::callAsync ([this]() { owner.filesToSharePrepared(); });
     }
 
     ContentSharer& owner;
@@ -156,7 +153,7 @@ ContentSharer::~ContentSharer() { clearSingletonInstance(); }
 void ContentSharer::shareFiles (const Array<URL>& files,
                                 std::function<void (bool, const String&)> callbackToUse)
 {
-  #if JUCE_IOS || JUCE_ANDROID
+  #if JUCE_CONTENT_SHARING
     startNewShare (callbackToUse);
     pimpl->shareFiles (files);
   #else
@@ -170,7 +167,7 @@ void ContentSharer::shareFiles (const Array<URL>& files,
   #endif
 }
 
-#if JUCE_IOS || JUCE_ANDROID
+#if JUCE_CONTENT_SHARING
 void ContentSharer::startNewShare (std::function<void (bool, const String&)> callbackToUse)
 {
     // You should not start another sharing operation before the previous one is finished.
@@ -185,7 +182,7 @@ void ContentSharer::startNewShare (std::function<void (bool, const String&)> cal
 
     // You need to pass a valid callback.
     jassert (callbackToUse);
-    callback = static_cast<std::function<void (bool, const String&)>&&> (callbackToUse);
+    callback = std::move (callbackToUse);
 
     pimpl.reset (createPimpl());
 }
@@ -194,7 +191,7 @@ void ContentSharer::startNewShare (std::function<void (bool, const String&)> cal
 void ContentSharer::shareText (const String& text,
                                std::function<void (bool, const String&)> callbackToUse)
 {
-  #if JUCE_IOS || JUCE_ANDROID
+  #if JUCE_CONTENT_SHARING
     startNewShare (callbackToUse);
     pimpl->shareText (text);
   #else
@@ -212,9 +209,9 @@ void ContentSharer::shareImages (const Array<Image>& images,
                                  std::function<void (bool, const String&)> callbackToUse,
                                  ImageFileFormat* imageFileFormatToUse)
 {
-  #if JUCE_IOS || JUCE_ANDROID
+  #if JUCE_CONTENT_SHARING
     startNewShare (callbackToUse);
-    prepareImagesThread = new PrepareImagesThread (*this, images, imageFileFormatToUse);
+    prepareImagesThread.reset (new PrepareImagesThread (*this, images, imageFileFormatToUse));
   #else
     ignoreUnused (images, imageFileFormatToUse);
 
@@ -226,7 +223,7 @@ void ContentSharer::shareImages (const Array<Image>& images,
   #endif
 }
 
-#if JUCE_IOS || JUCE_ANDROID
+#if JUCE_CONTENT_SHARING
 void ContentSharer::filesToSharePrepared()
 {
     Array<URL> urls;
@@ -244,9 +241,9 @@ void ContentSharer::filesToSharePrepared()
 void ContentSharer::shareData (const MemoryBlock& mb,
                                std::function<void (bool, const String&)> callbackToUse)
 {
-  #if JUCE_IOS || JUCE_ANDROID
+  #if JUCE_CONTENT_SHARING
     startNewShare (callbackToUse);
-    prepareDataThread = new PrepareDataThread (*this, mb);
+    prepareDataThread.reset (new PrepareDataThread (*this, mb));
   #else
     ignoreUnused (mb);
 
@@ -262,12 +259,14 @@ void ContentSharer::sharingFinished (bool succeeded, const String& errorDescript
     std::function<void (bool, String)> cb;
     std::swap (cb, callback);
 
-  #if JUCE_IOS || JUCE_ANDROID
+    String error (errorDescription);
+
+  #if JUCE_CONTENT_SHARING
     pimpl.reset();
   #endif
 
     if (cb)
-        cb (succeeded, errorDescription);
+        cb (succeeded, error);
 }
 
 void ContentSharer::deleteTemporaryFiles()

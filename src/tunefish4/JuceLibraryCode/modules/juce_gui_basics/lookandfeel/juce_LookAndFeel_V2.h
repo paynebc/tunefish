@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -39,25 +38,29 @@ class JUCE_API  LookAndFeel_V2  : public LookAndFeel
 {
 public:
     LookAndFeel_V2();
-    ~LookAndFeel_V2();
+    ~LookAndFeel_V2() override;
 
     //==============================================================================
     void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override;
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
-    void drawButtonText (Graphics&, TextButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawButtonText (Graphics&, TextButton&,
+                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     int getTextButtonWidthToFitText (TextButton&, int buttonHeight) override;
 
-    void drawToggleButton (Graphics&, ToggleButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawToggleButton (Graphics&, ToggleButton&,
+                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void changeToggleButtonWidthToFitText (ToggleButton&) override;
 
     void drawTickBox (Graphics&, Component&,
                       float x, float y, float w, float h,
-                      bool ticked, bool isEnabled, bool isMouseOverButton, bool isButtonDown) override;
+                      bool ticked, bool isEnabled,
+                      bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
-    void drawDrawableButton (Graphics&, DrawableButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawDrawableButton (Graphics&, DrawableButton&,
+                             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     //==============================================================================
     AlertWindow* createAlertWindow (const String& title, const String& message,
@@ -98,7 +101,7 @@ public:
     //==============================================================================
     bool areScrollbarButtonsVisible() override;
     void drawScrollbarButton (Graphics&, ScrollBar&, int width, int height, int buttonDirection,
-                              bool isScrollbarVertical, bool isMouseOverButton, bool isButtonDown) override;
+                              bool isScrollbarVertical, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawScrollbar (Graphics&, ScrollBar&, int x, int y, int width, int height,
                         bool isScrollbarVertical, int thumbStartPosition, int thumbSize,
@@ -187,16 +190,19 @@ public:
     int getPopupMenuBorderSize() override;
 
     //==============================================================================
-    void drawComboBox (Graphics&, int width, int height, bool isButtonDown,
+    void drawComboBox (Graphics&, int width, int height, bool isMouseButtonDown,
                        int buttonX, int buttonY, int buttonW, int buttonH,
                        ComboBox&) override;
     Font getComboBoxFont (ComboBox&) override;
     Label* createComboBoxTextBox (ComboBox&) override;
     void positionComboBoxText (ComboBox&, Label&) override;
+    PopupMenu::Options getOptionsForComboBoxPopupMenu (ComboBox&, Label&) override;
+    void drawComboBoxTextWhenNothingSelected (Graphics&, ComboBox&, Label&) override;
 
     //==============================================================================
     void drawLabel (Graphics&, Label&) override;
     Font getLabelFont (Label&) override;
+    BorderSize<int> getLabelBorderSize (Label&) override;
 
     //==============================================================================
     void drawLinearSlider (Graphics&, int x, int y, int width, int height,
@@ -320,6 +326,7 @@ public:
     //==============================================================================
     void drawCallOutBoxBackground (CallOutBox&, Graphics&, const Path& path, Image& cachedImage) override;
     int getCallOutBoxBorderSize (const CallOutBox&) override;
+    float getCallOutBoxCornerSize (const CallOutBox&) override;
 
     //==============================================================================
     void drawLevelMeter (Graphics&, int width, int height, float level) override;
@@ -369,7 +376,7 @@ public:
 
 private:
     //==============================================================================
-    ScopedPointer<Drawable> folderImage, documentImage;
+    std::unique_ptr<Drawable> folderImage, documentImage;
 
     void drawShinyButtonShape (Graphics&,
                                float x, float y, float w, float h, float maxCornerSize,

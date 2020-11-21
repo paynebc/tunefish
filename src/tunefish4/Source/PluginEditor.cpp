@@ -611,7 +611,7 @@ void Tunefish4AudioProcessorEditor::_addComboBox(Component *parent, ComboBox &co
     parent->addChildComponent(&combobox);
 
     StringArray itemArray;
-    itemArray.addTokens(items, "|", String::empty);
+    itemArray.addTokens(items, "|", "");
 
     combobox.setVisible(true);
     combobox.addListener(this);

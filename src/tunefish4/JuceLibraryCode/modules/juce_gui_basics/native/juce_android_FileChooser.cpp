@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -30,6 +29,7 @@ namespace juce
 class FileChooser::Native     : public FileChooser::Pimpl
 {
 public:
+    //==============================================================================
     Native (FileChooser& fileChooser, int flags)    : owner (fileChooser)
     {
         if (currentFileChooser == nullptr)
@@ -37,7 +37,7 @@ public:
             currentFileChooser = this;
             auto* env = getEnv();
 
-            auto sdkVersion = env->CallStaticIntMethod (JuceAppActivity, JuceAppActivity.getAndroidSDKVersion);
+            auto sdkVersion         = getAndroidSDKVersion();
             auto saveMode           = ((flags & FileBrowserComponent::saveMode) != 0);
             auto selectsDirectories = ((flags & FileBrowserComponent::canSelectDirectories) != 0);
 
@@ -64,8 +64,8 @@ public:
                                                      : "android.intent.action.GET_CONTENT")));
 
 
-            intent = GlobalRef (env->NewObject (AndroidIntent, AndroidIntent.constructWithString,
-                                                javaString (action).get()));
+            intent = GlobalRef (LocalRef<jobject> (env->NewObject (AndroidIntent, AndroidIntent.constructWithString,
+                                                                   javaString (action).get())));
 
             if (owner.startingFile != File())
             {
@@ -133,8 +133,9 @@ public:
             jassertfalse; // there can only be a single file chooser
     }
 
-    ~Native()
+    ~Native() override
     {
+        masterReference.clear();
         currentFileChooser = nullptr;
     }
 
@@ -146,13 +147,26 @@ public:
 
     void launch() override
     {
+        auto* env = getEnv();
+
         if (currentFileChooser != nullptr)
-            android.activity.callVoidMethod (JuceAppActivity.startActivityForResult, intent.get(), /*READ_REQUEST_CODE*/ 42);
+        {
+            WeakReference<Native> myself (this);
+
+            startAndroidActivityForResult (LocalRef<jobject> (env->NewLocalRef (intent.get())), /*READ_REQUEST_CODE*/ 42,
+                                           [myself] (int requestCode, int resultCode, LocalRef<jobject> intentData) mutable
+                                           {
+                                               if (myself != nullptr)
+                                                   myself->onActivityResult (requestCode, resultCode, intentData);
+                                           });
+        }
         else
+        {
             jassertfalse; // There is already a file chooser running
+        }
     }
 
-    void completed (int resultCode, jobject intentData)
+    void onActivityResult (int /*requestCode*/, int resultCode, const LocalRef<jobject>& intentData)
     {
         currentFileChooser = nullptr;
         auto* env = getEnv();
@@ -161,7 +175,7 @@ public:
 
         if (resultCode == /*Activity.RESULT_OK*/ -1 && intentData != nullptr)
         {
-            LocalRef<jobject> uri (env->CallObjectMethod (intentData, AndroidIntent.getData));
+            LocalRef<jobject> uri (env->CallObjectMethod (intentData.get(), AndroidIntent.getData));
 
             if (uri != nullptr)
             {
@@ -197,23 +211,23 @@ public:
     }
 
 private:
+    JUCE_DECLARE_WEAK_REFERENCEABLE (Native)
+
     FileChooser& owner;
     GlobalRef intent;
 };
 
 FileChooser::Native* FileChooser::Native::currentFileChooser = nullptr;
 
-void juce_fileChooserCompleted (int resultCode, void* intentData)
-{
-    if (FileChooser::Native::currentFileChooser != nullptr)
-        FileChooser::Native::currentFileChooser->completed (resultCode, (jobject) intentData);
-}
-
-
 FileChooser::Pimpl* FileChooser::showPlatformDialog (FileChooser& owner, int flags,
                                                      FilePreviewComponent*)
 {
-    return new FileChooser::Native (owner, flags);
+    if (FileChooser::Native::currentFileChooser == nullptr)
+        return new FileChooser::Native (owner, flags);
+
+    // there can only be one file chooser on Android at a once
+    jassertfalse;
+    return nullptr;
 }
 
 bool FileChooser::isPlatformDialogAvailable()

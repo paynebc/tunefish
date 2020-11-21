@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -72,7 +71,7 @@ public:
                   double maxSampleLengthSeconds);
 
     /** Destructor. */
-    ~SamplerSound();
+    ~SamplerSound() override;
 
     //==============================================================================
     /** Returns the sample's name */
@@ -83,22 +82,25 @@ public:
     */
     AudioBuffer<float>* getAudioData() const noexcept       { return data.get(); }
 
+    //==============================================================================
+    /** Changes the parameters of the ADSR envelope which will be applied to the sample. */
+    void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { params = parametersToUse; }
 
     //==============================================================================
     bool appliesToNote (int midiNoteNumber) override;
     bool appliesToChannel (int midiChannel) override;
-
 
 private:
     //==============================================================================
     friend class SamplerVoice;
 
     String name;
-    ScopedPointer<AudioBuffer<float>> data;
+    std::unique_ptr<AudioBuffer<float>> data;
     double sourceSampleRate;
     BigInteger midiNotes;
-    int length = 0, attackSamples = 0, releaseSamples = 0;
-    int midiRootNote = 0;
+    int length = 0, midiRootNote = 0;
+
+    ADSR::Parameters params;
 
     JUCE_LEAK_DETECTOR (SamplerSound)
 };
@@ -123,7 +125,7 @@ public:
     SamplerVoice();
 
     /** Destructor. */
-    ~SamplerVoice();
+    ~SamplerVoice() override;
 
     //==============================================================================
     bool canPlaySound (SynthesiserSound*) override;
@@ -135,14 +137,15 @@ public:
     void controllerMoved (int controllerNumber, int newValue) override;
 
     void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
-
+    using SynthesiserVoice::renderNextBlock;
 
 private:
     //==============================================================================
     double pitchRatio = 0;
     double sourceSamplePosition = 0;
-    float lgain = 0, rgain = 0, attackReleaseLevel = 0, attackDelta = 0, releaseDelta = 0;
-    bool isInAttack = false, isInRelease = false;
+    float lgain = 0, rgain = 0;
+
+    ADSR adsr;
 
     JUCE_LEAK_DETECTOR (SamplerVoice)
 };

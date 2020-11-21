@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -156,7 +155,7 @@ void TableHeaderComponent::moveColumn (const int columnId, int newIndex)
     auto currentIndex = getIndexOfColumnId (columnId, false);
     newIndex = visibleIndexToTotalIndex (newIndex);
 
-    if (columns [currentIndex] != 0 && currentIndex != newIndex)
+    if (columns[currentIndex] != nullptr && currentIndex != newIndex)
     {
         columns.move (currentIndex, newIndex);
         sendColumnsChanged();
@@ -431,17 +430,16 @@ String TableHeaderComponent::toString() const
         e->setAttribute ("width", ci->width);
     }
 
-    return doc.createDocument ({}, true, false);
+    return doc.toString (XmlElement::TextFormat().singleLine().withoutHeader());
 }
 
 void TableHeaderComponent::restoreFromString (const String& storedVersion)
 {
-    ScopedPointer<XmlElement> storedXml (XmlDocument::parse (storedVersion));
-    int index = 0;
-
-    if (storedXml != nullptr && storedXml->hasTagName ("TABLELAYOUT"))
+    if (auto storedXML = parseXMLIfTagMatches (storedVersion, "TABLELAYOUT"))
     {
-        forEachXmlChildElement (*storedXml, col)
+        int index = 0;
+
+        forEachXmlChildElement (*storedXML, col)
         {
             auto tabId = col->getIntAttribute ("id");
 
@@ -458,18 +456,18 @@ void TableHeaderComponent::restoreFromString (const String& storedVersion)
         columnsResized = true;
         sendColumnsChanged();
 
-        setSortColumnId (storedXml->getIntAttribute ("sortedCol"),
-                         storedXml->getBoolAttribute ("sortForwards", true));
+        setSortColumnId (storedXML->getIntAttribute ("sortedCol"),
+                         storedXML->getBoolAttribute ("sortForwards", true));
     }
 }
 
 //==============================================================================
-void TableHeaderComponent::addListener (Listener* const newListener)
+void TableHeaderComponent::addListener (Listener* newListener)
 {
     listeners.addIfNotAlreadyThere (newListener);
 }
 
-void TableHeaderComponent::removeListener (Listener* const listenerToRemove)
+void TableHeaderComponent::removeListener (Listener* listenerToRemove)
 {
     listeners.removeFirstMatchingValue (listenerToRemove);
 }
@@ -499,11 +497,11 @@ void TableHeaderComponent::reactToMenuItem (const int menuReturnId, const int /*
 
 void TableHeaderComponent::paint (Graphics& g)
 {
-    LookAndFeel& lf = getLookAndFeel();
+    auto& lf = getLookAndFeel();
 
     lf.drawTableHeaderBackground (g, *this);
 
-    const Rectangle<int> clip (g.getClipBounds());
+    auto clip = g.getClipBounds();
 
     int x = 0;
 

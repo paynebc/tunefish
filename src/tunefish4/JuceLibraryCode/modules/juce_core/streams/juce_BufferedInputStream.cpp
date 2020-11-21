@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -23,7 +23,7 @@
 namespace juce
 {
 
-static inline int calcBufferStreamBufferSize (int requestedSize, InputStream* source) noexcept
+static int calcBufferStreamBufferSize (int requestedSize, InputStream* source) noexcept
 {
     // You need to supply a real stream when creating a BufferedInputStream
     jassert (source != nullptr);
@@ -195,5 +195,84 @@ String BufferedInputStream::readString()
 
     return InputStream::readString();
 }
+
+
+//==============================================================================
+//==============================================================================
+#if JUCE_UNIT_TESTS
+
+struct BufferedInputStreamTests   : public UnitTest
+{
+    BufferedInputStreamTests()
+        : UnitTest ("BufferedInputStream", UnitTestCategories::streams)
+    {}
+
+    void runTest() override
+    {
+        const MemoryBlock data ("abcdefghijklmnopqrstuvwxyz", 26);
+        MemoryInputStream mi (data, true);
+
+        BufferedInputStream stream (mi, (int) data.getSize());
+
+        beginTest ("Read");
+
+        expectEquals (stream.getPosition(), (int64) 0);
+        expectEquals (stream.getTotalLength(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), stream.getTotalLength());
+        expect (! stream.isExhausted());
+
+        size_t numBytesRead = 0;
+        MemoryBlock readBuffer (data.getSize());
+
+        while (numBytesRead < data.getSize())
+        {
+            expectEquals (stream.peekByte(), *(char*) (data.begin() + numBytesRead));
+
+            numBytesRead += (size_t) stream.read (&readBuffer[numBytesRead], 3);
+
+            expectEquals (stream.getPosition(), (int64) numBytesRead);
+            expectEquals (stream.getNumBytesRemaining(), (int64) (data.getSize() - numBytesRead));
+            expect (stream.isExhausted() == (numBytesRead == data.getSize()));
+        }
+
+        expectEquals (stream.getPosition(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), (int64) 0);
+        expect (stream.isExhausted());
+
+        expect (readBuffer == data);
+
+        beginTest ("Skip");
+
+        stream.setPosition (0);
+        expectEquals (stream.getPosition(), (int64) 0);
+        expectEquals (stream.getTotalLength(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), stream.getTotalLength());
+        expect (! stream.isExhausted());
+
+        numBytesRead = 0;
+        const int numBytesToSkip = 5;
+
+        while (numBytesRead < data.getSize())
+        {
+            expectEquals (stream.peekByte(), *(char*) (data.begin() + numBytesRead));
+
+            stream.skipNextBytes (numBytesToSkip);
+            numBytesRead += numBytesToSkip;
+            numBytesRead = std::min (numBytesRead, data.getSize());
+
+            expectEquals (stream.getPosition(), (int64) numBytesRead);
+            expectEquals (stream.getNumBytesRemaining(), (int64) (data.getSize() - numBytesRead));
+            expect (stream.isExhausted() == (numBytesRead == data.getSize()));
+        }
+
+        expectEquals (stream.getPosition(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), (int64) 0);
+        expect (stream.isExhausted());
+    }
+};
+
+static BufferedInputStreamTests bufferedInputStreamTests;
+
+#endif
 
 } // namespace juce

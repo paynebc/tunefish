@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -49,13 +48,10 @@ class Line
 public:
     //==============================================================================
     /** Creates a line, using (0, 0) as its start and end points. */
-    Line() noexcept {}
+    Line() = default;
 
     /** Creates a copy of another line. */
-    Line (const Line& other) noexcept
-        : start (other.start), end (other.end)
-    {
-    }
+    Line (const Line&) = default;
 
     /** Creates a line based on the coordinates of its start and end points. */
     Line (ValueType startX, ValueType startY, ValueType endX, ValueType endY) noexcept
@@ -70,15 +66,10 @@ public:
     }
 
     /** Copies a line from another one. */
-    Line& operator= (const Line& other) noexcept
-    {
-        start = other.start;
-        end = other.end;
-        return *this;
-    }
+    Line& operator= (const Line&) = default;
 
     /** Destructor. */
-    ~Line() noexcept {}
+    ~Line() = default;
 
     //==============================================================================
     /** Returns the x coordinate of the line's start point. */
@@ -186,7 +177,7 @@ public:
                                 the intersection (if the lines intersect). If the lines
                                 are parallel, this will just be set to the position
                                 of one of the line's endpoints.
-        @returns    true if the line segments intersect; false if they dont. Even if they
+        @returns    true if the line segments intersect; false if they don't. Even if they
                     don't intersect, the intersection coordinates returned will still
                     be valid
     */

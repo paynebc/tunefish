@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -51,12 +50,12 @@ LowLevelGraphicsPostScriptRenderer::LowLevelGraphicsPostScriptRenderer (OutputSt
     stateStack.add (new SavedState());
     stateStack.getLast()->clip = Rectangle<int> (totalWidth_, totalHeight_);
 
-    const float scale = jmin ((520.0f / totalWidth_), (750.0f / totalHeight));
+    const float scale = jmin ((520.0f / (float) totalWidth_), (750.0f / (float) totalHeight));
 
     out << "%!PS-Adobe-3.0 EPSF-3.0"
            "\n%%BoundingBox: 0 0 600 824"
            "\n%%Pages: 0"
-           "\n%%Creator: ROLI Ltd. JUCE"
+           "\n%%Creator: Raw Material Software Limited - JUCE"
            "\n%%Title: " << documentTitle <<
            "\n%%CreationDate: none"
            "\n%%LanguageLevel: 2"
@@ -351,8 +350,8 @@ void LowLevelGraphicsPostScriptRenderer::fillRect (const Rectangle<float>& r)
         writeClip();
         writeColour (stateStack.getLast()->fillType.colour);
 
-        Rectangle<float> r2 (r.translated ((float) stateStack.getLast()->xOffset,
-                                           (float) stateStack.getLast()->yOffset));
+        auto r2 = r.translated ((float) stateStack.getLast()->xOffset,
+                                (float) stateStack.getLast()->yOffset);
 
         out << r2.getX() << ' ' << -r2.getBottom() << ' ' << r2.getWidth() << ' ' << r2.getHeight() << " rectfill\n";
     }
@@ -401,7 +400,7 @@ void LowLevelGraphicsPostScriptRenderer::fillPath (const Path& path, const Affin
             out << "clip\n";
         }
 
-        const Rectangle<int> bounds (stateStack.getLast()->clip.getBounds());
+        auto bounds = stateStack.getLast()->clip.getBounds();
 
         // ideally this would draw lots of lines or ellipses to approximate the gradient, but for the
         // time-being, this just fills it with the average colour..

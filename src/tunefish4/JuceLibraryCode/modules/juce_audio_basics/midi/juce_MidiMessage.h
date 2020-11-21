@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -83,19 +83,19 @@ public:
         complete message, and will return the number of bytes it used. This lets
         you read a sequence of midi messages from a file or stream.
 
-        @param data             the data to read from
-        @param maxBytesToUse    the maximum number of bytes it's allowed to read
-        @param numBytesUsed     returns the number of bytes that were actually needed
-        @param lastStatusByte   in a sequence of midi messages, the initial byte
-                                can be dropped from a message if it's the same as the
-                                first byte of the previous message, so this lets you
-                                supply the byte to use if the first byte of the message
-                                has in fact been dropped.
-        @param timeStamp        the time to give the midi message - this value doesn't
-                                use any particular units, so will be application-specific
+        @param data                     the data to read from
+        @param maxBytesToUse            the maximum number of bytes it's allowed to read
+        @param numBytesUsed             returns the number of bytes that were actually needed
+        @param lastStatusByte           in a sequence of midi messages, the initial byte
+                                        can be dropped from a message if it's the same as the
+                                        first byte of the previous message, so this lets you
+                                        supply the byte to use if the first byte of the message
+                                        has in fact been dropped.
+        @param timeStamp                the time to give the midi message - this value doesn't
+                                        use any particular units, so will be application-specific
         @param sysexHasEmbeddedLength   when reading sysexes, this flag indicates whether
-                                to expect the data to begin with a variable-length field
-                                indicating its size
+                                        to expect the data to begin with a variable-length
+                                        field indicating its size
     */
     MidiMessage (const void* data, int maxBytesToUse,
                  int& numBytesUsed, uint8 lastStatusByte,
@@ -401,7 +401,7 @@ public:
     /** Returns true if the message is an aftertouch event.
 
         For aftertouch events, use the getNoteNumber() method to find out the key
-        that it applies to, and getAftertouchValue() to find out the amount. Use
+        that it applies to, and getAfterTouchValue() to find out the amount. Use
         getChannel() to find out the channel.
 
         @see getAftertouchValue, getNoteNumber

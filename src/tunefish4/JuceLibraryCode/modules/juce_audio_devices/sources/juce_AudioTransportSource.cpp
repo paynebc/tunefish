@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -53,8 +53,8 @@ void AudioTransportSource::setSource (PositionableAudioSource* const newSource,
     PositionableAudioSource* newPositionableSource = nullptr;
     AudioSource* newMasterSource = nullptr;
 
-    ScopedPointer<ResamplingAudioSource> oldResamplerSource (resamplerSource);
-    ScopedPointer<BufferingAudioSource> oldBufferingSource (bufferingSource);
+    std::unique_ptr<ResamplingAudioSource> oldResamplerSource (resamplerSource);
+    std::unique_ptr<BufferingAudioSource> oldBufferingSource (bufferingSource);
     AudioSource* oldMasterSource = masterSource;
 
     if (newSource != nullptr)
@@ -125,10 +125,7 @@ void AudioTransportSource::stop()
 {
     if (playing)
     {
-        {
-            const ScopedLock sl (callbackLock);
-            playing = false;
-        }
+        playing = false;
 
         int n = 500;
         while (--n >= 0 && ! stopped)

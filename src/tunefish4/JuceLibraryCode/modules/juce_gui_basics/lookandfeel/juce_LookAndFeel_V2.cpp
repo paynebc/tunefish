@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -31,14 +30,14 @@ namespace LookAndFeelHelpers
 {
     static Colour createBaseColour (Colour buttonColour,
                                     bool hasKeyboardFocus,
-                                    bool isMouseOverButton,
-                                    bool isButtonDown) noexcept
+                                    bool shouldDrawButtonAsHighlighted,
+                                    bool shouldDrawButtonAsDown) noexcept
     {
         const float sat = hasKeyboardFocus ? 1.3f : 0.9f;
         const Colour baseColour (buttonColour.withMultipliedSaturation (sat));
 
-        if (isButtonDown)      return baseColour.contrasting (0.2f);
-        if (isMouseOverButton) return baseColour.contrasting (0.1f);
+        if (shouldDrawButtonAsDown)        return baseColour.contrasting (0.2f);
+        if (shouldDrawButtonAsHighlighted) return baseColour.contrasting (0.1f);
 
         return baseColour;
     }
@@ -239,13 +238,13 @@ LookAndFeel_V2::~LookAndFeel_V2()  {}
 void LookAndFeel_V2::drawButtonBackground (Graphics& g,
                                            Button& button,
                                            const Colour& backgroundColour,
-                                           bool isMouseOverButton,
-                                           bool isButtonDown)
+                                           bool shouldDrawButtonAsHighlighted,
+                                           bool shouldDrawButtonAsDown)
 {
     const int width = button.getWidth();
     const int height = button.getHeight();
 
-    const float outlineThickness = button.isEnabled() ? ((isButtonDown || isMouseOverButton) ? 1.2f : 0.7f) : 0.4f;
+    const float outlineThickness = button.isEnabled() ? ((shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted) ? 1.2f : 0.7f) : 0.4f;
     const float halfThickness = outlineThickness * 0.5f;
 
     const float indentL = button.isConnectedOnLeft()   ? 0.1f : halfThickness;
@@ -255,14 +254,15 @@ void LookAndFeel_V2::drawButtonBackground (Graphics& g,
 
     const Colour baseColour (LookAndFeelHelpers::createBaseColour (backgroundColour,
                                                                    button.hasKeyboardFocus (true),
-                                                                   isMouseOverButton, isButtonDown)
+                                                                   shouldDrawButtonAsHighlighted,
+                                                                   shouldDrawButtonAsDown)
                                .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
 
     drawGlassLozenge (g,
                       indentL,
                       indentT,
-                      width - indentL - indentR,
-                      height - indentT - indentB,
+                      (float) width - indentL - indentR,
+                      (float) height - indentT - indentB,
                       baseColour, outlineThickness, -1.0f,
                       button.isConnectedOnLeft(),
                       button.isConnectedOnRight(),
@@ -272,7 +272,7 @@ void LookAndFeel_V2::drawButtonBackground (Graphics& g,
 
 Font LookAndFeel_V2::getTextButtonFont (TextButton&, int buttonHeight)
 {
-    return Font (jmin (15.0f, buttonHeight * 0.6f));
+    return Font (jmin (15.0f, (float) buttonHeight * 0.6f));
 }
 
 int LookAndFeel_V2::getTextButtonWidthToFitText (TextButton& b, int buttonHeight)
@@ -280,7 +280,8 @@ int LookAndFeel_V2::getTextButtonWidthToFitText (TextButton& b, int buttonHeight
     return getTextButtonFont (b, buttonHeight).getStringWidth (b.getButtonText()) + buttonHeight;
 }
 
-void LookAndFeel_V2::drawButtonText (Graphics& g, TextButton& button, bool /*isMouseOverButton*/, bool /*isButtonDown*/)
+void LookAndFeel_V2::drawButtonText (Graphics& g, TextButton& button,
+                                     bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
 {
     Font font (getTextButtonFont (button, button.getHeight()));
     g.setFont (font);
@@ -306,16 +307,16 @@ void LookAndFeel_V2::drawTickBox (Graphics& g, Component& component,
                                   float x, float y, float w, float h,
                                   const bool ticked,
                                   const bool isEnabled,
-                                  const bool isMouseOverButton,
-                                  const bool isButtonDown)
+                                  const bool shouldDrawButtonAsHighlighted,
+                                  const bool shouldDrawButtonAsDown)
 {
     const float boxSize = w * 0.7f;
 
     drawGlassSphere (g, x, y + (h - boxSize) * 0.5f, boxSize,
                      LookAndFeelHelpers::createBaseColour (component.findColour (TextButton::buttonColourId)
                                                                     .withMultipliedAlpha (isEnabled ? 1.0f : 0.5f),
-                                                           true, isMouseOverButton, isButtonDown),
-                     isEnabled ? ((isButtonDown || isMouseOverButton) ? 1.1f : 0.5f) : 0.3f);
+                                                           true, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown),
+                     isEnabled ? ((shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted) ? 1.1f : 0.5f) : 0.3f);
 
     if (ticked)
     {
@@ -335,7 +336,7 @@ void LookAndFeel_V2::drawTickBox (Graphics& g, Component& component,
 }
 
 void LookAndFeel_V2::drawToggleButton (Graphics& g, ToggleButton& button,
-                                       bool isMouseOverButton, bool isButtonDown)
+                                       bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
     if (button.hasKeyboardFocus (true))
     {
@@ -343,15 +344,15 @@ void LookAndFeel_V2::drawToggleButton (Graphics& g, ToggleButton& button,
         g.drawRect (0, 0, button.getWidth(), button.getHeight());
     }
 
-    float fontSize = jmin (15.0f, button.getHeight() * 0.75f);
+    float fontSize = jmin (15.0f, (float) button.getHeight() * 0.75f);
     const float tickWidth = fontSize * 1.1f;
 
-    drawTickBox (g, button, 4.0f, (button.getHeight() - tickWidth) * 0.5f,
+    drawTickBox (g, button, 4.0f, ((float) button.getHeight() - tickWidth) * 0.5f,
                  tickWidth, tickWidth,
                  button.getToggleState(),
                  button.isEnabled(),
-                 isMouseOverButton,
-                 isButtonDown);
+                 shouldDrawButtonAsHighlighted,
+                 shouldDrawButtonAsDown);
 
     g.setColour (button.findColour (ToggleButton::textColourId));
     g.setFont (fontSize);
@@ -367,7 +368,7 @@ void LookAndFeel_V2::drawToggleButton (Graphics& g, ToggleButton& button,
 
 void LookAndFeel_V2::changeToggleButtonWidthToFitText (ToggleButton& button)
 {
-    auto fontSize = jmin (15.0f, button.getHeight() * 0.75f);
+    auto fontSize = jmin (15.0f, (float) button.getHeight() * 0.75f);
     auto tickWidth = fontSize * 1.1f;
 
     Font font (fontSize);
@@ -377,7 +378,7 @@ void LookAndFeel_V2::changeToggleButtonWidthToFitText (ToggleButton& button)
 }
 
 void LookAndFeel_V2::drawDrawableButton (Graphics& g, DrawableButton& button,
-                                         bool /*isMouseOverButton*/, bool /*isButtonDown*/)
+                                         bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
 {
     bool toggleState = button.getToggleState();
 
@@ -467,7 +468,7 @@ void LookAndFeel_V2::drawAlertBox (Graphics& g, AlertWindow& alert,
             colour = 0x55ff5555;
             character = '!';
 
-            icon.addTriangle (iconRect.getX() + iconRect.getWidth() * 0.5f, (float) iconRect.getY(),
+            icon.addTriangle ((float) iconRect.getX() + (float) iconRect.getWidth() * 0.5f, (float) iconRect.getY(),
                               (float) iconRect.getRight(), (float) iconRect.getBottom(),
                               (float) iconRect.getX(), (float) iconRect.getBottom());
 
@@ -482,7 +483,7 @@ void LookAndFeel_V2::drawAlertBox (Graphics& g, AlertWindow& alert,
         }
 
         GlyphArrangement ga;
-        ga.addFittedText (Font (iconRect.getHeight() * 0.9f, Font::bold),
+        ga.addFittedText (Font ((float) iconRect.getHeight() * 0.9f, Font::bold),
                           String::charToString ((juce_wchar) (uint8) character),
                           (float) iconRect.getX(), (float) iconRect.getY(),
                           (float) iconRect.getWidth(), (float) iconRect.getHeight(),
@@ -576,11 +577,11 @@ void LookAndFeel_V2::drawProgressBar (Graphics& g, ProgressBar& progressBar,
 
         Path p;
 
-        for (float x = (float) (- position); x < width + stripeWidth; x += stripeWidth)
+        for (float x = (float) (- position); x < (float) (width + stripeWidth); x += (float) stripeWidth)
             p.addQuadrilateral (x, 0.0f,
-                                x + stripeWidth * 0.5f, 0.0f,
+                                x + (float) stripeWidth * 0.5f, 0.0f,
                                 x, (float) height,
-                                x - stripeWidth * 0.5f, (float) height);
+                                x - (float) stripeWidth * 0.5f, (float) height);
 
         Image im (Image::ARGB, width, height, true);
 
@@ -601,7 +602,7 @@ void LookAndFeel_V2::drawProgressBar (Graphics& g, ProgressBar& progressBar,
     if (textToShow.isNotEmpty())
     {
         g.setColour (Colour::contrasting (background, foreground));
-        g.setFont (height * 0.6f);
+        g.setFont ((float) height * 0.6f);
 
         g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
     }
@@ -609,15 +610,15 @@ void LookAndFeel_V2::drawProgressBar (Graphics& g, ProgressBar& progressBar,
 
 void LookAndFeel_V2::drawSpinningWaitAnimation (Graphics& g, const Colour& colour, int x, int y, int w, int h)
 {
-    const float radius = jmin (w, h) * 0.4f;
+    const float radius = (float) jmin (w, h) * 0.4f;
     const float thickness = radius * 0.15f;
     Path p;
     p.addRoundedRectangle (radius * 0.4f, thickness * -0.5f,
                            radius * 0.6f, thickness,
                            thickness * 0.5f);
 
-    const float cx = x + w * 0.5f;
-    const float cy = y + h * 0.5f;
+    const float cx = (float) x + (float) w * 0.5f;
+    const float cy = (float) y + (float) h * 0.5f;
 
     const uint32 animationIndex = (Time::getMillisecondCounter() / (1000 / 10)) % 12;
 
@@ -625,8 +626,8 @@ void LookAndFeel_V2::drawSpinningWaitAnimation (Graphics& g, const Colour& colou
     {
         const uint32 n = (i + 12 - animationIndex) % 12;
 
-        g.setColour (colour.withMultipliedAlpha ((n + 1) / 12.0f));
-        g.fillPath (p, AffineTransform::rotation (i * (MathConstants<float>::pi / 6.0f))
+        g.setColour (colour.withMultipliedAlpha ((float) (n + 1) / 12.0f));
+        g.fillPath (p, AffineTransform::rotation ((float) i * (MathConstants<float>::pi / 6.0f))
                                        .translated (cx, cy));
     }
 }
@@ -644,29 +645,32 @@ bool LookAndFeel_V2::areScrollbarButtonsVisible()
 void LookAndFeel_V2::drawScrollbarButton (Graphics& g, ScrollBar& scrollbar,
                                           int width, int height, int buttonDirection,
                                           bool /*isScrollbarVertical*/,
-                                          bool /*isMouseOverButton*/,
-                                          bool isButtonDown)
+                                          bool /*shouldDrawButtonAsHighlighted*/,
+                                          bool shouldDrawButtonAsDown)
 {
     Path p;
 
-    if (buttonDirection == 0)
-        p.addTriangle (width * 0.5f, height * 0.2f,
-                       width * 0.1f, height * 0.7f,
-                       width * 0.9f, height * 0.7f);
-    else if (buttonDirection == 1)
-        p.addTriangle (width * 0.8f, height * 0.5f,
-                       width * 0.3f, height * 0.1f,
-                       width * 0.3f, height * 0.9f);
-    else if (buttonDirection == 2)
-        p.addTriangle (width * 0.5f, height * 0.8f,
-                       width * 0.1f, height * 0.3f,
-                       width * 0.9f, height * 0.3f);
-    else if (buttonDirection == 3)
-        p.addTriangle (width * 0.2f, height * 0.5f,
-                       width * 0.7f, height * 0.1f,
-                       width * 0.7f, height * 0.9f);
+    const auto w = (float) width;
+    const auto h = (float) height;
 
-    if (isButtonDown)
+    if (buttonDirection == 0)
+        p.addTriangle (w * 0.5f, h * 0.2f,
+                       w * 0.1f, h * 0.7f,
+                       w * 0.9f, h * 0.7f);
+    else if (buttonDirection == 1)
+        p.addTriangle (w * 0.8f, h * 0.5f,
+                       w * 0.3f, h * 0.1f,
+                       w * 0.3f, h * 0.9f);
+    else if (buttonDirection == 2)
+        p.addTriangle (w * 0.5f, h * 0.8f,
+                       w * 0.1f, h * 0.3f,
+                       w * 0.9f, h * 0.3f);
+    else if (buttonDirection == 3)
+        p.addTriangle (w * 0.2f, h * 0.5f,
+                       w * 0.7f, h * 0.1f,
+                       w * 0.7f, h * 0.9f);
+
+    if (shouldDrawButtonAsDown)
         g.setColour (scrollbar.findColour (ScrollBar::thumbColourId).contrasting (0.2f));
     else
         g.setColour (scrollbar.findColour (ScrollBar::thumbColourId));
@@ -700,37 +704,37 @@ void LookAndFeel_V2::drawScrollbar (Graphics& g,
 
     if (isScrollbarVertical)
     {
-        slotPath.addRoundedRectangle (x + slotIndent,
-                                      y + slotIndent,
-                                      width - slotIndentx2,
-                                      height - slotIndentx2,
-                                      (width - slotIndentx2) * 0.5f);
+        slotPath.addRoundedRectangle ((float) x + slotIndent,
+                                      (float) y + slotIndent,
+                                      (float) width - slotIndentx2,
+                                      (float) height - slotIndentx2,
+                                      ((float) width - slotIndentx2) * 0.5f);
 
         if (thumbSize > 0)
-            thumbPath.addRoundedRectangle (x + thumbIndent,
-                                           thumbStartPosition + thumbIndent,
-                                           width - thumbIndentx2,
-                                           thumbSize - thumbIndentx2,
-                                           (width - thumbIndentx2) * 0.5f);
+            thumbPath.addRoundedRectangle ((float) x + thumbIndent,
+                                           (float) thumbStartPosition + thumbIndent,
+                                           (float) width - thumbIndentx2,
+                                           (float) thumbSize - thumbIndentx2,
+                                           ((float) width - thumbIndentx2) * 0.5f);
         gx1 = (float) x;
-        gx2 = x + width * 0.7f;
+        gx2 = (float) x + (float) width * 0.7f;
     }
     else
     {
-        slotPath.addRoundedRectangle (x + slotIndent,
-                                      y + slotIndent,
-                                      width - slotIndentx2,
-                                      height - slotIndentx2,
-                                      (height - slotIndentx2) * 0.5f);
+        slotPath.addRoundedRectangle ((float) x + slotIndent,
+                                      (float) y + slotIndent,
+                                      (float) width - slotIndentx2,
+                                      (float) height - slotIndentx2,
+                                      ((float) height - slotIndentx2) * 0.5f);
 
         if (thumbSize > 0)
-            thumbPath.addRoundedRectangle (thumbStartPosition + thumbIndent,
-                                           y + thumbIndent,
-                                           thumbSize - thumbIndentx2,
-                                           height - thumbIndentx2,
-                                           (height - thumbIndentx2) * 0.5f);
+            thumbPath.addRoundedRectangle ((float) thumbStartPosition + thumbIndent,
+                                           (float) y + thumbIndent,
+                                           (float) thumbSize - thumbIndentx2,
+                                           (float) height - thumbIndentx2,
+                                           ((float) height - thumbIndentx2) * 0.5f);
         gy1 = (float) y;
-        gy2 = y + height * 0.7f;
+        gy2 = (float) y + (float) height * 0.7f;
     }
 
     const Colour thumbColour (scrollbar.findColour (ScrollBar::thumbColourId));
@@ -753,13 +757,13 @@ void LookAndFeel_V2::drawScrollbar (Graphics& g,
 
     if (isScrollbarVertical)
     {
-        gx1 = x + width * 0.6f;
-        gx2 = (float) x + width;
+        gx1 = (float) x + (float) width * 0.6f;
+        gx2 = (float) x + (float) width;
     }
     else
     {
-        gy1 = y + height * 0.6f;
-        gy2 = (float) y + height;
+        gy1 = (float) y + (float) height * 0.6f;
+        gy2 = (float) y + (float) height;
     }
 
     g.setGradientFill (ColourGradient (Colours::transparentBlack,gx1, gy1,
@@ -772,15 +776,16 @@ void LookAndFeel_V2::drawScrollbar (Graphics& g,
     g.setGradientFill (ColourGradient (Colour (0x10000000), gx1, gy1,
                        Colours::transparentBlack, gx2, gy2, false));
 
-    g.saveState();
+    {
+        Graphics::ScopedSaveState ss (g);
 
-    if (isScrollbarVertical)
-        g.reduceClipRegion (x + width / 2, y, width, height);
-    else
-        g.reduceClipRegion (x, y + height / 2, width, height);
+        if (isScrollbarVertical)
+            g.reduceClipRegion (x + width / 2, y, width, height);
+        else
+            g.reduceClipRegion (x, y + height / 2, width, height);
 
-    g.fillPath (thumbPath);
-    g.restoreState();
+        g.fillPath (thumbPath);
+    }
 
     g.setColour (Colour (0x4c000000));
     g.strokePath (thumbPath, PathStrokeType (0.4f));
@@ -824,13 +829,13 @@ void LookAndFeel_V2::drawTreeviewPlusMinusBox (Graphics& g, const Rectangle<floa
     g.setColour (Colour (0x80000000));
     g.drawRect (boxArea);
 
-    auto size = boxSize / 2 + 1.0f;
+    auto size = (float) boxSize * 0.5f + 1.0f;
     auto centre = (float) (boxSize / 2);
 
-    g.fillRect (x + (boxSize - size) * 0.5f, y + centre, size, 1.0f);
+    g.fillRect ((float) x + ((float) boxSize - size) * 0.5f, (float) y + centre, size, 1.0f);
 
     if (! isOpen)
-        g.fillRect (x + centre, y + (boxSize - size) * 0.5f, 1.0f, size);
+        g.fillRect ((float) x + centre, (float) y + ((float) boxSize - size) * 0.5f, 1.0f, size);
 }
 
 bool LookAndFeel_V2::areLinesDrawnForTreeView (TreeView&)
@@ -877,8 +882,8 @@ void LookAndFeel_V2::getIdealPopupMenuItemSize (const String& text, const bool i
     {
         Font font (getPopupMenuFont());
 
-        if (standardMenuItemHeight > 0 && font.getHeight() > standardMenuItemHeight / 1.3f)
-            font.setHeight (standardMenuItemHeight / 1.3f);
+        if (standardMenuItemHeight > 0 && font.getHeight() > (float) standardMenuItemHeight / 1.3f)
+            font.setHeight ((float) standardMenuItemHeight / 1.3f);
 
         idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight : roundToInt (font.getHeight() * 1.3f);
         idealWidth = font.getStringWidth (text) + idealHeight * 2;
@@ -905,17 +910,17 @@ void LookAndFeel_V2::drawPopupMenuUpDownArrow (Graphics& g, int width, int heigh
 {
     auto background = findColour (PopupMenu::backgroundColourId);
 
-    g.setGradientFill (ColourGradient (background, 0.0f, height * 0.5f,
+    g.setGradientFill (ColourGradient (background, 0.0f, (float) height * 0.5f,
                                        background.withAlpha (0.0f),
                                        0.0f, isScrollUpArrow ? ((float) height) : 0.0f,
                                        false));
 
     g.fillRect (1, 1, width - 2, height - 2);
 
-    auto hw = width * 0.5f;
-    auto arrowW = height * 0.3f;
-    auto y1 = height * (isScrollUpArrow ? 0.6f : 0.3f);
-    auto y2 = height * (isScrollUpArrow ? 0.3f : 0.6f);
+    auto hw = (float) width * 0.5f;
+    auto arrowW = (float) height * 0.3f;
+    auto y1 = (float) height * (isScrollUpArrow ? 0.6f : 0.3f);
+    auto y2 = (float) height * (isScrollUpArrow ? 0.3f : 0.6f);
 
     Path p;
     p.addTriangle (hw - arrowW, y1,
@@ -970,7 +975,7 @@ void LookAndFeel_V2::drawPopupMenuItem (Graphics& g, const Rectangle<int>& area,
 
         Font font (getPopupMenuFont());
 
-        auto maxFontHeight = area.getHeight() / 1.3f;
+        auto maxFontHeight = (float) area.getHeight() / 1.3f;
 
         if (font.getHeight() > maxFontHeight)
             font.setHeight (maxFontHeight);
@@ -1025,7 +1030,7 @@ void LookAndFeel_V2::drawPopupMenuSectionHeader (Graphics& g, const Rectangle<in
     g.setColour (findColour (PopupMenu::headerTextColourId));
 
     g.drawFittedText (sectionName,
-                      area.getX() + 12, area.getY(), area.getWidth() - 16, (int) (area.getHeight() * 0.8f),
+                      area.getX() + 12, area.getY(), area.getWidth() - 16, (int) ((float) area.getHeight() * 0.8f),
                       Justification::bottomLeft, 1);
 }
 
@@ -1041,7 +1046,7 @@ void LookAndFeel_V2::drawMenuBarBackground (Graphics& g, int width, int height, 
                                                             false, false, false);
 
     if (menuBar.isEnabled())
-        drawShinyButtonShape (g, -4.0f, 0.0f, width + 8.0f, (float) height,
+        drawShinyButtonShape (g, -4.0f, 0.0f, (float) width + 8.0f, (float) height,
                               0.0f, baseColour, 0.4f, true, true, true, true);
     else
         g.fillAll (baseColour);
@@ -1049,7 +1054,7 @@ void LookAndFeel_V2::drawMenuBarBackground (Graphics& g, int width, int height, 
 
 Font LookAndFeel_V2::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
 {
-    return Font (menuBar.getHeight() * 0.7f);
+    return Font ((float) menuBar.getHeight() * 0.7f);
 }
 
 int LookAndFeel_V2::getMenuBarItemWidth (MenuBarComponent& menuBar, int itemIndex, const String& itemText)
@@ -1132,7 +1137,7 @@ CaretComponent* LookAndFeel_V2::createCaretComponent (Component* keyFocusOwner)
 }
 
 //==============================================================================
-void LookAndFeel_V2::drawComboBox (Graphics& g, int width, int height, const bool isButtonDown,
+void LookAndFeel_V2::drawComboBox (Graphics& g, int width, int height, const bool isMouseButtonDown,
                                    int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box)
 {
     g.fillAll (box.findColour (ComboBox::backgroundColourId));
@@ -1148,16 +1153,16 @@ void LookAndFeel_V2::drawComboBox (Graphics& g, int width, int height, const boo
         g.drawRect (0, 0, width, height);
     }
 
-    auto outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
+    auto outlineThickness = box.isEnabled() ? (isMouseButtonDown ? 1.2f : 0.5f) : 0.3f;
 
     auto baseColour = LookAndFeelHelpers::createBaseColour (box.findColour (ComboBox::buttonColourId),
                                                             box.hasKeyboardFocus (true),
-                                                            false, isButtonDown)
+                                                            false, isMouseButtonDown)
                          .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f);
 
     drawGlassLozenge (g,
-                      buttonX + outlineThickness, buttonY + outlineThickness,
-                      buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
+                      (float) buttonX + outlineThickness, (float) buttonY + outlineThickness,
+                      (float) buttonW - outlineThickness * 2.0f, (float) buttonH - outlineThickness * 2.0f,
                       baseColour, outlineThickness, -1.0f,
                       true, true, true, true);
 
@@ -1166,14 +1171,19 @@ void LookAndFeel_V2::drawComboBox (Graphics& g, int width, int height, const boo
         const float arrowX = 0.3f;
         const float arrowH = 0.2f;
 
-        Path p;
-        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.45f - arrowH),
-                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.45f,
-                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.45f);
+        const auto x = (float) buttonX;
+        const auto y = (float) buttonY;
+        const auto w = (float) buttonW;
+        const auto h = (float) buttonH;
 
-        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.55f + arrowH),
-                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.55f,
-                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.55f);
+        Path p;
+        p.addTriangle (x + w * 0.5f,            y + h * (0.45f - arrowH),
+                       x + w * (1.0f - arrowX), y + h * 0.45f,
+                       x + w * arrowX,          y + h * 0.45f);
+
+        p.addTriangle (x + w * 0.5f,            y + h * (0.55f + arrowH),
+                       x + w * (1.0f - arrowX), y + h * 0.55f,
+                       x + w * arrowX,          y + h * 0.55f);
 
         g.setColour (box.findColour (ComboBox::arrowColourId));
         g.fillPath (p);
@@ -1182,7 +1192,7 @@ void LookAndFeel_V2::drawComboBox (Graphics& g, int width, int height, const boo
 
 Font LookAndFeel_V2::getComboBoxFont (ComboBox& box)
 {
-    return Font (jmin (15.0f, box.getHeight() * 0.85f));
+    return Font (jmin (15.0f, (float) box.getHeight() * 0.85f));
 }
 
 Label* LookAndFeel_V2::createComboBoxTextBox (ComboBox&)
@@ -1197,6 +1207,30 @@ void LookAndFeel_V2::positionComboBoxText (ComboBox& box, Label& label)
                      box.getHeight() - 2);
 
     label.setFont (getComboBoxFont (box));
+}
+
+PopupMenu::Options LookAndFeel_V2::getOptionsForComboBoxPopupMenu (ComboBox& box, Label& label)
+{
+    return PopupMenu::Options().withTargetComponent (&box)
+                               .withItemThatMustBeVisible (box.getSelectedId())
+                               .withMinimumWidth (box.getWidth())
+                               .withMaximumNumColumns (1)
+                               .withStandardItemHeight (label.getHeight());
+}
+
+void LookAndFeel_V2::drawComboBoxTextWhenNothingSelected (Graphics& g, ComboBox& box, Label& label)
+{
+    g.setColour (findColour (ComboBox::textColourId).withMultipliedAlpha (0.5f));
+
+    auto font = label.getLookAndFeel().getLabelFont (label);
+
+    g.setFont (font);
+
+    auto textArea = getLabelBorderSize (label).subtractedFrom (label.getLocalBounds());
+
+    g.drawFittedText (box.getTextWhenNothingSelected(), textArea, label.getJustificationType(),
+                      jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
+                      label.getMinimumHorizontalScale());
 }
 
 //==============================================================================
@@ -1217,10 +1251,10 @@ void LookAndFeel_V2::drawLabel (Graphics& g, Label& label)
         g.setColour (label.findColour (Label::textColourId).withMultipliedAlpha (alpha));
         g.setFont (font);
 
-        Rectangle<int> textArea (label.getBorderSize().subtractedFrom (label.getLocalBounds()));
+        auto textArea = getLabelBorderSize (label).subtractedFrom (label.getLocalBounds());
 
         g.drawFittedText (label.getText(), textArea, label.getJustificationType(),
-                          jmax (1, (int) (textArea.getHeight() / font.getHeight())),
+                          jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
                           label.getMinimumHorizontalScale());
 
         g.setColour (label.findColour (Label::outlineColourId).withMultipliedAlpha (alpha));
@@ -1231,6 +1265,11 @@ void LookAndFeel_V2::drawLabel (Graphics& g, Label& label)
     }
 
     g.drawRect (label.getLocalBounds());
+}
+
+BorderSize<int> LookAndFeel_V2::getLabelBorderSize (Label& label)
+{
+    return label.getBorderSize();
 }
 
 //==============================================================================
@@ -1249,24 +1288,24 @@ void LookAndFeel_V2::drawLinearSliderBackground (Graphics& g, int x, int y, int 
 
     if (slider.isHorizontal())
     {
-        const float iy = y + height * 0.5f - sliderRadius * 0.5f;
+        const float iy = (float) y + (float) height * 0.5f - sliderRadius * 0.5f;
         const float ih = sliderRadius;
 
         g.setGradientFill (ColourGradient::vertical (gradCol1, iy, gradCol2, iy + ih));
 
-        indent.addRoundedRectangle (x - sliderRadius * 0.5f, iy,
-                                    width + sliderRadius, ih,
+        indent.addRoundedRectangle ((float) x - sliderRadius * 0.5f, iy,
+                                    (float) width + sliderRadius, ih,
                                     5.0f);
     }
     else
     {
-        const float ix = x + width * 0.5f - sliderRadius * 0.5f;
+        const float ix = (float) x + (float) width * 0.5f - sliderRadius * 0.5f;
         const float iw = sliderRadius;
 
         g.setGradientFill (ColourGradient::horizontal (gradCol1, ix, gradCol2, ix + iw));
 
-        indent.addRoundedRectangle (ix, y - sliderRadius * 0.5f,
-                                    iw, height + sliderRadius,
+        indent.addRoundedRectangle (ix, (float) y - sliderRadius * 0.5f,
+                                    iw, (float) height + sliderRadius,
                                     5.0f);
     }
 
@@ -1295,13 +1334,13 @@ void LookAndFeel_V2::drawLinearSliderThumb (Graphics& g, int x, int y, int width
 
         if (style == Slider::LinearVertical)
         {
-            kx = x + width * 0.5f;
+            kx = (float) x + (float) width * 0.5f;
             ky = sliderPos;
         }
         else
         {
             kx = sliderPos;
-            ky = y + height * 0.5f;
+            ky = (float) y + (float) height * 0.5f;
         }
 
         drawGlassSphere (g,
@@ -1314,7 +1353,7 @@ void LookAndFeel_V2::drawLinearSliderThumb (Graphics& g, int x, int y, int width
     {
         if (style == Slider::ThreeValueVertical)
         {
-            drawGlassSphere (g, x + width * 0.5f - sliderRadius,
+            drawGlassSphere (g, (float) x + (float) width * 0.5f - sliderRadius,
                              sliderPos - sliderRadius,
                              sliderRadius * 2.0f,
                              knobColour, outlineThickness);
@@ -1322,33 +1361,44 @@ void LookAndFeel_V2::drawLinearSliderThumb (Graphics& g, int x, int y, int width
         else if (style == Slider::ThreeValueHorizontal)
         {
             drawGlassSphere (g,sliderPos - sliderRadius,
-                             y + height * 0.5f - sliderRadius,
+                             (float) y + (float) height * 0.5f - sliderRadius,
                              sliderRadius * 2.0f,
                              knobColour, outlineThickness);
         }
 
         if (style == Slider::TwoValueVertical || style == Slider::ThreeValueVertical)
         {
-            auto sr = jmin (sliderRadius, width * 0.4f);
+            auto sr = jmin (sliderRadius, (float) width * 0.4f);
 
-            drawGlassPointer (g, jmax (0.0f, x + width * 0.5f - sliderRadius * 2.0f),
+            drawGlassPointer (g, jmax (0.0f, (float) x + (float) width * 0.5f - sliderRadius * 2.0f),
                               minSliderPos - sliderRadius,
                               sliderRadius * 2.0f, knobColour, outlineThickness, 1);
 
-            drawGlassPointer (g, jmin (x + width - sliderRadius * 2.0f, x + width * 0.5f), maxSliderPos - sr,
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 3);
+            drawGlassPointer (g,
+                              jmin ((float) x + (float) width - sliderRadius * 2.0f,
+                                    (float) x + (float) width * 0.5f),
+                              maxSliderPos - sr,
+                              sliderRadius * 2.0f,
+                              knobColour,
+                              outlineThickness,
+                              3);
         }
         else if (style == Slider::TwoValueHorizontal || style == Slider::ThreeValueHorizontal)
         {
-            auto sr = jmin (sliderRadius, height * 0.4f);
+            auto sr = jmin (sliderRadius, (float) height * 0.4f);
 
             drawGlassPointer (g, minSliderPos - sr,
-                              jmax (0.0f, y + height * 0.5f - sliderRadius * 2.0f),
+                              jmax (0.0f, (float) y + (float) height * 0.5f - sliderRadius * 2.0f),
                               sliderRadius * 2.0f, knobColour, outlineThickness, 2);
 
-            drawGlassPointer (g, maxSliderPos - sliderRadius,
-                              jmin (y + height - sliderRadius * 2.0f, y + height * 0.5f),
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 4);
+            drawGlassPointer (g,
+                              maxSliderPos - sliderRadius,
+                              jmin ((float) y + (float) height - sliderRadius * 2.0f,
+                                    (float) y + (float) height * 0.5f),
+                              sliderRadius * 2.0f,
+                              knobColour,
+                              outlineThickness,
+                              4);
         }
     }
 }
@@ -1373,8 +1423,8 @@ void LookAndFeel_V2::drawLinearSlider (Graphics& g, int x, int y, int width, int
                               style == Slider::LinearBarVertical ? sliderPos
                                                                  : (float) y,
                               style == Slider::LinearBarVertical ? (float) width
-                                                                 : (sliderPos - x),
-                              style == Slider::LinearBarVertical ? (height - sliderPos)
+                                                                 : (sliderPos - (float) x),
+                              style == Slider::LinearBarVertical ? ((float) height - sliderPos)
                                                                  : (float) height, 0.0f,
                               baseColour,
                               slider.isEnabled() ? 0.9f : 0.3f,
@@ -1397,9 +1447,9 @@ int LookAndFeel_V2::getSliderThumbRadius (Slider& slider)
 void LookAndFeel_V2::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
 {
-    const float radius = jmin (width / 2, height / 2) - 2.0f;
-    const float centreX = x + width * 0.5f;
-    const float centreY = y + height * 0.5f;
+    const float radius = jmin ((float) width * 0.5f, (float) height * 0.5f) - 2.0f;
+    const float centreX = (float) x + (float) width * 0.5f;
+    const float centreY = (float) y + (float) height * 0.5f;
     const float rx = centreX - radius;
     const float ry = centreY - radius;
     const float rw = radius * 2.0f;
@@ -1641,7 +1691,7 @@ void LookAndFeel_V2::drawConcertinaPanelHeader (Graphics& g, const Rectangle<int
     g.drawRect (area);
 
     g.setColour (Colours::white);
-    g.setFont (Font (area.getHeight() * 0.7f).boldened());
+    g.setFont (Font ((float) area.getHeight() * 0.7f).boldened());
     g.drawFittedText (panel.getName(), 4, 0, area.getWidth() - 6, area.getHeight(), Justification::centredLeft, 1);
 }
 
@@ -1675,24 +1725,24 @@ void LookAndFeel_V2::drawImageButton (Graphics& g, Image* image,
 //==============================================================================
 void LookAndFeel_V2::drawCornerResizer (Graphics& g, int w, int h, bool /*isMouseOver*/, bool /*isMouseDragging*/)
 {
-    auto lineThickness = jmin (w, h) * 0.075f;
+    auto lineThickness = jmin ((float) w, (float) h) * 0.075f;
 
     for (float i = 0.0f; i < 1.0f; i += 0.3f)
     {
         g.setColour (Colours::lightgrey);
 
-        g.drawLine (w * i,
-                    h + 1.0f,
-                    w + 1.0f,
-                    h * i,
+        g.drawLine ((float) w * i,
+                    (float) h + 1.0f,
+                    (float) w + 1.0f,
+                    (float) h * i,
                     lineThickness);
 
         g.setColour (Colours::darkgrey);
 
-        g.drawLine (w * i + lineThickness,
-                    h + 1.0f,
-                    w + 1.0f,
-                    h * i + lineThickness,
+        g.drawLine ((float) w * i + lineThickness,
+                    (float) h + 1.0f,
+                    (float) w + 1.0f,
+                    (float) h * i + lineThickness,
                     lineThickness);
     }
 }
@@ -1704,7 +1754,8 @@ void LookAndFeel_V2::drawResizableFrame (Graphics& g, int w, int h, const Border
         const Rectangle<int> fullSize (0, 0, w, h);
         auto centreArea = border.subtractedFrom (fullSize);
 
-        g.saveState();
+        Graphics::ScopedSaveState ss (g);
+
         g.excludeClipRegion (centreArea);
 
         g.setColour (Colour (0x50000000));
@@ -1712,8 +1763,6 @@ void LookAndFeel_V2::drawResizableFrame (Graphics& g, int w, int h, const Border
 
         g.setColour (Colour (0x19000000));
         g.drawRect (centreArea.expanded (1, 1));
-
-        g.restoreState();
     }
 }
 
@@ -1742,7 +1791,7 @@ void LookAndFeel_V2::drawDocumentWindowTitleBar (DocumentWindow& window, Graphic
                                                  window.getBackgroundColour().contrasting (isActive ? 0.15f : 0.05f), (float) h));
     g.fillAll();
 
-    Font font (h * 0.65f, Font::bold);
+    Font font ((float) h * 0.65f, Font::bold);
     g.setFont (font);
 
     int textW = font.getStringWidth (window.getName());
@@ -1794,9 +1843,9 @@ public:
     }
 
     //==============================================================================
-    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override
+    void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        float alpha = isMouseOverButton ? (isButtonDown ? 1.0f : 0.8f) : 0.55f;
+        float alpha = shouldDrawButtonAsHighlighted ? (shouldDrawButtonAsDown ? 1.0f : 0.8f) : 0.55f;
 
         if (! isEnabled())
             alpha *= 0.5f;
@@ -1806,12 +1855,12 @@ public:
         if (getWidth() < getHeight())
         {
             diam = (float) getWidth();
-            y = (getHeight() - getWidth()) * 0.5f;
+            y = (float) (getHeight() - getWidth()) * 0.5f;
         }
         else
         {
             diam = (float) getHeight();
-            y = (getWidth() - getHeight()) * 0.5f;
+            y = (float) (getWidth() - getHeight()) * 0.5f;
         }
 
         x += diam * 0.05f;
@@ -1942,9 +1991,9 @@ void LookAndFeel_V2::drawStretchableLayoutResizerBar (Graphics& g, int w, int h,
         alpha = 1.0f;
     }
 
-    auto cx = w * 0.5f;
-    auto cy = h * 0.5f;
-    auto cr = jmin (w, h) * 0.4f;
+    auto cx = (float) w * 0.5f;
+    auto cy = (float) h * 0.5f;
+    auto cr = (float) jmin (w, h) * 0.4f;
 
     g.setGradientFill (ColourGradient (Colours::white.withAlpha (alpha), cx + cr * 0.1f, cy + cr,
                                        Colours::black.withAlpha (alpha), cx, cy - cr * 4.0f,
@@ -1968,12 +2017,15 @@ void LookAndFeel_V2::drawGroupComponentOutline (Graphics& g, int width, int heig
     Path p;
     auto x = indent;
     auto y = f.getAscent() - 3.0f;
-    auto w = jmax (0.0f, width - x * 2.0f);
-    auto h = jmax (0.0f, height - y  - indent);
+    auto w = jmax (0.0f, (float) width - x * 2.0f);
+    auto h = jmax (0.0f, (float) height - y  - indent);
     cs = jmin (cs, w * 0.5f, h * 0.5f);
     auto cs2 = 2.0f * cs;
 
-    auto textW = text.isEmpty() ? 0 : jlimit (0.0f, jmax (0.0f, w - cs2 - textEdgeGap * 2), f.getStringWidth (text) + textEdgeGap * 2.0f);
+    auto textW = text.isEmpty() ? 0
+                                : jlimit (0.0f,
+                                          jmax (0.0f, w - cs2 - textEdgeGap * 2),
+                                          (float) f.getStringWidth (text) + textEdgeGap * 2.0f);
     auto textX = cs + textEdgeGap;
 
     if (position.testFlags (Justification::horizontallyCentred))
@@ -2026,7 +2078,7 @@ int LookAndFeel_V2::getTabButtonSpaceAroundImage()
 
 int LookAndFeel_V2::getTabButtonBestWidth (TabBarButton& button, int tabDepth)
 {
-    int width = Font (tabDepth * 0.6f).getStringWidth (button.getButtonText().trim())
+    int width = Font ((float) tabDepth * 0.6f).getStringWidth (button.getButtonText().trim())
                    + getTabButtonOverlap (tabDepth) * 2;
 
     if (auto* extraComponent = button.getExtraComponent())
@@ -2112,6 +2164,7 @@ void LookAndFeel_V2::createTabButtonShape (TabBarButton& button, Path& p, bool /
             p.lineTo (-overhang, -overhang);
             break;
 
+        case TabbedButtonBar::TabsAtTop:
         default:
             p.startNewSubPath (0.0f, h);
             p.lineTo (indent, 0.0f);
@@ -2226,26 +2279,26 @@ void LookAndFeel_V2::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Graphic
     {
         case TabbedButtonBar::TabsAtLeft:
             gradient.point1.x = (float) w;
-            gradient.point2.x = w * (1.0f - shadowSize);
+            gradient.point2.x = (float) w * (1.0f - shadowSize);
             shadowRect.setBounds ((int) gradient.point2.x, 0, w - (int) gradient.point2.x, h);
             line.setBounds (w - 1, 0, 1, h);
             break;
 
         case TabbedButtonBar::TabsAtRight:
-            gradient.point2.x = w * shadowSize;
+            gradient.point2.x = (float) w * shadowSize;
             shadowRect.setBounds (0, 0, (int) gradient.point2.x, h);
             line.setBounds (0, 0, 1, h);
             break;
 
         case TabbedButtonBar::TabsAtTop:
             gradient.point1.y = (float) h;
-            gradient.point2.y = h * (1.0f - shadowSize);
+            gradient.point2.y = (float) h * (1.0f - shadowSize);
             shadowRect.setBounds (0, (int) gradient.point2.y, w, h - (int) gradient.point2.y);
             line.setBounds (0, h - 1, w, 1);
             break;
 
         case TabbedButtonBar::TabsAtBottom:
-            gradient.point2.y = h * shadowSize;
+            gradient.point2.y = (float) h * shadowSize;
             shadowRect.setBounds (0, 0, w, (int) gradient.point2.y);
             line.setBounds (0, 0, w, 1);
             break;
@@ -2284,14 +2337,14 @@ Button* LookAndFeel_V2::createTabBarExtrasButton()
     dp.setFill (Colour (0x59000000));
 
     DrawableComposite normalImage;
-    normalImage.addAndMakeVisible (ellipse.createCopy());
-    normalImage.addAndMakeVisible (dp.createCopy());
+    normalImage.addAndMakeVisible (ellipse.createCopy().release());
+    normalImage.addAndMakeVisible (dp.createCopy().release());
 
     dp.setFill (Colour (0xcc000000));
 
     DrawableComposite overImage;
-    overImage.addAndMakeVisible (ellipse.createCopy());
-    overImage.addAndMakeVisible (dp.createCopy());
+    overImage.addAndMakeVisible (ellipse.createCopy().release());
+    overImage.addAndMakeVisible (dp.createCopy().release());
 
     auto db = new DrawableButton ("tabs", DrawableButton::ImageFitted);
     db->setImages (&normalImage, &overImage, nullptr);
@@ -2350,7 +2403,7 @@ void LookAndFeel_V2::drawTableHeaderColumn (Graphics& g, TableHeaderComponent& h
     }
 
     g.setColour (header.findColour (TableHeaderComponent::textColourId));
-    g.setFont (Font (height * 0.5f, Font::bold));
+    g.setFont (Font ((float) height * 0.5f, Font::bold));
     g.drawFittedText (columnName, area, Justification::centredLeft, 1);
 }
 
@@ -2372,8 +2425,8 @@ void LookAndFeel_V2::paintToolbarBackground (Graphics& g, int w, int h, Toolbar&
 
     g.setGradientFill (ColourGradient (background, 0.0f, 0.0f,
                                        background.darker (0.1f),
-                                       toolbar.isVertical() ? w - 1.0f : 0.0f,
-                                       toolbar.isVertical() ? 0.0f : h - 1.0f,
+                                       toolbar.isVertical() ? (float) w - 1.0f : 0.0f,
+                                       toolbar.isVertical() ? 0.0f : (float) h - 1.0f,
                                        false));
     g.fillAll();
 }
@@ -2399,7 +2452,7 @@ void LookAndFeel_V2::paintToolbarButtonLabel (Graphics& g, int x, int y, int wid
     g.setColour (component.findColour (Toolbar::labelTextColourId, true)
                     .withAlpha (component.isEnabled() ? 1.0f : 0.25f));
 
-    auto fontHeight = jmin (14.0f, height * 0.85f);
+    auto fontHeight = jmin (14.0f, (float) height * 0.85f);
     g.setFont (fontHeight);
 
     g.drawFittedText (text,
@@ -2412,15 +2465,15 @@ void LookAndFeel_V2::paintToolbarButtonLabel (Graphics& g, int x, int y, int wid
 void LookAndFeel_V2::drawPropertyPanelSectionHeader (Graphics& g, const String& name,
                                                      bool isOpen, int width, int height)
 {
-    auto buttonSize = height * 0.75f;
-    auto buttonIndent = (height - buttonSize) * 0.5f;
+    auto buttonSize = (float) height * 0.75f;
+    auto buttonIndent = ((float) height - buttonSize) * 0.5f;
 
     drawTreeviewPlusMinusBox (g, Rectangle<float> (buttonIndent, buttonIndent, buttonSize, buttonSize), Colours::white, isOpen, false);
 
     auto textX = (int) (buttonIndent * 2.0f + buttonSize + 2.0f);
 
     g.setColour (Colours::black);
-    g.setFont (Font (height * 0.7f, Font::bold));
+    g.setFont (Font ((float) height * 0.7f, Font::bold));
     g.drawText (name, textX, 0, width - textX - 4, height, Justification::centredLeft, true);
 }
 
@@ -2435,7 +2488,7 @@ void LookAndFeel_V2::drawPropertyComponentLabel (Graphics& g, int, int height, P
     g.setColour (component.findColour (PropertyComponent::labelTextColourId)
                     .withMultipliedAlpha (component.isEnabled() ? 1.0f : 0.6f));
 
-    g.setFont (jmin (height, 24) * 0.65f);
+    g.setFont ((float) jmin (height, 24) * 0.65f);
 
     auto r = getPropertyComponentContentPosition (component);
 
@@ -2482,6 +2535,11 @@ int LookAndFeel_V2::getCallOutBoxBorderSize (const CallOutBox&)
     return 20;
 }
 
+float LookAndFeel_V2::getCallOutBoxCornerSize (const CallOutBox&)
+{
+    return 9.0f;
+}
+
 //==============================================================================
 AttributedString LookAndFeel_V2::createFileChooserHeaderText (const String& title,
                                                            const String& instructions)
@@ -2522,7 +2580,7 @@ void LookAndFeel_V2::drawFileBrowserRow (Graphics& g, int width, int height,
     {
         if (auto* d = isDirectory ? getDefaultFolderImage()
                                   : getDefaultDocumentFileImage())
-            d->drawWithin (g, Rectangle<float> (2.0f, 2.0f, x - 4.0f, height - 4.0f),
+            d->drawWithin (g, Rectangle<float> (2.0f, 2.0f, x - 4.0f, (float) height - 4.0f),
                            RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize, 1.0f);
     }
 
@@ -2533,18 +2591,18 @@ void LookAndFeel_V2::drawFileBrowserRow (Graphics& g, int width, int height,
         g.setColour (fileListComp != nullptr ? fileListComp->findColour (DirectoryContentsDisplayComponent::textColourId)
                                              : findColour (DirectoryContentsDisplayComponent::textColourId));
 
-    g.setFont (height * 0.7f);
+    g.setFont ((float) height * 0.7f);
 
     if (width > 450 && ! isDirectory)
     {
-        auto sizeX = roundToInt (width * 0.7f);
-        auto dateX = roundToInt (width * 0.8f);
+        auto sizeX = roundToInt ((float) width * 0.7f);
+        auto dateX = roundToInt ((float) width * 0.8f);
 
         g.drawFittedText (filename,
                           x, 0, sizeX - x, height,
                           Justification::centredLeft, 1);
 
-        g.setFont (height * 0.5f);
+        g.setFont ((float) height * 0.5f);
         g.setColour (Colours::darkgrey);
 
         if (! isDirectory)
@@ -2622,9 +2680,9 @@ void LookAndFeel_V2::layoutFileBrowserComponent (FileBrowserComponent& browserCo
 }
 
 //==============================================================================
-static Drawable* createDrawableFromSVG (const char* data)
+static std::unique_ptr<Drawable> createDrawableFromSVG (const char* data)
 {
-    ScopedPointer<XmlElement> xml (XmlDocument::parse (data));
+    auto xml = parseXML (data);
     jassert (xml != nullptr);
     return Drawable::createFromSVG (*xml);
 }
@@ -2632,7 +2690,7 @@ static Drawable* createDrawableFromSVG (const char* data)
 const Drawable* LookAndFeel_V2::getDefaultFolderImage()
 {
     if (folderImage == nullptr)
-        folderImage.reset (createDrawableFromSVG (R"svgdata(
+        folderImage = createDrawableFromSVG (R"svgdata(
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="706" height="532">
   <defs>
     <linearGradient id="a">
@@ -2647,7 +2705,7 @@ const Drawable* LookAndFeel_V2::getDefaultFolderImage()
     <path d="M608.6 136.8L235.2 208a22.7 22.7 0 0 0-16 19l-40.8 241c1.7 8.4 9.6 14.5 17.8 12.3l380-104c8-2.2 10.7-10.2 12.3-18.4l38-210.1c.4-15.4-10.4-11.8-18-11.1z" display="block" fill="url(#c)" opacity=".8" stroke="#446c98" stroke-width="7"/>
   </g>
 </svg>
-)svgdata"));
+)svgdata");
 
     return folderImage.get();
 }
@@ -2655,12 +2713,12 @@ const Drawable* LookAndFeel_V2::getDefaultFolderImage()
 const Drawable* LookAndFeel_V2::getDefaultDocumentFileImage()
 {
     if (documentImage == nullptr)
-        documentImage.reset (createDrawableFromSVG (R"svgdata(
+        documentImage = createDrawableFromSVG (R"svgdata(
 <svg version="1" viewBox="-10 -10 450 600" xmlns="http://www.w3.org/2000/svg">
   <path d="M17 0h290l120 132v426c0 10-8 19-17 19H17c-9 0-17-9-17-19V19C0 8 8 0 17 0z" fill="#e5e5e5" stroke="#888888" stroke-width="7"/>
   <path d="M427 132H324c-9 0-17-9-17-19V0l120 132z" fill="#ccc"/>
 </svg>
-)svgdata"));
+)svgdata");
 
     return documentImage.get();
 }
@@ -2710,11 +2768,11 @@ void LookAndFeel_V2::drawLevelMeter (Graphics& g, int width, int height, float l
     g.setColour (Colours::white.withAlpha (0.7f));
     g.fillRoundedRectangle (0.0f, 0.0f, (float) width, (float) height, 3.0f);
     g.setColour (Colours::black.withAlpha (0.2f));
-    g.drawRoundedRectangle (1.0f, 1.0f, width - 2.0f, height - 2.0f, 3.0f, 1.0f);
+    g.drawRoundedRectangle (1.0f, 1.0f, (float) width - 2.0f, (float) height - 2.0f, 3.0f, 1.0f);
 
     const int totalBlocks = 7;
     const int numBlocks = roundToInt (totalBlocks * level);
-    auto w = (width - 6.0f) / (float) totalBlocks;
+    auto w = ((float) width - 6.0f) / (float) totalBlocks;
 
     for (int i = 0; i < totalBlocks; ++i)
     {
@@ -2724,7 +2782,11 @@ void LookAndFeel_V2::drawLevelMeter (Graphics& g, int width, int height, float l
             g.setColour (i < totalBlocks - 1 ? Colours::blue.withAlpha (0.5f)
                                              : Colours::red);
 
-        g.fillRoundedRectangle (3.0f + i * w + w * 0.1f, 3.0f, w * 0.8f, height - 6.0f, w * 0.4f);
+        g.fillRoundedRectangle (3.0f + (float) i * w + w * 0.1f,
+                                3.0f,
+                                (float) w * 0.8f,
+                                (float) height - 6.0f,
+                                (float) w * 0.4f);
     }
 }
 
@@ -2745,7 +2807,7 @@ void LookAndFeel_V2::drawKeymapChangeButton (Graphics& g, int width, int height,
         }
 
         g.setColour (textColour);
-        g.setFont (height * 0.6f);
+        g.setFont ((float) height * 0.6f);
         g.drawFittedText (keyDescription,
                           3, 0, width - 6, height,
                           Justification::centred, 1);
@@ -2763,7 +2825,7 @@ void LookAndFeel_V2::drawKeymapChangeButton (Graphics& g, int width, int height,
         p.setUsingNonZeroWinding (false);
 
         g.setColour (textColour.withAlpha (button.isDown() ? 0.7f : (button.isOver() ? 0.5f : 0.3f)));
-        g.fillPath (p, p.getTransformToScaleToFit (2.0f, 2.0f, width - 4.0f, height - 4.0f, true));
+        g.fillPath (p, p.getTransformToScaleToFit (2.0f, 2.0f, (float) width - 4.0f, (float) height - 4.0f, true));
     }
 
     if (button.hasKeyboardFocus (false))
@@ -2798,11 +2860,11 @@ void LookAndFeel_V2::drawBevel (Graphics& g, const int x, const int y, const int
     if (g.clipRegionIntersects (Rectangle<int> (x, y, width, height)))
     {
         auto& context = g.getInternalContext();
-        context.saveState();
+        Graphics::ScopedSaveState ss (g);
 
         for (int i = bevelThickness; --i >= 0;)
         {
-            const float op = useGradient ? (sharpEdgeOnOutside ? bevelThickness - i : i) / (float) bevelThickness
+            const float op = useGradient ? (float) (sharpEdgeOnOutside ? bevelThickness - i : i) / (float) bevelThickness
                                          : 1.0f;
 
             context.setFill (topLeftColour.withMultipliedAlpha (op));
@@ -2814,8 +2876,6 @@ void LookAndFeel_V2::drawBevel (Graphics& g, const int x, const int y, const int
             context.setFill (bottomRightColour.withMultipliedAlpha (op  * 0.75f));
             context.fillRect (Rectangle<int> (x + width - i - 1, y + i + 1, 1, height - i * 2 - 2), false);
         }
-
-        context.restoreState();
     }
 }
 
@@ -2907,7 +2967,9 @@ void LookAndFeel_V2::drawGlassPointer (Graphics& g,
     p.lineTo (x, y + diameter * 0.6f);
     p.closeSubPath();
 
-    p.applyTransform (AffineTransform::rotation (direction * MathConstants<float>::halfPi, x + diameter * 0.5f, y + diameter * 0.5f));
+    p.applyTransform (AffineTransform::rotation ((float) direction * MathConstants<float>::halfPi,
+                                                 x + diameter * 0.5f,
+                                                 y + diameter * 0.5f));
 
     {
         ColourGradient cg (Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y,
@@ -2979,11 +3041,11 @@ void LookAndFeel_V2::drawGlassLozenge (Graphics& g,
 
     if (! (flatOnLeft || flatOnTop || flatOnBottom))
     {
-        g.saveState();
+        Graphics::ScopedSaveState ss (g);
+
         g.setGradientFill (cg);
         g.reduceClipRegion (intX, intY, intEdge, intH);
         g.fillPath (outline);
-        g.restoreState();
     }
 
     if (! (flatOnRight || flatOnTop || flatOnBottom))
@@ -2991,11 +3053,11 @@ void LookAndFeel_V2::drawGlassLozenge (Graphics& g,
         cg.point1.setX (x + width - edgeBlurRadius);
         cg.point2.setX (x + width);
 
-        g.saveState();
+        Graphics::ScopedSaveState ss (g);
+
         g.setGradientFill (cg);
         g.reduceClipRegion (intX + intW - intEdge, intY, 2 + intEdge, intH);
         g.fillPath (outline);
-        g.restoreState();
     }
 
     {

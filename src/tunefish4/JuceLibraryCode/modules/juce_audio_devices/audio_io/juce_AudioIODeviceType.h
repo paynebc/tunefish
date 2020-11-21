@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -126,7 +126,7 @@ public:
     class Listener
     {
     public:
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** Called when the list of available audio devices changes. */
         virtual void audioDeviceListChanged() = 0;
@@ -149,8 +149,8 @@ public:
     static AudioIODeviceType* createAudioIODeviceType_CoreAudio();
     /** Creates an iOS device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_iOSAudio();
-    /** Creates a WASAPI device type if it's available on this platform, or returns null. */
-    static AudioIODeviceType* createAudioIODeviceType_WASAPI (bool exclusiveMode);
+    /** Creates a WASAPI device type in the specified mode if it's available on this platform, or returns null. */
+    static AudioIODeviceType* createAudioIODeviceType_WASAPI (WASAPIDeviceMode deviceMode);
     /** Creates a DirectSound device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_DirectSound();
     /** Creates an ASIO device type if it's available on this platform, or returns null. */
@@ -165,6 +165,11 @@ public:
     static AudioIODeviceType* createAudioIODeviceType_OpenSLES();
     /** Creates an Oboe device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_Oboe();
+    /** Creates a Bela device type if it's available on this platform, or returns null. */
+    static AudioIODeviceType* createAudioIODeviceType_Bela();
+
+    /** This method has been deprecated. You should call the method which takes a WASAPIDeviceMode instead. */
+    JUCE_DEPRECATED (static AudioIODeviceType* createAudioIODeviceType_WASAPI (bool exclusiveMode));
 
 protected:
     explicit AudioIODeviceType (const String& typeName);

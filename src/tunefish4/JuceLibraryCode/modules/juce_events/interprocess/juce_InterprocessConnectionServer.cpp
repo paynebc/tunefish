@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -69,7 +69,7 @@ void InterprocessConnectionServer::run()
 {
     while ((! threadShouldExit()) && socket != nullptr)
     {
-        ScopedPointer<StreamingSocket> clientSocket (socket->waitForNextConnection());
+        std::unique_ptr<StreamingSocket> clientSocket (socket->waitForNextConnection());
 
         if (clientSocket != nullptr)
             if (auto* newConnection = createConnectionObject())

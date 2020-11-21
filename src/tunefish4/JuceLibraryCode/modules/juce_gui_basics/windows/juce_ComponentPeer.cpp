@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -103,19 +102,21 @@ void ComponentPeer::handleMagnifyGesture (MouseInputSource::InputSourceType type
 //==============================================================================
 void ComponentPeer::handlePaint (LowLevelGraphicsContext& contextToPaintTo)
 {
-    ModifierKeys::updateCurrentModifiers();
-
     Graphics g (contextToPaintTo);
 
     if (component.isTransformed())
         g.addTransform (component.getTransform());
 
     auto peerBounds = getBounds();
+    auto componentBounds = component.getLocalBounds();
 
-    if (peerBounds.getWidth() != component.getWidth() || peerBounds.getHeight() != component.getHeight())
+    if (component.isTransformed())
+        componentBounds = componentBounds.transformedBy (component.getTransform());
+
+    if (peerBounds.getWidth() != componentBounds.getWidth() || peerBounds.getHeight() != componentBounds.getHeight())
         // Tweak the scaling so that the component's integer size exactly aligns with the peer's scaled size
-        g.addTransform (AffineTransform::scale (peerBounds.getWidth()  / (float) component.getWidth(),
-                                                peerBounds.getHeight() / (float) component.getHeight()));
+        g.addTransform (AffineTransform::scale ((float) peerBounds.getWidth()  / (float) componentBounds.getWidth(),
+                                                (float) peerBounds.getHeight() / (float) componentBounds.getHeight()));
 
   #if JUCE_ENABLE_REPAINT_DEBUGGING
    #ifdef JUCE_IS_REPAINT_DEBUGGING_ACTIVE
@@ -173,10 +174,8 @@ Component* ComponentPeer::getTargetForKeyPress()
 
 bool ComponentPeer::handleKeyPress (const int keyCode, const juce_wchar textCharacter)
 {
-    ModifierKeys::updateCurrentModifiers();
-
     return handleKeyPress (KeyPress (keyCode,
-                                     ModifierKeys::getCurrentModifiers().withoutMouseButtons(),
+                                     ModifierKeys::currentModifiers.withoutMouseButtons(),
                                      textCharacter));
 }
 
@@ -228,7 +227,6 @@ bool ComponentPeer::handleKeyPress (const KeyPress& keyInfo)
 
 bool ComponentPeer::handleKeyUpOrDown (const bool isKeyDown)
 {
-    ModifierKeys::updateCurrentModifiers();
     bool keyWasUsed = false;
 
     for (auto* target = getTargetForKeyPress(); target != nullptr; target = target->getParentComponent())
@@ -259,8 +257,6 @@ bool ComponentPeer::handleKeyUpOrDown (const bool isKeyDown)
 
 void ComponentPeer::handleModifierKeysChange()
 {
-    ModifierKeys::updateCurrentModifiers();
-
     auto* target = Desktop::getInstance().getMainMouseSource().getComponentUnderMouse();
 
     if (target == nullptr)
@@ -289,7 +285,6 @@ void ComponentPeer::dismissPendingTextInput() {}
 //==============================================================================
 void ComponentPeer::handleBroughtToFront()
 {
-    ModifierKeys::updateCurrentModifiers();
     component.internalBroughtToFront();
 }
 
@@ -300,8 +295,6 @@ void ComponentPeer::setConstrainer (ComponentBoundsConstrainer* const newConstra
 
 void ComponentPeer::handleMovedOrResized()
 {
-    ModifierKeys::updateCurrentModifiers();
-
     const bool nowMinimised = isMinimised();
 
     if (component.flags.hasHeavyweightPeerFlag && ! nowMinimised)
@@ -341,8 +334,6 @@ void ComponentPeer::handleMovedOrResized()
 
 void ComponentPeer::handleFocusGain()
 {
-    ModifierKeys::updateCurrentModifiers();
-
     if (component.isParentOf (lastFocusedComponent)
           && lastFocusedComponent->isShowing()
           && lastFocusedComponent->getWantsKeyboardFocus())
@@ -362,8 +353,6 @@ void ComponentPeer::handleFocusGain()
 
 void ComponentPeer::handleFocusLoss()
 {
-    ModifierKeys::updateCurrentModifiers();
-
     if (component.hasKeyboardFocus (true))
     {
         lastFocusedComponent = Component::currentlyFocusedComponent;
@@ -386,8 +375,6 @@ Component* ComponentPeer::getLastFocusedSubcomponent() const noexcept
 
 void ComponentPeer::handleScreenSizeChange()
 {
-    ModifierKeys::updateCurrentModifiers();
-
     component.parentSizeChanged();
     handleMovedOrResized();
 }
@@ -411,6 +398,16 @@ Rectangle<int> ComponentPeer::localToGlobal (const Rectangle<int>& relativePosit
 }
 
 Rectangle<int> ComponentPeer::globalToLocal (const Rectangle<int>& screenPosition)
+{
+    return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
+}
+
+Rectangle<float> ComponentPeer::localToGlobal (const Rectangle<float>& relativePosition)
+{
+    return relativePosition.withPosition (localToGlobal (relativePosition.getPosition()));
+}
+
+Rectangle<float> ComponentPeer::globalToLocal (const Rectangle<float>& screenPosition)
 {
     return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
 }
@@ -453,8 +450,6 @@ namespace DragHelpers
 
 bool ComponentPeer::handleDragMove (const ComponentPeer::DragInfo& info)
 {
-    ModifierKeys::updateCurrentModifiers();
-
     auto* compUnderMouse = component.getComponentAt (info.position);
     auto* lastTarget = dragAndDropTargetComponent.get();
     Component* newTarget = nullptr;
@@ -562,7 +557,6 @@ bool ComponentPeer::handleDragDrop (const ComponentPeer::DragInfo& info)
 //==============================================================================
 void ComponentPeer::handleUserClosingWindow()
 {
-    ModifierKeys::updateCurrentModifiers();
     component.userTriedToCloseWindow();
 }
 
@@ -578,5 +572,17 @@ void ComponentPeer::setRepresentedFile (const File&)
 //==============================================================================
 int ComponentPeer::getCurrentRenderingEngine() const            { return 0; }
 void ComponentPeer::setCurrentRenderingEngine (int index)       { jassert (index == 0); ignoreUnused (index); }
+
+//==============================================================================
+std::function<ModifierKeys()> ComponentPeer::getNativeRealtimeModifiers = nullptr;
+
+ModifierKeys ComponentPeer::getCurrentModifiersRealtime() noexcept
+{
+    if (getNativeRealtimeModifiers != nullptr)
+        return getNativeRealtimeModifiers();
+
+    return ModifierKeys::currentModifiers;
+}
+
 
 } // namespace juce

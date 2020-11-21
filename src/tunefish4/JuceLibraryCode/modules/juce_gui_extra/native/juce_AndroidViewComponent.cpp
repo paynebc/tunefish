@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -30,7 +29,7 @@ namespace juce
 class AndroidViewComponent::Pimpl  : public ComponentMovementWatcher
 {
 public:
-    Pimpl (jobject v, Component& comp)
+    Pimpl (const LocalRef<jobject>& v, Component& comp)
         : ComponentMovementWatcher (&comp),
           view (v),
           owner (comp)
@@ -39,7 +38,7 @@ public:
             componentPeerChanged();
     }
 
-    ~Pimpl()
+    ~Pimpl() override
     {
         removeFromParent();
     }
@@ -67,7 +66,6 @@ public:
         if (currentPeer != peer)
         {
             removeFromParent();
-
             currentPeer = peer;
 
             addToParent();
@@ -85,6 +83,11 @@ public:
     void componentVisibilityChanged() override
     {
         componentPeerChanged();
+    }
+
+    void componentBroughtToFront (Component& comp) override
+    {
+        ComponentMovementWatcher::componentBroughtToFront (comp);
     }
 
     Rectangle<int> getViewBounds() const
@@ -106,12 +109,10 @@ private:
         {
             jobject peerView = (jobject) currentPeer->getNativeHandle();
 
+            // NB: Assuming a parent is always of ViewGroup type
             auto* env = getEnv();
-            auto parentView = env->CallObjectMethod (peerView, AndroidView.getParent);
 
-            // Assuming a parent is always of ViewGroup type
-            env->CallVoidMethod (parentView, AndroidViewGroup.addView, view.get());
-
+            env->CallVoidMethod (peerView, AndroidViewGroup.addView, view.get());
             componentMovedOrResized (false, false);
         }
     }
@@ -121,7 +122,7 @@ private:
         auto* env = getEnv();
         auto parentView = env->CallObjectMethod (view, AndroidView.getParent);
 
-        if (parentView != 0)
+        if (parentView != nullptr)
         {
             // Assuming a parent is always of ViewGroup type
             env->CallVoidMethod (parentView, AndroidViewGroup.removeView, view.get());
@@ -135,7 +136,10 @@ private:
 };
 
 //==============================================================================
-AndroidViewComponent::AndroidViewComponent() {}
+AndroidViewComponent::AndroidViewComponent()
+{
+}
+
 AndroidViewComponent::~AndroidViewComponent() {}
 
 void AndroidViewComponent::setView (void* view)
@@ -145,7 +149,14 @@ void AndroidViewComponent::setView (void* view)
         pimpl.reset();
 
         if (view != nullptr)
-            pimpl.reset (new Pimpl ((jobject) view, *this));
+        {
+            // explicitly create a new local ref here so that we don't
+            // delete the users pointer
+            auto* env = getEnv();
+            auto localref = LocalRef<jobject>(env->NewLocalRef((jobject) view));
+
+            pimpl.reset (new Pimpl (localref, *this));
+        }
     }
 }
 

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -38,6 +37,8 @@ struct ModalComponentManager::ModalItem  : public ComponentMovementWatcher
 
     void componentMovedOrResized (bool, bool) override {}
 
+    using ComponentMovementWatcher::componentMovedOrResized;
+
     void componentPeerChanged() override
     {
         componentVisibilityChanged();
@@ -48,6 +49,8 @@ struct ModalComponentManager::ModalItem  : public ComponentMovementWatcher
         if (! component->isShowing())
             cancel();
     }
+
+    using ComponentMovementWatcher::componentVisibilityChanged;
 
     void componentBeingDeleted (Component& comp) override
     {
@@ -104,7 +107,7 @@ void ModalComponentManager::attachCallback (Component* component, Callback* call
 {
     if (callback != nullptr)
     {
-        ScopedPointer<Callback> callbackDeleter (callback);
+        std::unique_ptr<Callback> callbackDeleter (callback);
 
         for (int i = stack.size(); --i >= 0;)
         {
@@ -194,7 +197,7 @@ void ModalComponentManager::handleAsyncUpdate()
 
         if (! item->isActive)
         {
-            ScopedPointer<ModalItem> deleter (stack.removeAndReturn (i));
+            std::unique_ptr<ModalItem> deleter (stack.removeAndReturn (i));
             Component::SafePointer<Component> compToDelete (item->autoDelete ? item->component : nullptr);
 
             for (int j = item->callbacks.size(); --j >= 0;)
@@ -254,7 +257,7 @@ bool ModalComponentManager::cancelAllModalComponents()
 int ModalComponentManager::runEventLoopForCurrentComponent()
 {
     // This can only be run from the message thread!
-    jassert (MessageManager::getInstance()->isThisTheMessageThread());
+    JUCE_ASSERT_MESSAGE_THREAD
 
     int returnValue = 0;
 
@@ -283,15 +286,20 @@ int ModalComponentManager::runEventLoopForCurrentComponent()
 //==============================================================================
 struct LambdaCallback  : public ModalComponentManager::Callback
 {
-    LambdaCallback (std::function<void(int)> fn) noexcept : function (fn) {}
-    void modalStateFinished (int result) override  { function (result); }
+    LambdaCallback (std::function<void (int)> fn) noexcept  : function (fn)  {}
 
-    std::function<void(int)> function;
+    void modalStateFinished (int result) override
+    {
+        if (function != nullptr)
+            function (result);
+    }
+
+    std::function<void (int)> function;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LambdaCallback)
 };
 
-ModalComponentManager::Callback* ModalCallbackFunction::create (std::function<void(int)> f)
+ModalComponentManager::Callback* ModalCallbackFunction::create (std::function<void (int)> f)
 {
     return new LambdaCallback (f);
 }

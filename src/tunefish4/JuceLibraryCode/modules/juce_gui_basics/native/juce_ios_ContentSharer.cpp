@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,10 +26,6 @@
 namespace juce
 {
 
-template <> struct ContainerDeletePolicy<UIActivityViewController>                          { static void destroy (NSObject* o) { [o release]; } };
-template <> struct ContainerDeletePolicy<NSObject<UIPopoverPresentationControllerDelegate>> { static void destroy (NSObject* o) { [o release]; } };
-
-//==============================================================================
 class ContentSharer::ContentSharerNativeImpl    : public ContentSharer::Pimpl,
                                                   private Component
 {
@@ -39,17 +34,17 @@ public:
         : owner (cs)
     {
         static PopoverDelegateClass cls;
-        popoverDelegate = [cls.createInstance() init];
+        popoverDelegate.reset ([cls.createInstance() init]);
     }
 
-    ~ContentSharerNativeImpl()
+    ~ContentSharerNativeImpl() override
     {
         exitModalState (0);
     }
 
     void shareFiles (const Array<URL>& files) override
     {
-        auto* urls = [NSMutableArray arrayWithCapacity: (NSUInteger) files.size()];
+        auto urls = [NSMutableArray arrayWithCapacity: (NSUInteger) files.size()];
 
         for (const auto& f : files)
         {
@@ -90,7 +85,7 @@ public:
 
     void shareText (const String& text) override
     {
-        auto* array = [NSArray arrayWithObject: juceStringToNS (text)];
+        auto array = [NSArray arrayWithObject: juceStringToNS (text)];
         share (array);
     }
 
@@ -104,8 +99,8 @@ private:
             return;
         }
 
-        controller = [[UIActivityViewController alloc] initWithActivityItems: items
-                                                       applicationActivities: nil];
+        controller.reset ([[UIActivityViewController alloc] initWithActivityItems: items
+                                                            applicationActivities: nil]);
 
         controller.get().excludedActivityTypes = nil;
 
@@ -129,6 +124,7 @@ private:
         setBounds (bounds);
 
         setAlwaysOnTop (true);
+        setVisible (true);
         addToDesktop (0);
 
         enterModalState (true,
@@ -167,10 +163,7 @@ private:
             }
 
             if (auto* parentController = peer->controller)
-                [parentController showViewController: controller sender: parentController];
-
-            if (peer->view.window != nil)
-                peer->view.window.autoresizesSubviews = YES;
+                [parentController showViewController: controller.get() sender: parentController];
         }
     }
 
@@ -198,8 +191,8 @@ private:
 
     ContentSharer& owner;
     UIViewComponentPeer* peer = nullptr;
-    ScopedPointer<UIActivityViewController> controller;
-    ScopedPointer<NSObject<UIPopoverPresentationControllerDelegate>> popoverDelegate;
+    std::unique_ptr<UIActivityViewController, NSObjectDeleter> controller;
+    std::unique_ptr<NSObject<UIPopoverPresentationControllerDelegate>, NSObjectDeleter> popoverDelegate;
 
     bool succeeded = false;
     String errorDescription;

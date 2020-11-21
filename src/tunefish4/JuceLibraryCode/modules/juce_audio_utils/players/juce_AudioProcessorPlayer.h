@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -35,7 +34,8 @@ namespace juce
     give it a processor to use by calling setProcessor().
 
     It's also a MidiInputCallback, so you can connect it to both an audio and midi
-    input to send both streams through the processor.
+    input to send both streams through the processor. To set a MidiOutput for the processor,
+    use the setMidiOutput() method.
 
     @see AudioProcessor, AudioProcessorGraph
 
@@ -49,7 +49,7 @@ public:
     AudioProcessorPlayer (bool doDoublePrecisionProcessing = false);
 
     /** Destructor. */
-    virtual ~AudioProcessorPlayer();
+    ~AudioProcessorPlayer() override;
 
     //==============================================================================
     /** Sets the processor that should be played.
@@ -68,18 +68,26 @@ public:
     */
     MidiMessageCollector& getMidiMessageCollector() noexcept        { return messageCollector; }
 
+    /** Sets the MIDI output that should be used, if required.
+
+        The MIDI output will not be deleted or owned by this object. If the MIDI output is
+        deleted, pass a nullptr to this method.
+    */
+    void setMidiOutput (MidiOutput* midiOutputToUse);
+
     /** Switch between double and single floating point precisions processing.
-        The audio IO callbacks will still operate in single floating point
-        precision, however, all internal processing including the
-        AudioProcessor will be processed in double floating point precision if
-        the AudioProcessor supports it (see
-        AudioProcessor::supportsDoublePrecisionProcessing()).
-        Otherwise, the processing will remain single precision irrespective of
-        the parameter doublePrecision. */
+
+        The audio IO callbacks will still operate in single floating point precision,
+        however, all internal processing including the AudioProcessor will be processed in
+        double floating point precision if the AudioProcessor supports it (see
+        AudioProcessor::supportsDoublePrecisionProcessing()). Otherwise, the processing will
+        remain single precision irrespective of the parameter doublePrecision.
+    */
     void setDoublePrecisionProcessing (bool doublePrecision);
 
     /** Returns true if this player processes internally processes the samples with
-        double floating point precision. */
+        double floating point precision.
+    */
     inline bool getDoublePrecisionProcessing() { return isDoublePrecision; }
 
     //==============================================================================
@@ -107,6 +115,7 @@ private:
 
     MidiBuffer incomingMidi;
     MidiMessageCollector messageCollector;
+    MidiOutput* midiOutput = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioProcessorPlayer)
 };

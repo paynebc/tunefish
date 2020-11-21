@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -42,9 +42,20 @@ public:
         does not exist), the failedToOpen() method will return true.
 
         If the file already exists when opened, the stream's write-position will
-        be set to the end of the file. To overwrite an existing file,
-        use File::deleteFile() before opening the stream, or use setPosition(0)
-        after it's opened (although this won't truncate the file).
+        be set to the end of the file. To overwrite an existing file, you can truncate
+        it like this:
+
+        @code
+        FileOutputStream stream (file);
+
+        if (stream.openedOk())
+        {
+            stream.setPosition (0);
+            stream.truncate();
+            ...
+        }
+        @endcode
+
 
         Destroying a FileOutputStream object does not force the operating system
         to write the buffered data to disk immediately. If this is required you
@@ -56,7 +67,7 @@ public:
                       size_t bufferSizeToUse = 16384);
 
     /** Destructor. */
-    ~FileOutputStream();
+    ~FileOutputStream() override;
 
     //==============================================================================
     /** Returns the file that this stream is writing to.

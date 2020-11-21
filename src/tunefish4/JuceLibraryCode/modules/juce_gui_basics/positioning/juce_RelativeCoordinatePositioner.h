@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -39,14 +38,14 @@ class JUCE_API  RelativeCoordinatePositionerBase  : public Component::Positioner
 {
 public:
     RelativeCoordinatePositionerBase (Component&);
-    ~RelativeCoordinatePositionerBase();
+    ~RelativeCoordinatePositionerBase() override;
 
-    void componentMovedOrResized (Component&, bool, bool);
-    void componentParentHierarchyChanged (Component&);
-    void componentChildrenChanged (Component&);
-    void componentBeingDeleted (Component&);
-    void markersChanged (MarkerList*);
-    void markerListBeingDeleted (MarkerList*);
+    void componentMovedOrResized (Component&, bool, bool) override;
+    void componentParentHierarchyChanged (Component&) override;
+    void componentChildrenChanged (Component&) override;
+    void componentBeingDeleted (Component&) override;
+    void markersChanged (MarkerList*) override;
+    void markerListBeingDeleted (MarkerList*) override;
 
     void apply();
 
@@ -60,12 +59,9 @@ public:
     public:
         ComponentScope (Component&);
 
-        // Suppress a VS2013 compiler warning
-        ComponentScope& operator= (const ComponentScope&) = delete;
-
-        Expression getSymbolValue (const String& symbol) const;
-        void visitRelativeScope (const String& scopeName, Visitor&) const;
-        String getScopeUID() const;
+        Expression getSymbolValue (const String& symbol) const override;
+        void visitRelativeScope (const String& scopeName, Visitor&) const override;
+        String getScopeUID() const override;
 
     protected:
         Component& component;

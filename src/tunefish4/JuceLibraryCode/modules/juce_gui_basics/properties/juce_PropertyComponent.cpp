@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,8 +26,8 @@
 namespace juce
 {
 
-PropertyComponent::PropertyComponent (const String& name, const int preferredHeight_)
-    : Component (name), preferredHeight (preferredHeight_)
+PropertyComponent::PropertyComponent (const String& name, int height)
+    : Component (name), preferredHeight (height)
 {
     jassert (name.isNotEmpty());
 }
@@ -37,7 +36,7 @@ PropertyComponent::~PropertyComponent() {}
 
 void PropertyComponent::paint (Graphics& g)
 {
-    LookAndFeel& lf = getLookAndFeel();
+    auto& lf = getLookAndFeel();
 
     lf.drawPropertyComponentBackground (g, getWidth(), getHeight(), *this);
     lf.drawPropertyComponentLabel      (g, getWidth(), getHeight(), *this);
@@ -45,7 +44,7 @@ void PropertyComponent::paint (Graphics& g)
 
 void PropertyComponent::resized()
 {
-    if (Component* const c = getChildComponent(0))
+    if (auto c = getChildComponent(0))
         c->setBounds (getLookAndFeel().getPropertyComponentContentPosition (*this));
 }
 

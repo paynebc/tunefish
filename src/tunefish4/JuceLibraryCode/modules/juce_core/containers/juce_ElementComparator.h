@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -82,12 +82,17 @@ static void sortArray (ElementComparator& comparator,
                        int lastElement,
                        const bool retainOrderOfEquivalentItems)
 {
-    SortFunctionConverter<ElementComparator> converter (comparator);
+    jassert (firstElement >= 0);
 
-    if (retainOrderOfEquivalentItems)
-        std::stable_sort (array + firstElement, array + lastElement + 1, converter);
-    else
-        std::sort        (array + firstElement, array + lastElement + 1, converter);
+    if (lastElement > firstElement)
+    {
+        SortFunctionConverter<ElementComparator> converter (comparator);
+
+        if (retainOrderOfEquivalentItems)
+            std::stable_sort (array + firstElement, array + lastElement + 1, converter);
+        else
+            std::sort        (array + firstElement, array + lastElement + 1, converter);
+    }
 }
 
 
@@ -180,7 +185,7 @@ template <class ElementType>
 class DefaultElementComparator
 {
 private:
-    typedef typename TypeHelpers::ParameterType<ElementType>::type ParameterType;
+    using ParameterType = typename TypeHelpers::ParameterType<ElementType>::type;
 
 public:
     static int compareElements (ParameterType first, ParameterType second)

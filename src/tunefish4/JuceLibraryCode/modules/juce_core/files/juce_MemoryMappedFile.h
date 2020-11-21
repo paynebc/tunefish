@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -71,7 +71,7 @@ public:
 
         If the file can't be opened for some reason, the getData() method will return a null pointer.
 
-        NOTE: the start of the actual range used may be rounded-down to a multiple of the OS's page-size,
+        NOTE: The start of the actual range used may be rounded-down to a multiple of the OS's page-size,
         so do not assume that the mapped memory will begin at exactly the position you requested - always
         use getRange() to check the actual range that is being used.
     */

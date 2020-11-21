@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,10 +26,7 @@
 namespace juce
 {
 
-#if JUCE_MSVC
- #pragma warning (push)
- #pragma warning (disable: 4127) // "expression is constant" warning
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4127)
 
 namespace RenderingHelpers
 {
@@ -43,14 +39,10 @@ namespace RenderingHelpers
 class TranslationOrTransform
 {
 public:
-    TranslationOrTransform() noexcept {}
+    TranslationOrTransform() = default;
     TranslationOrTransform (Point<int> origin) noexcept  : offset (origin) {}
 
-    TranslationOrTransform (const TranslationOrTransform& other) noexcept
-        : complexTransform (other.complexTransform), offset (other.offset),
-          isOnlyTranslated (other.isOnlyTranslated), isRotated (other.isRotated)
-    {
-    }
+    TranslationOrTransform (const TranslationOrTransform& other) = default;
 
     AffineTransform getTransform() const noexcept
     {
@@ -100,7 +92,7 @@ public:
 
     float getPhysicalPixelScaleFactor() const noexcept
     {
-        return isOnlyTranslated ? 1.0f : std::abs (complexTransform.getScaleFactor());
+        return isOnlyTranslated ? 1.0f : std::sqrt (std::abs (complexTransform.getDeterminant()));
     }
 
     void moveOriginInDeviceSpace (Point<int> delta) noexcept
@@ -156,7 +148,7 @@ public:
         reset();
     }
 
-    ~GlyphCache()
+    ~GlyphCache() override
     {
         getSingletonPointer() = nullptr;
     }
@@ -194,35 +186,34 @@ public:
     {
         const ScopedLock sl (lock);
 
-        if (auto* g = findExistingGlyph (font, glyphNumber))
+        if (auto g = findExistingGlyph (font, glyphNumber))
         {
             ++hits;
             return g;
         }
 
         ++misses;
-        auto* g = getGlyphForReuse();
+        auto g = getGlyphForReuse();
         jassert (g != nullptr);
         g->generate (font, glyphNumber);
         return g;
     }
 
 private:
-    friend struct ContainerDeletePolicy<CachedGlyphType>;
     ReferenceCountedArray<CachedGlyphType> glyphs;
     Atomic<int> accessCounter, hits, misses;
     CriticalSection lock;
 
-    CachedGlyphType* findExistingGlyph (const Font& font, int glyphNumber) const noexcept
+    ReferenceCountedObjectPtr<CachedGlyphType> findExistingGlyph (const Font& font, int glyphNumber) const noexcept
     {
-        for (auto* g : glyphs)
+        for (auto g : glyphs)
             if (g->glyph == glyphNumber && g->font == font)
-                return g;
+                return *g;
 
-        return nullptr;
+        return {};
     }
 
-    CachedGlyphType* getGlyphForReuse()
+    ReferenceCountedObjectPtr<CachedGlyphType> getGlyphForReuse()
     {
         if (hits.get() + misses.get() > glyphs.size() * 16)
         {
@@ -233,8 +224,8 @@ private:
             misses = 0;
         }
 
-        if (auto* g = findLeastRecentlyUsedGlyph())
-            return g;
+        if (auto g = findLeastRecentlyUsedGlyph())
+            return *g;
 
         addNewGlyphSlots (32);
         return glyphs.getLast();
@@ -284,7 +275,7 @@ template <class RendererType>
 class CachedGlyphEdgeTable  : public ReferenceCountedObject
 {
 public:
-    CachedGlyphEdgeTable() {}
+    CachedGlyphEdgeTable() = default;
 
     void draw (RendererType& state, Point<float> pos) const
     {
@@ -309,7 +300,7 @@ public:
     }
 
     Font font;
-    ScopedPointer<EdgeTable> edgeTable;
+    std::unique_ptr<EdgeTable> edgeTable;
     int glyph = 0, lastAccessCount = 0;
     bool snapToIntegerCoordinate = false;
 
@@ -581,19 +572,11 @@ namespace EdgeTableFillers
         SolidColour (const Image::BitmapData& image, PixelARGB colour)
             : destData (image), sourceColour (colour)
         {
-            if (sizeof (PixelType) == 3 && destData.pixelStride == sizeof (PixelType))
-            {
+            if (sizeof (PixelType) == 3 && (size_t) destData.pixelStride == sizeof (PixelType))
                 areRGBComponentsEqual = sourceColour.getRed() == sourceColour.getGreen()
                                             && sourceColour.getGreen() == sourceColour.getBlue();
-                filler[0].set (sourceColour);
-                filler[1].set (sourceColour);
-                filler[2].set (sourceColour);
-                filler[3].set (sourceColour);
-            }
             else
-            {
                 areRGBComponentsEqual = false;
-            }
         }
 
         forcedinline void setEdgeTableYPos (int y) noexcept
@@ -675,7 +658,6 @@ namespace EdgeTableFillers
         const Image::BitmapData& destData;
         PixelType* linePixels;
         PixelARGB sourceColour;
-        PixelRGB filler[4];
         bool areRGBComponentsEqual;
 
         forcedinline PixelType* getPixel (int x) const noexcept
@@ -690,53 +672,16 @@ namespace EdgeTableFillers
 
         forcedinline void replaceLine (PixelRGB* dest, PixelARGB colour, int width) const noexcept
         {
-            if (destData.pixelStride == sizeof (*dest))
-            {
-                if (areRGBComponentsEqual)  // if all the component values are the same, we can cheat..
-                {
-                    memset (dest, colour.getRed(), (size_t) width * 3);
-                }
-                else
-                {
-                    if (width >> 5)
-                    {
-                        auto intFiller = reinterpret_cast<const int*> (filler);
-
-                        while (width > 8 && (((pointer_sized_int) dest) & 7) != 0)
-                        {
-                            dest->set (colour);
-                            ++dest;
-                            --width;
-                        }
-
-                        while (width > 4)
-                        {
-                            auto d = reinterpret_cast<int*> (dest);
-                            *d++ = intFiller[0];
-                            *d++ = intFiller[1];
-                            *d++ = intFiller[2];
-                            dest = reinterpret_cast<PixelRGB*> (d);
-                            width -= 4;
-                        }
-                    }
-
-                    while (--width >= 0)
-                    {
-                        dest->set (colour);
-                        ++dest;
-                    }
-                }
-            }
+            if ((size_t) destData.pixelStride == sizeof (*dest) && areRGBComponentsEqual)
+                memset ((void*) dest, colour.getRed(), (size_t) width * 3);   // if all the component values are the same, we can cheat..
             else
-            {
-                JUCE_PERFORM_PIXEL_OP_LOOP (set (colour))
-            }
+                JUCE_PERFORM_PIXEL_OP_LOOP (set (colour));
         }
 
         forcedinline void replaceLine (PixelAlpha* dest, const PixelARGB colour, int width) const noexcept
         {
-            if (destData.pixelStride == sizeof (*dest))
-                memset (dest, colour.getAlpha(), (size_t) width);
+            if ((size_t) destData.pixelStride == sizeof (*dest))
+                memset ((void*) dest, colour.getAlpha(), (size_t) width);
             else
                 JUCE_PERFORM_PIXEL_OP_LOOP (setAlpha (colour.getAlpha()))
         }
@@ -966,7 +911,7 @@ namespace EdgeTableFillers
                  && srcData.pixelFormat  == Image::RGB
                  && destData.pixelFormat == Image::RGB)
             {
-                memcpy (dest, src, (size_t) (width * srcStride));
+                memcpy ((void*) dest, src, (size_t) (width * srcStride));
             }
             else
             {
@@ -1398,7 +1343,7 @@ namespace EdgeTableFillers
         private:
             struct BresenhamInterpolator
             {
-                BresenhamInterpolator() noexcept {}
+                BresenhamInterpolator() = default;
 
                 void set (int n1, int n2, int steps, int offsetInt) noexcept
                 {
@@ -1477,6 +1422,8 @@ namespace EdgeTableFillers
                 if (tiledFill)  { TransformedImageFill<PixelARGB, PixelRGB, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelARGB, PixelRGB, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { TransformedImageFill<PixelARGB, PixelAlpha, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelARGB, PixelAlpha, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
@@ -1485,6 +1432,7 @@ namespace EdgeTableFillers
             break;
 
         case Image::RGB:
+        {
             switch (srcData.pixelFormat)
             {
             case Image::ARGB:
@@ -1495,13 +1443,18 @@ namespace EdgeTableFillers
                 if (tiledFill)  { TransformedImageFill<PixelRGB, PixelRGB, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelRGB, PixelRGB, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { TransformedImageFill<PixelRGB, PixelAlpha, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelRGB, PixelAlpha, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 break;
             }
             break;
+        }
 
+        case Image::SingleChannel:
+        case Image::UnknownFormat:
         default:
             switch (srcData.pixelFormat)
             {
@@ -1513,6 +1466,8 @@ namespace EdgeTableFillers
                 if (tiledFill)  { TransformedImageFill<PixelAlpha, PixelRGB, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelAlpha, PixelRGB, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { TransformedImageFill<PixelAlpha, PixelAlpha, true>  r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
                 else            { TransformedImageFill<PixelAlpha, PixelAlpha, false> r (destData, srcData, transform, alpha, quality); iter.iterate (r); }
@@ -1538,6 +1493,8 @@ namespace EdgeTableFillers
                 if (tiledFill)  { ImageFill<PixelARGB, PixelRGB, true>  r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelARGB, PixelRGB, false> r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { ImageFill<PixelARGB, PixelAlpha, true>  r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelARGB, PixelAlpha, false> r (destData, srcData, alpha, x, y); iter.iterate (r); }
@@ -1556,6 +1513,8 @@ namespace EdgeTableFillers
                 if (tiledFill)  { ImageFill<PixelRGB, PixelRGB, true>  r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelRGB, PixelRGB, false> r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { ImageFill<PixelRGB, PixelAlpha, true>  r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelRGB, PixelAlpha, false> r (destData, srcData, alpha, x, y); iter.iterate (r); }
@@ -1563,6 +1522,8 @@ namespace EdgeTableFillers
             }
             break;
 
+        case Image::SingleChannel:
+        case Image::UnknownFormat:
         default:
             switch (srcData.pixelFormat)
             {
@@ -1574,6 +1535,8 @@ namespace EdgeTableFillers
                 if (tiledFill)  { ImageFill<PixelAlpha, PixelRGB, true>    r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelAlpha, PixelRGB, false>   r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
             default:
                 if (tiledFill)  { ImageFill<PixelAlpha, PixelAlpha, true>  r (destData, srcData, alpha, x, y); iter.iterate (r); }
                 else            { ImageFill<PixelAlpha, PixelAlpha, false> r (destData, srcData, alpha, x, y); iter.iterate (r); }
@@ -1629,10 +1592,10 @@ struct ClipRegions
 {
     struct Base  : public SingleThreadedReferenceCountedObject
     {
-        Base() {}
-        virtual ~Base() {}
+        Base() = default;
+        ~Base() override = default;
 
-        typedef ReferenceCountedObjectPtr<Base> Ptr;
+        using Ptr = ReferenceCountedObjectPtr<Base>;
 
         virtual Ptr clone() const = 0;
         virtual Ptr applyClipTo (const Ptr& target) const = 0;
@@ -1669,15 +1632,15 @@ struct ClipRegions
         EdgeTableRegion (const EdgeTableRegion& other)  : Base(), edgeTable (other.edgeTable) {}
         EdgeTableRegion& operator= (const EdgeTableRegion&) = delete;
 
-        typedef typename Base::Ptr Ptr;
+        using Ptr = typename Base::Ptr;
 
-        Ptr clone() const override                           { return new EdgeTableRegion (*this); }
+        Ptr clone() const override                           { return *new EdgeTableRegion (*this); }
         Ptr applyClipTo (const Ptr& target) const override   { return target->clipToEdgeTable (edgeTable); }
 
         Ptr clipToRectangle (Rectangle<int> r) override
         {
             edgeTable.clipToRectangle (r);
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToRectangleList (const RectangleList<int>& r) override
@@ -1688,26 +1651,26 @@ struct ClipRegions
                 for (auto& i : inverse)
                     edgeTable.excludeRectangle (i);
 
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr excludeClipRectangle (Rectangle<int> r) override
         {
             edgeTable.excludeRectangle (r);
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToPath (const Path& p, const AffineTransform& transform) override
         {
             EdgeTable et (edgeTable.getMaximumBounds(), p, transform);
             edgeTable.clipToEdgeTable (et);
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToEdgeTable (const EdgeTable& et) override
         {
             edgeTable.clipToEdgeTable (et);
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToImageAlpha (const Image& image, const AffineTransform& transform, Graphics::ResamplingQuality quality) override
@@ -1726,11 +1689,11 @@ struct ClipRegions
                     auto imageY = ((ty + 128) >> 8);
 
                     if (image.getFormat() == Image::ARGB)
-                        straightClipImage (srcData, imageX, imageY, (PixelARGB*) 0);
+                        straightClipImage (srcData, imageX, imageY, (PixelARGB*) nullptr);
                     else
-                        straightClipImage (srcData, imageX, imageY, (PixelAlpha*) 0);
+                        straightClipImage (srcData, imageX, imageY, (PixelAlpha*) nullptr);
 
-                    return edgeTable.isEmpty() ? nullptr : this;
+                    return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
                 }
             }
 
@@ -1747,12 +1710,12 @@ struct ClipRegions
             if (! edgeTable.isEmpty())
             {
                 if (image.getFormat() == Image::ARGB)
-                    transformedClipImage (srcData, transform, quality, (PixelARGB*) 0);
+                    transformedClipImage (srcData, transform, quality, (PixelARGB*) nullptr);
                 else
-                    transformedClipImage (srcData, transform, quality, (PixelAlpha*) 0);
+                    transformedClipImage (srcData, transform, quality, (PixelAlpha*) nullptr);
             }
 
-            return edgeTable.isEmpty() ? nullptr : this;
+            return edgeTable.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         void translate (Point<int> delta) override
@@ -1850,27 +1813,27 @@ struct ClipRegions
         RectangleListRegion (const RectangleList<int>& r)  : clip (r) {}
         RectangleListRegion (const RectangleListRegion& other) : Base(), clip (other.clip) {}
 
-        typedef typename Base::Ptr Ptr;
+        using Ptr = typename Base::Ptr;
 
-        Ptr clone() const override                           { return new RectangleListRegion (*this); }
+        Ptr clone() const override                           { return *new RectangleListRegion (*this); }
         Ptr applyClipTo (const Ptr& target) const override   { return target->clipToRectangleList (clip); }
 
         Ptr clipToRectangle (Rectangle<int> r) override
         {
             clip.clipTo (r);
-            return clip.isEmpty() ? nullptr : this;
+            return clip.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToRectangleList (const RectangleList<int>& r) override
         {
             clip.clipTo (r);
-            return clip.isEmpty() ? nullptr : this;
+            return clip.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr excludeClipRectangle (Rectangle<int> r) override
         {
             clip.subtract (r);
-            return clip.isEmpty() ? nullptr : this;
+            return clip.isEmpty() ? Ptr() : Ptr (*this);
         }
 
         Ptr clipToPath (const Path& p, const AffineTransform& transform) override  { return toEdgeTable()->clipToPath (p, transform); }
@@ -2069,9 +2032,9 @@ struct ClipRegions
             JUCE_DECLARE_NON_COPYABLE (SubRectangleIteratorFloat)
         };
 
-        Ptr toEdgeTable() const   { return new EdgeTableRegion (clip); }
+        Ptr toEdgeTable() const   { return *new EdgeTableRegion (clip); }
 
-        RectangleListRegion& operator= (const RectangleListRegion&);
+        RectangleListRegion& operator= (const RectangleListRegion&) = delete;
     };
 };
 
@@ -2080,9 +2043,9 @@ template <class SavedStateType>
 class SavedStateBase
 {
 public:
-    typedef typename ClipRegions<SavedStateType>::Base                   BaseRegionType;
-    typedef typename ClipRegions<SavedStateType>::EdgeTableRegion        EdgeTableRegionType;
-    typedef typename ClipRegions<SavedStateType>::RectangleListRegion    RectangleListRegionType;
+    using BaseRegionType           = typename ClipRegions<SavedStateType>::Base;
+    using EdgeTableRegionType      = typename ClipRegions<SavedStateType>::EdgeTableRegion;
+    using RectangleListRegionType  = typename ClipRegions<SavedStateType>::RectangleListRegion;
 
     SavedStateBase (Rectangle<int> initialClip)
         : clip (new RectangleListRegionType (initialClip)),
@@ -2268,7 +2231,7 @@ public:
             auto clipped = clip->getClipBounds().getIntersection (r);
 
             if (! clipped.isEmpty())
-                fillShape (new RectangleListRegionType (clipped), false);
+                fillShape (*new RectangleListRegionType (clipped), false);
         }
     }
 
@@ -2283,7 +2246,7 @@ public:
             auto clipped = clip->getClipBounds().toFloat().getIntersection (r);
 
             if (! clipped.isEmpty())
-                fillShape (new EdgeTableRegionType (clipped), false);
+                fillShape (*new EdgeTableRegionType (clipped), false);
         }
     }
 
@@ -2337,7 +2300,7 @@ public:
 
             if (transform.isIdentity())
             {
-                fillShape (new EdgeTableRegionType (list), false);
+                fillShape (*new EdgeTableRegionType (list), false);
             }
             else if (! transform.isRotated)
             {
@@ -2348,7 +2311,7 @@ public:
                 else
                     transformed.transformAll (transform.getTransform());
 
-                fillShape (new EdgeTableRegionType (transformed), false);
+                fillShape (*new EdgeTableRegionType (transformed), false);
             }
             else
             {
@@ -2365,7 +2328,7 @@ public:
             auto clipRect = clip->getClipBounds();
 
             if (path.getBoundsTransformed (trans).getSmallestIntegerContainer().intersects (clipRect))
-                fillShape (new EdgeTableRegionType (clipRect, path, trans), false);
+                fillShape (*new EdgeTableRegionType (clipRect, path, trans), false);
         }
     }
 
@@ -2384,7 +2347,7 @@ public:
                     edgeTableClip->edgeTable.multiplyLevels (1.0f + 1.6f * brightness);
             }
 
-            fillShape (edgeTableClip, false);
+            fillShape (*edgeTableClip, false);
         }
     }
 
@@ -2398,15 +2361,15 @@ public:
     void drawImage (const Image& sourceImage, const AffineTransform& trans)
     {
         if (clip != nullptr && ! fillType.colour.isTransparent())
-            renderImage (sourceImage, trans, nullptr);
+            renderImage (sourceImage, trans, {});
     }
 
-    static bool isOnlyTranslationAllowingError (const AffineTransform& t, float tolerence) noexcept
+    static bool isOnlyTranslationAllowingError (const AffineTransform& t, float tolerance) noexcept
     {
-        return std::abs (t.mat01) < tolerence
-            && std::abs (t.mat10) < tolerence
-            && std::abs (t.mat00 - 1.0f) < tolerence
-            && std::abs (t.mat11 - 1.0f) < tolerence;
+        return std::abs (t.mat01) < tolerance
+            && std::abs (t.mat10) < tolerance
+            && std::abs (t.mat00 - 1.0f) < tolerance
+            && std::abs (t.mat11 - 1.0f) < tolerance;
     }
 
     void renderImage (const Image& sourceImage, const AffineTransform& trans, const BaseRegionType* tiledFillClipRegion)
@@ -2435,7 +2398,7 @@ public:
                     area = area.getIntersection (getThis().getMaximumBounds());
 
                     if (! area.isEmpty())
-                        if (auto c = clip->applyClipTo (new EdgeTableRegionType (area)))
+                        if (auto c = clip->applyClipTo (*new EdgeTableRegionType (area)))
                             c->renderImageUntransformed (getThis(), sourceImage, alpha, tx, ty, false);
                 }
 
@@ -2491,7 +2454,7 @@ public:
             }
             else if (fillType.isTiledImage())
             {
-                renderImage (fillType.image, fillType.transform, shapeToFill);
+                renderImage (fillType.image, fillType.transform, shapeToFill.get());
             }
             else
             {
@@ -2516,7 +2479,7 @@ public:
 //==============================================================================
 class SoftwareRendererSavedState  : public SavedStateBase<SoftwareRendererSavedState>
 {
-    typedef SavedStateBase<SoftwareRendererSavedState> BaseClass;
+    using BaseClass = SavedStateBase<SoftwareRendererSavedState>;
 
 public:
     SoftwareRendererSavedState (const Image& im, Rectangle<int> clipBounds)
@@ -2529,10 +2492,7 @@ public:
     {
     }
 
-    SoftwareRendererSavedState (const SoftwareRendererSavedState& other)
-        : BaseClass (other), image (other.image), font (other.font)
-    {
-    }
+    SoftwareRendererSavedState (const SoftwareRendererSavedState& other) = default;
 
     SoftwareRendererSavedState* beginTransparencyLayer (float opacity)
     {
@@ -2558,13 +2518,13 @@ public:
         {
             auto layerBounds = clip->getClipBounds();
 
-            const ScopedPointer<LowLevelGraphicsContext> g (image.createLowLevelContext());
+            auto g = image.createLowLevelContext();
             g->setOpacity (finishedLayerState.transparencyLayerAlpha);
             g->drawImage (finishedLayerState.image, AffineTransform::translation (layerBounds.getPosition()));
         }
     }
 
-    typedef GlyphCache<CachedGlyphEdgeTable<SoftwareRendererSavedState>, SoftwareRendererSavedState> GlyphCacheType;
+    using GlyphCacheType = GlyphCache<CachedGlyphEdgeTable<SoftwareRendererSavedState>, SoftwareRendererSavedState>;
 
     static void clearGlyphCache()
     {
@@ -2607,10 +2567,10 @@ public:
                 auto t = transform.getTransformWith (AffineTransform::scale (fontHeight * font.getHorizontalScale(), fontHeight)
                                                                      .followedBy (trans));
 
-                ScopedPointer<EdgeTable> et (font.getTypeface()->getEdgeTableForGlyph (glyphNumber, t, fontHeight));
+                std::unique_ptr<EdgeTable> et (font.getTypeface()->getEdgeTableForGlyph (glyphNumber, t, fontHeight));
 
                 if (et != nullptr)
-                    fillShape (new EdgeTableRegionType (*et), false);
+                    fillShape (*new EdgeTableRegionType (*et), false);
             }
         }
     }
@@ -2641,9 +2601,11 @@ public:
 
         switch (destData.pixelFormat)
         {
-            case Image::ARGB:   EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelARGB*) 0); break;
-            case Image::RGB:    EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelRGB*) 0); break;
-            default:            EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelAlpha*) 0); break;
+            case Image::ARGB:   EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelARGB*) nullptr); break;
+            case Image::RGB:    EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelRGB*) nullptr); break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
+            default:            EdgeTableFillers::renderSolidFill (iter, destData, colour, replaceContents, (PixelAlpha*) nullptr); break;
         }
     }
 
@@ -2658,9 +2620,11 @@ public:
 
         switch (destData.pixelFormat)
         {
-            case Image::ARGB:   EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelARGB*) 0); break;
-            case Image::RGB:    EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelRGB*) 0); break;
-            default:            EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelAlpha*) 0); break;
+            case Image::ARGB:   EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelARGB*) nullptr); break;
+            case Image::RGB:    EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelRGB*) nullptr); break;
+            case Image::SingleChannel:
+            case Image::UnknownFormat:
+            default:            EdgeTableFillers::renderGradient (iter, destData, gradient, trans, lookupTable, numLookupEntries, isIdentity, (PixelAlpha*) nullptr); break;
         }
     }
 
@@ -2669,7 +2633,7 @@ public:
     Font font;
 
 private:
-    SoftwareRendererSavedState& operator= (const SoftwareRendererSavedState&);
+    SoftwareRendererSavedState& operator= (const SoftwareRendererSavedState&) = delete;
 };
 
 //==============================================================================
@@ -2681,7 +2645,7 @@ public:
         : currentState (initialState)
     {}
 
-    SavedStateStack() noexcept {}
+    SavedStateStack() = default;
 
     void initialise (StateObjectType* state)
     {
@@ -2717,13 +2681,13 @@ public:
 
     void endTransparencyLayer()
     {
-        ScopedPointer<StateObjectType> finishedTransparencyLayer (currentState.release());
+        std::unique_ptr<StateObjectType> finishedTransparencyLayer (currentState.release());
         restore();
         currentState->endTransparencyLayer (*finishedTransparencyLayer);
     }
 
 private:
-    ScopedPointer<StateObjectType> currentState;
+    std::unique_ptr<StateObjectType> currentState;
     OwnedArray<StateObjectType> stack;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SavedStateStack)
@@ -2765,15 +2729,13 @@ public:
 
 protected:
     StackBasedLowLevelGraphicsContext (SavedStateType* initialState) : stack (initialState) {}
-    StackBasedLowLevelGraphicsContext() {}
+    StackBasedLowLevelGraphicsContext() = default;
 
     RenderingHelpers::SavedStateStack<SavedStateType> stack;
 };
 
 }
 
-#if JUCE_MSVC
- #pragma warning (pop)
-#endif
+JUCE_END_IGNORE_WARNINGS_MSVC
 
 } // namespace juce

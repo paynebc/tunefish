@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -147,12 +146,12 @@ public:
     */
     virtual bool isBoolean() const;
 
-    /** Returns a textual version of the supplied parameter value.
+    /** Returns a textual version of the supplied normalised parameter value.
         The default implementation just returns the floating point value
         as a string, but this could do anything you need for a custom type
         of value.
     */
-    virtual String getText (float value, int /*maximumStringLength*/) const;
+    virtual String getText (float normalisedValue, int /*maximumStringLength*/) const;
 
     /** Should parse a string and return the appropriate value for it. */
     virtual float getValueForText (const String& text) const = 0;
@@ -205,7 +204,7 @@ public:
     /** Returns the current value of the parameter as a String.
 
         This function can be called when you are hosting plug-ins to get a
-        more specialsed textual represenation of the current value from the
+        more specialised textual representation of the current value from the
         plug-in, for example "On" rather than "1.0".
 
         If you are implementing a plug-in then you should ignore this function
@@ -216,7 +215,7 @@ public:
     /** Returns the set of strings which represent the possible states a parameter
         can be in.
 
-        If you are hosting a plug-in you can use the result of this funtion to
+        If you are hosting a plug-in you can use the result of this function to
         populate a ComboBox listing the allowed values.
 
         If you are implementing a plug-in then you do not need to override this.
@@ -238,11 +237,11 @@ public:
     {
     public:
         /** Destructor. */
-        virtual ~Listener()  {}
+        virtual ~Listener()  = default;
 
         /** Receives a callback when a parameter has been changed.
 
-            IMPORTANT NOTE: this will be called synchronously when a parameter changes, and
+            IMPORTANT NOTE: This will be called synchronously when a parameter changes, and
             many audio processors will change their parameter during their audio callback.
             This means that not only has your handler code got to be completely thread-safe,
             but it's also got to be VERY fast, and avoid blocking. If you need to handle
@@ -257,7 +256,7 @@ public:
             being true when they first press the mouse button, and it will be called again with
             gestureIsStarting being false when they release it.
 
-            IMPORTANT NOTE: this will be called synchronously, and many audio processors will
+            IMPORTANT NOTE: This will be called synchronously, and many audio processors will
             call it during their audio callback. This means that not only has your handler code
             got to be completely thread-safe, but it's also got to be VERY fast, and avoid
             blocking. If you need to handle this event on your message thread, use this callback
@@ -287,6 +286,7 @@ public:
 private:
     //==============================================================================
     friend class AudioProcessor;
+    friend class LegacyAudioParameter;
     AudioProcessor* processor = nullptr;
     int parameterIndex = -1;
     CriticalSection listenerLock;

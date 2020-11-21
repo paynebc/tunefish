@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -36,8 +35,8 @@ namespace juce
 class Draggable3DOrientation
 {
 public:
-    typedef Vector3D<float> VectorType;
-    typedef Quaternion<float> QuaternionType;
+    using VectorType      = Vector3D<float>;
+    using QuaternionType  = Quaternion<float>;
 
     /** Creates a Draggable3DOrientation, initially set up to be aligned along the X axis. */
     Draggable3DOrientation (float objectRadius = 0.5f) noexcept
@@ -65,7 +64,7 @@ public:
         rectangle is assumed to be the centre of the object that will be rotated, and
         the size of the rectangle will be used to scale the object radius - see setRadius().
     */
-    void setViewport (const Rectangle<int>& newArea) noexcept
+    void setViewport (Rectangle<int> newArea) noexcept
     {
         area = newArea;
     }
@@ -95,9 +94,9 @@ public:
     template <typename Type>
     void mouseDrag (Point<Type> mousePos) noexcept
     {
-        const VectorType oldPos (projectOnSphere (lastMouse));
+        auto oldPos = projectOnSphere (lastMouse);
         lastMouse = mousePosToProportion (mousePos.toFloat());
-        const VectorType newPos (projectOnSphere (lastMouse));
+        auto newPos = projectOnSphere (lastMouse);
 
         quaternion *= rotationFromMove (oldPos, newPos);
     }
@@ -122,36 +121,36 @@ private:
     QuaternionType quaternion;
     Point<float> lastMouse;
 
-    Point<float> mousePosToProportion (const Point<float> mousePos) const noexcept
+    Point<float> mousePosToProportion (Point<float> mousePos) const noexcept
     {
-        const int scale = (jmin (area.getWidth(), area.getHeight()) / 2);
+        auto scale = jmin (area.getWidth(), area.getHeight()) / 2;
 
         // You must call setViewport() to give this object a valid window size before
         // calling any of the mouse input methods!
         jassert (scale > 0);
 
-        return Point<float> ((mousePos.x - (float) area.getCentreX()) / (float) scale,
-                             ((float) area.getCentreY() - mousePos.y) / (float) scale);
+        return { (mousePos.x - (float) area.getCentreX()) / (float) scale,
+                 ((float) area.getCentreY() - mousePos.y) / (float) scale };
     }
 
-    VectorType projectOnSphere (const Point<float> pos) const noexcept
+    VectorType projectOnSphere (Point<float> pos) const noexcept
     {
-        const float radiusSquared = radius * radius;
-        const float xySquared = pos.x * pos.x + pos.y * pos.y;
+        auto radiusSquared = radius * radius;
+        auto xySquared = pos.x * pos.x + pos.y * pos.y;
 
-        return VectorType (pos.x, pos.y,
-                           xySquared < radiusSquared * 0.5f ? std::sqrt (radiusSquared - xySquared)
-                                                            : (radiusSquared / (2.0f * std::sqrt (xySquared))));
+        return { pos.x, pos.y,
+                 xySquared < radiusSquared * 0.5f ? std::sqrt (radiusSquared - xySquared)
+                                                  : (radiusSquared / (2.0f * std::sqrt (xySquared))) };
     }
 
     QuaternionType rotationFromMove (const VectorType& from, const VectorType& to) const noexcept
     {
-        VectorType rotationAxis (to ^ from);
+        auto rotationAxis = (to ^ from);
 
         if (rotationAxis.lengthIsBelowEpsilon())
             rotationAxis = VectorType::xAxis();
 
-        const float d = jlimit (-1.0f, 1.0f, (from - to).length() / (2.0f * radius));
+        auto d = jlimit (-1.0f, 1.0f, (from - to).length() / (2.0f * radius));
 
         return QuaternionType::fromAngle (2.0f * std::asin (d), rotationAxis);
     }
