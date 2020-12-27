@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -35,7 +34,7 @@ namespace juce
 
     @tags{GUI}
 */
-class JUCE_API ContentSharer
+class JUCE_API ContentSharer  : public DeletedAtShutdown
 {
 public:
     JUCE_DECLARE_SINGLETON (ContentSharer, false)
@@ -110,7 +109,7 @@ private:
 
     std::function<void (bool, String)> callback;
 
-  #if JUCE_IOS || JUCE_ANDROID
+  #if JUCE_CONTENT_SHARING
     struct Pimpl
     {
         virtual ~Pimpl() {}
@@ -118,7 +117,7 @@ private:
         virtual void shareText (const String& text) = 0;
     };
 
-    ScopedPointer<Pimpl> pimpl;
+    std::unique_ptr<Pimpl> pimpl;
     Pimpl* createPimpl();
 
     void startNewShare (std::function<void (bool, const String&)>);
@@ -128,24 +127,17 @@ private:
 
     class PrepareImagesThread;
     friend class PrepareImagesThread;
-    ScopedPointer<PrepareImagesThread> prepareImagesThread;
+    std::unique_ptr<PrepareImagesThread> prepareImagesThread;
 
     class PrepareDataThread;
     friend class PrepareDataThread;
-    ScopedPointer<PrepareDataThread> prepareDataThread;
+    std::unique_ptr<PrepareDataThread> prepareDataThread;
 
     void filesToSharePrepared();
   #endif
 
     void deleteTemporaryFiles();
     void sharingFinished (bool, const String&);
-
-  #if JUCE_ANDROID
-    friend void* juce_contentSharerOpenFile (void*, void*, void*);
-    friend void* juce_contentSharerQuery (void*, void*, void*, void*, void*, void*);
-    friend void* juce_contentSharerGetStreamTypes (void*, void*);
-    friend void  juce_contentSharingCompleted (int);
-  #endif
 };
 
 } // namespace juce

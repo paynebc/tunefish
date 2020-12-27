@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -81,7 +80,7 @@ public:
     {
     public:
         ElementBase (ElementType type);
-        virtual ~ElementBase() {}
+        virtual ~ElementBase() = default;
         virtual void addToPath (Path& path, Expression::Scope*) const = 0;
         virtual RelativePoint* getControlPoints (int& numPoints) = 0;
         virtual ElementBase* clone() const = 0;
@@ -99,9 +98,9 @@ public:
     {
     public:
         StartSubPath (const RelativePoint& pos);
-        void addToPath (Path& path, Expression::Scope*) const;
-        RelativePoint* getControlPoints (int& numPoints);
-        ElementBase* clone() const;
+        void addToPath (Path& path, Expression::Scope*) const override;
+        RelativePoint* getControlPoints (int& numPoints) override;
+        ElementBase* clone() const override;
 
         RelativePoint startPos;
 
@@ -115,9 +114,9 @@ public:
     {
     public:
         CloseSubPath();
-        void addToPath (Path& path, Expression::Scope*) const;
-        RelativePoint* getControlPoints (int& numPoints);
-        ElementBase* clone() const;
+        void addToPath (Path& path, Expression::Scope*) const override;
+        RelativePoint* getControlPoints (int& numPoints) override;
+        ElementBase* clone() const override;
 
     private:
         JUCE_DECLARE_NON_COPYABLE (CloseSubPath)
@@ -129,9 +128,9 @@ public:
     {
     public:
         LineTo (const RelativePoint& endPoint);
-        void addToPath (Path& path, Expression::Scope*) const;
-        RelativePoint* getControlPoints (int& numPoints);
-        ElementBase* clone() const;
+        void addToPath (Path& path, Expression::Scope*) const override;
+        RelativePoint* getControlPoints (int& numPoints) override;
+        ElementBase* clone() const override;
 
         RelativePoint endPoint;
 
@@ -146,9 +145,9 @@ public:
     public:
         QuadraticTo (const RelativePoint& controlPoint, const RelativePoint& endPoint);
         ValueTree createTree() const;
-        void addToPath (Path& path, Expression::Scope*) const;
-        RelativePoint* getControlPoints (int& numPoints);
-        ElementBase* clone() const;
+        void addToPath (Path& path, Expression::Scope*) const override;
+        RelativePoint* getControlPoints (int& numPoints) override;
+        ElementBase* clone() const override;
 
         RelativePoint controlPoints[2];
 
@@ -163,9 +162,9 @@ public:
     public:
         CubicTo (const RelativePoint& controlPoint1, const RelativePoint& controlPoint2, const RelativePoint& endPoint);
         ValueTree createTree() const;
-        void addToPath (Path& path, Expression::Scope*) const;
-        RelativePoint* getControlPoints (int& numPoints);
-        ElementBase* clone() const;
+        void addToPath (Path& path, Expression::Scope*) const override;
+        RelativePoint* getControlPoints (int& numPoints) override;
+        ElementBase* clone() const override;
 
         RelativePoint controlPoints[3];
 

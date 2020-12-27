@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -37,13 +36,10 @@ static NSMutableArray* createAllowedTypesArray (const StringArray& filters)
 
     for (int i = 0; i < filters.size(); ++i)
     {
-       #if defined (MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
         // From OS X 10.6 you can only specify allowed extensions, so any filters containing wildcards
         // must be of the form "*.extension"
         jassert (filters[i] == "*"
                  || (filters[i].startsWith ("*.") && filters[i].lastIndexOfChar ('*') == 0));
-       #endif
-
         const String f (filters[i].replace ("*.", ""));
 
         if (f == "*")
@@ -56,8 +52,6 @@ static NSMutableArray* createAllowedTypesArray (const StringArray& filters)
 }
 
 //==============================================================================
-template <> struct ContainerDeletePolicy<NSSavePanel>    { static void destroy (NSObject* o) { [o release]; } };
-
 class FileChooser::Native     : public Component,
                                 public FileChooser::Pimpl
 {
@@ -124,13 +118,11 @@ public:
             filename = owner.startingFile.getFileName();
         }
 
-       #if defined (MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
         [panel setDirectoryURL: createNSURLFromFile (startingDirectory)];
         [panel setNameFieldStringValue: juceStringToNS (filename)];
-       #endif
     }
 
-    ~Native()
+    ~Native() override
     {
         exitModalState (0);
         removeFromDesktop();
@@ -174,29 +166,27 @@ public:
 
     void runModally() override
     {
-        ScopedPointer<TemporaryMainMenuWithStandardCommands> tempMenu;
+        std::unique_ptr<TemporaryMainMenuWithStandardCommands> tempMenu;
 
         if (JUCEApplicationBase::isStandaloneApp())
             tempMenu.reset (new TemporaryMainMenuWithStandardCommands());
 
         jassert (panel != nil);
-       #if defined (MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
         auto result = [panel runModal];
-       #else
-        auto result = [panel runModalForDirectory: juceStringToNS (startingDirectory)
-                                              file: juceStringToNS (filename)];
-       #endif
-
         finished (result);
+    }
+
+    bool canModalEventBeSentToComponent (const Component* targetComponent) override
+    {
+        if (targetComponent == nullptr)
+            return false;
+
+        return targetComponent->findParentComponentOfClass<FilePreviewComponent>() != nullptr;
     }
 
 private:
     //==============================================================================
-   #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
     typedef NSObject<NSOpenSavePanelDelegate> DelegateType;
-   #else
-    typedef NSObject DelegateType;
-   #endif
 
     void finished (NSInteger result)
     {
@@ -204,13 +194,22 @@ private:
 
         exitModalState (0);
 
-        if (panel != nil && result == NSFileHandlingPanelOKButton)
+        if (panel != nil && result ==
+                             #if defined (MAC_OS_X_VERSION_10_9) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9
+                               NSModalResponseOK)
+                             #else
+                               NSFileHandlingPanelOKButton)
+                             #endif
         {
             auto addURLResult = [&chooserResults] (NSURL* urlToAdd)
             {
                 auto scheme = nsStringToJuce ([urlToAdd scheme]);
-                auto path = nsStringToJuce ([urlToAdd path]);
-                chooserResults.add (URL (scheme + "://" + path));
+                auto pathComponents = StringArray::fromTokens (nsStringToJuce ([urlToAdd path]), "/", {});
+
+                for (auto& component : pathComponents)
+                    component = URL::addEscapeChars (component, false);
+
+                chooserResults.add (URL (scheme + "://" + pathComponents.joinIntoString ("/")));
             };
 
             if (isSave)
@@ -220,7 +219,7 @@ private:
             else
             {
                 auto* openPanel = (NSOpenPanel*) panel;
-                auto* urls = [openPanel URLs];
+                auto urls = [openPanel URLs];
 
                 for (unsigned int i = 0; i < [urls count]; ++i)
                     addURLResult ([urls objectAtIndex: i]);
@@ -238,22 +237,6 @@ private:
         for (int i = filters.size(); --i >= 0;)
             if (f.getFileName().matchesWildcard (filters[i], true))
                 return true;
-
-       #if (! defined (MAC_OS_X_VERSION_10_7)) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7
-        NSError* error;
-        NSString* name = [[NSWorkspace sharedWorkspace] typeOfFile: nsFilename error: &error];
-
-        if ([name isEqualToString: nsStringLiteral ("com.apple.alias-file")])
-        {
-            FSRef ref;
-            FSPathMakeRef ((const UInt8*) [nsFilename fileSystemRepresentation], &ref, nullptr);
-
-            Boolean targetIsFolder = false, wasAliased = false;
-            FSResolveAliasFileWithMountFlags (&ref, true, &targetIsFolder, &wasAliased, 0);
-
-            return wasAliased && targetIsFolder;
-        }
-       #endif
 
         return f.isDirectory()
                  && ! [[NSWorkspace sharedWorkspace] isFilePackageAtPath: nsFilename];
@@ -300,16 +283,14 @@ private:
     //==============================================================================
     struct DelegateClass : ObjCClass<DelegateType>
     {
-        DelegateClass()  : ObjCClass <DelegateType> ("JUCEFileChooser_")
+        DelegateClass()  : ObjCClass<DelegateType> ("JUCEFileChooser_")
         {
             addIvar<Native*> ("cppObject");
 
             addMethod (@selector (panel:shouldShowFilename:), shouldShowFilename,      "c@:@@");
             addMethod (@selector (panelSelectionDidChange:),  panelSelectionDidChange, "c@");
 
-           #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
             addProtocol (@protocol (NSOpenSavePanelDelegate));
-           #endif
 
             registerClass();
         }

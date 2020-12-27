@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -47,12 +46,12 @@ MouseEvent::MouseEvent (MouseInputSource inputSource,
       pressure (force),
       orientation (o), rotation (r),
       tiltX (tX), tiltY (tY),
+      mouseDownPosition (downPos),
       eventComponent (eventComp),
       originalComponent (originator),
       eventTime (time),
       mouseDownTime (downTime),
       source (inputSource),
-      mouseDownPos (downPos),
       numberOfClicks ((uint8) numClicks),
       wasMovedSinceMouseDown ((uint8) (mouseWasDragged ? 1 : 0))
 {
@@ -70,21 +69,21 @@ MouseEvent MouseEvent::getEventRelativeTo (Component* const otherComponent) cons
     return MouseEvent (source, otherComponent->getLocalPoint (eventComponent, position),
                        mods, pressure, orientation, rotation, tiltX, tiltY,
                        otherComponent, originalComponent, eventTime,
-                       otherComponent->getLocalPoint (eventComponent, mouseDownPos),
+                       otherComponent->getLocalPoint (eventComponent, mouseDownPosition),
                        mouseDownTime, numberOfClicks, wasMovedSinceMouseDown != 0);
 }
 
 MouseEvent MouseEvent::withNewPosition (Point<float> newPosition) const noexcept
 {
     return MouseEvent (source, newPosition, mods, pressure, orientation, rotation, tiltX, tiltY,
-                       eventComponent, originalComponent, eventTime, mouseDownPos, mouseDownTime,
+                       eventComponent, originalComponent, eventTime, mouseDownPosition, mouseDownTime,
                        numberOfClicks, wasMovedSinceMouseDown != 0);
 }
 
 MouseEvent MouseEvent::withNewPosition (Point<int> newPosition) const noexcept
 {
     return MouseEvent (source, newPosition.toFloat(), mods, pressure, orientation, rotation,
-                       tiltX, tiltY, eventComponent,  originalComponent, eventTime, mouseDownPos,
+                       tiltX, tiltY, eventComponent,  originalComponent, eventTime, mouseDownPosition,
                        mouseDownTime, numberOfClicks, wasMovedSinceMouseDown != 0);
 }
 
@@ -111,14 +110,14 @@ int MouseEvent::getLengthOfMousePress() const noexcept
 Point<int> MouseEvent::getPosition() const noexcept             { return Point<int> (x, y); }
 Point<int> MouseEvent::getScreenPosition() const                { return eventComponent->localPointToGlobal (getPosition()); }
 
-Point<int> MouseEvent::getMouseDownPosition() const noexcept    { return mouseDownPos.roundToInt(); }
-Point<int> MouseEvent::getMouseDownScreenPosition() const       { return eventComponent->localPointToGlobal (mouseDownPos).roundToInt(); }
+Point<int> MouseEvent::getMouseDownPosition() const noexcept    { return mouseDownPosition.roundToInt(); }
+Point<int> MouseEvent::getMouseDownScreenPosition() const       { return eventComponent->localPointToGlobal (mouseDownPosition).roundToInt(); }
 
-Point<int> MouseEvent::getOffsetFromDragStart() const noexcept  { return (position - mouseDownPos).roundToInt(); }
-int MouseEvent::getDistanceFromDragStart() const noexcept       { return roundToInt (mouseDownPos.getDistanceFrom (position)); }
+Point<int> MouseEvent::getOffsetFromDragStart() const noexcept  { return (position - mouseDownPosition).roundToInt(); }
+int MouseEvent::getDistanceFromDragStart() const noexcept       { return roundToInt (mouseDownPosition.getDistanceFrom (position)); }
 
-int MouseEvent::getMouseDownX() const noexcept                  { return roundToInt (mouseDownPos.x); }
-int MouseEvent::getMouseDownY() const noexcept                  { return roundToInt (mouseDownPos.y); }
+int MouseEvent::getMouseDownX() const noexcept                  { return roundToInt (mouseDownPosition.x); }
+int MouseEvent::getMouseDownY() const noexcept                  { return roundToInt (mouseDownPosition.y); }
 
 int MouseEvent::getDistanceFromDragStartX() const noexcept      { return getOffsetFromDragStart().x; }
 int MouseEvent::getDistanceFromDragStartY() const noexcept      { return getOffsetFromDragStart().y; }

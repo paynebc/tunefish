@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -74,12 +74,12 @@ bool MessageManager::runDispatchLoopUntil (int millisecondsToRunFor)
 #endif
 
 //==============================================================================
-static ScopedPointer<MessageQueue> messageQueue;
+static std::unique_ptr<MessageQueue> messageQueue;
 
 void MessageManager::doPlatformSpecificInitialisation()
 {
     if (messageQueue == nullptr)
-        messageQueue = new MessageQueue();
+        messageQueue.reset (new MessageQueue());
 }
 
 void MessageManager::doPlatformSpecificShutdown()

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -104,9 +104,7 @@ public:
 
 private:
     struct Connection;
-    friend struct Connection;
-    friend struct ContainerDeletePolicy<Connection>;
-    ScopedPointer<Connection> connection;
+    std::unique_ptr<Connection> connection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChildProcessSlave)
 };
@@ -191,12 +189,10 @@ public:
     bool sendMessageToSlave (const MemoryBlock&);
 
 private:
-    ScopedPointer<ChildProcess> childProcess;
+    std::unique_ptr<ChildProcess> childProcess;
 
     struct Connection;
-    friend struct Connection;
-    friend struct ContainerDeletePolicy<Connection>;
-    ScopedPointer<Connection> connection;
+    std::unique_ptr<Connection> connection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChildProcessMaster)
 };

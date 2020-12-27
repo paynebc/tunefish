@@ -22,8 +22,6 @@
 #ifndef RUNTIME_HPP
 #define RUNTIME_HPP
 
-#include <xmmintrin.h>
-
 // global constants (don't change into
 // constants, it's a size thing!)
 
@@ -121,7 +119,8 @@ eFORCEINLINE eInt eNsMod(eInt x, eInt y)
 // default version. must be called explicitly.
 eFORCEINLINE eInt eFtoL(eF32 x)
 {
-    return _mm_cvtt_ss2si(_mm_load_ss(&x));
+    //return _mm_cvtt_ss2si(_mm_load_ss(&x));
+    return (eInt)x;
 }
 
 eINLINE void eUndenormalise(eF32 &sample)

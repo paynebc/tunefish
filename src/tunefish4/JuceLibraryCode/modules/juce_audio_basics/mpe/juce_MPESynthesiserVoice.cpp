@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -40,11 +40,6 @@ bool MPESynthesiserVoice::isCurrentlyPlayingNote (MPENote note) const noexcept
 bool MPESynthesiserVoice::isPlayingButReleased() const noexcept
 {
     return isActive() && currentlyPlayingNote.keyState == MPENote::off;
-}
-
-bool MPESynthesiserVoice::wasStartedBefore (const MPESynthesiserVoice& other) const noexcept
-{
-    return noteStartTime < other.noteStartTime;
 }
 
 void MPESynthesiserVoice::clearCurrentNote() noexcept

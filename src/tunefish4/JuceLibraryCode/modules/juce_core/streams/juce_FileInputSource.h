@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -43,11 +43,11 @@ public:
     FileInputSource (const File& file, bool useFileTimeInHashGeneration = false);
 
     /** Destructor. */
-    ~FileInputSource();
+    ~FileInputSource() override;
 
-    InputStream* createInputStream();
-    InputStream* createInputStreamFor (const String& relatedItemPath);
-    int64 hashCode() const;
+    InputStream* createInputStream() override;
+    InputStream* createInputStreamFor (const String& relatedItemPath) override;
+    int64 hashCode() const override;
 
 private:
     //==============================================================================

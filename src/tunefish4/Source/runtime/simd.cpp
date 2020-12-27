@@ -21,6 +21,10 @@
 
 #include "system.hpp"
 
+#if defined(__APPLE__) && defined(__MACH__)
+
+#else
+
 // DZ   bit 6 = 1       denormals are zero
 // FZ   bit 15 = 1      flush to zero
 // R+   bit 14 = 1      round positive
@@ -41,3 +45,6 @@ void eSimdSetArithmeticFlags(eInt flags)
     eModifyBit(mxcsr, 14, (flags&eSAF_RP) || (flags&eSAF_RTZ));
     _mm_setcsr(mxcsr);
 }
+
+#endif
+

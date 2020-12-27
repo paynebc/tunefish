@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -55,26 +55,16 @@ bool File::isHidden() const
     return getFileName().startsWithChar ('.');
 }
 
-static String getLinkedFile (const String& file)
-{
-    HeapBlock<char> buffer (8194);
-    const int numBytes = (int) readlink (file.toRawUTF8(), buffer, 8192);
-    return String::fromUTF8 (buffer, jmax (0, numBytes));
-}
-
 bool File::isSymbolicLink() const
 {
-    return getLinkedFile (getFullPathName()).isNotEmpty();
+    return getNativeLinkedTarget().isNotEmpty();
 }
 
-File File::getLinkedTarget() const
+String File::getNativeLinkedTarget() const
 {
-    String f (getLinkedFile (getFullPathName()));
-
-    if (f.isNotEmpty())
-        return getSiblingFile (f);
-
-    return *this;
+    HeapBlock<char> buffer (8194);
+    const int numBytes = (int) readlink (getFullPathName().toRawUTF8(), buffer, 8192);
+    return String::fromUTF8 (buffer, jmax (0, numBytes));
 }
 
 //==============================================================================

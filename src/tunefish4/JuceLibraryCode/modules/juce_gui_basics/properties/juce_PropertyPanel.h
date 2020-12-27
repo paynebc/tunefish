@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -52,7 +51,7 @@ public:
     PropertyPanel (const String& name);
 
     /** Destructor. */
-    ~PropertyPanel();
+    ~PropertyPanel() override;
 
     //==============================================================================
     /** Deletes all property components from the panel. */
@@ -77,7 +76,7 @@ public:
         The components in the list will be owned by this object and will be automatically
         deleted later on when no longer needed.
 
-        To add properies without them being in a section, use addProperties().
+        To add properties without them being in a section, use addProperties().
     */
     void addSection (const String& sectionTitle,
                      const Array<PropertyComponent*>& newPropertyComponents,
@@ -123,13 +122,10 @@ public:
 
     //==============================================================================
     /** Saves the current state of open/closed sections so it can be restored later.
-
-        The caller is responsible for deleting the object that is returned.
         To restore this state, use restoreOpennessState().
-
         @see restoreOpennessState
     */
-    XmlElement* getOpennessState() const;
+    std::unique_ptr<XmlElement> getOpennessState() const;
 
     /** Restores a previously saved arrangement of open/closed sections.
 

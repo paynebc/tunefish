@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -83,6 +83,13 @@ int64 MACAddress::toInt64() const noexcept
         n = (n << 8) | address[i];
 
     return n;
+}
+
+Array<MACAddress> MACAddress::getAllAddresses()
+{
+    Array<MACAddress> addresses;
+    findAllAddresses (addresses);
+    return addresses;
 }
 
 bool MACAddress::isNull() const noexcept                                { return toInt64() == 0; }

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -62,7 +61,7 @@ namespace juce
     will correspond to the order in which the property was added, or that it will remain
     constant when other properties are added or removed.
 
-    Listeners can be added to a ValueTree to be told when properies change and when
+    Listeners can be added to a ValueTree to be told when properties change and when
     sub-trees are added or removed.
 
     @see var, XmlElement
@@ -88,7 +87,6 @@ public:
     */
     explicit ValueTree (const Identifier& type);
 
-   #if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS
     /** Creates a value tree from nested lists of properties and ValueTrees.
 
         This code,
@@ -129,18 +127,22 @@ public:
         @endverbatim
     */
     ValueTree (const Identifier& type,
-               std::initializer_list<std::pair<Identifier, var>> properties,
+               std::initializer_list<NamedValueSet::NamedValue> properties,
                std::initializer_list<ValueTree> subTrees = {});
-   #endif
 
     /** Creates a reference to another ValueTree. */
     ValueTree (const ValueTree&) noexcept;
 
-    /** Changes this object to be a reference to the given tree. */
-    ValueTree& operator= (const ValueTree&);
-
     /** Move constructor */
     ValueTree (ValueTree&&) noexcept;
+
+    /** Changes this object to be a reference to the given tree.
+        Note that calling this just points this at the new object and invokes the
+        Listener::valueTreeRedirected callback, but it's not an undoable operation. If
+        you're trying to replace an entire tree in an undoable way, you probably want
+        to use copyPropertiesAndChildrenFrom() instead.
+    */
+    ValueTree& operator= (const ValueTree&);
 
     /** Destructor. */
     ~ValueTree();
@@ -173,6 +175,19 @@ public:
 
     /** Returns a deep copy of this tree and all its sub-trees. */
     ValueTree createCopy() const;
+
+    /** Overwrites all the properties in this tree with the properties of the source tree.
+        Any properties that already exist will be updated; and new ones will be added, and
+        any that are not present in the source tree will be removed.
+        @see copyPropertiesAndChildrenFrom
+    */
+    void copyPropertiesFrom (const ValueTree& source, UndoManager* undoManager);
+
+    /** Replaces all children and properties of this object with copies of those from
+        the source object.
+        @see copyPropertiesFrom
+    */
+    void copyPropertiesAndChildrenFrom (const ValueTree& source, UndoManager* undoManager);
 
     //==============================================================================
     /** Returns the type of this tree.
@@ -262,12 +277,6 @@ public:
     */
     Value getPropertyAsValue (const Identifier& name, UndoManager* undoManager,
                               bool shouldUpdateSynchronously = false);
-
-    /** Overwrites all the properties in this tree with the properties of the source tree.
-        Any properties that already exist will be updated; and new ones will be added, and
-        any that are not present in the source tree will be removed.
-    */
-    void copyPropertiesFrom (const ValueTree& source, UndoManager* undoManager);
 
     //==============================================================================
     /** Returns the number of child trees inside this one.
@@ -390,10 +399,11 @@ public:
     */
     struct Iterator
     {
-        Iterator (const ValueTree&, bool isEnd) noexcept;
-        Iterator& operator++() noexcept;
+        Iterator (const ValueTree&, bool isEnd);
+        Iterator& operator++();
 
-        bool operator!= (const Iterator&) const noexcept;
+        bool operator== (const Iterator&) const;
+        bool operator!= (const Iterator&) const;
         ValueTree operator*() const;
 
         using difference_type    = std::ptrdiff_t;
@@ -416,10 +426,9 @@ public:
     /** Creates an XmlElement that holds a complete image of this tree and all its children.
         If this tree is invalid, this may return nullptr. Otherwise, the XML that is produced can
         be used to recreate a similar tree by calling ValueTree::fromXml().
-        The caller must delete the object that is returned.
         @see fromXml, toXmlString
     */
-    XmlElement* createXml() const;
+    std::unique_ptr<XmlElement> createXml() const;
 
     /** Tries to recreate a tree from its XML representation.
         This isn't designed to cope with random XML data - it should only be fed XML that was created
@@ -427,11 +436,17 @@ public:
     */
     static ValueTree fromXml (const XmlElement& xml);
 
+    /** Tries to recreate a tree from its XML representation.
+        This isn't designed to cope with random XML data - it should only be fed XML that was created
+        by the createXml() method.
+    */
+    static ValueTree fromXml (const String& xmlText);
+
     /** This returns a string containing an XML representation of the tree.
         This is quite handy for debugging purposes, as it provides a quick way to view a tree.
         @see createXml()
     */
-    String toXmlString() const;
+    String toXmlString (const XmlElement::TextFormat& format = {}) const;
 
     //==============================================================================
     /** Stores this tree (and all its children) in a binary format.
@@ -464,7 +479,7 @@ public:
     {
     public:
         /** Destructor. */
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** This method is called when a property of this tree (or of one of its sub-trees) is changed.
             Note that when you register a listener to a tree, it will receive this callback for
@@ -473,7 +488,7 @@ public:
             simply check the tree parameter in this callback to make sure it's the tree you're interested in.
         */
         virtual void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged,
-                                               const Identifier& property) = 0;
+                                               const Identifier& property);
 
         /** This method is called when a child sub-tree is added.
             Note that when you register a listener to a tree, it will receive this callback for
@@ -482,7 +497,7 @@ public:
             just check the parentTree parameter to make sure it's the one that you're interested in.
         */
         virtual void valueTreeChildAdded (ValueTree& parentTree,
-                                          ValueTree& childWhichHasBeenAdded) = 0;
+                                          ValueTree& childWhichHasBeenAdded);
 
         /** This method is called when a child sub-tree is removed.
 
@@ -493,7 +508,7 @@ public:
         */
         virtual void valueTreeChildRemoved (ValueTree& parentTree,
                                             ValueTree& childWhichHasBeenRemoved,
-                                            int indexFromWhichChildWasRemoved) = 0;
+                                            int indexFromWhichChildWasRemoved);
 
         /** This method is called when a tree's children have been re-shuffled.
 
@@ -503,7 +518,7 @@ public:
             just check the parameter to make sure it's the tree that you're interested in.
         */
         virtual void valueTreeChildOrderChanged (ValueTree& parentTreeWhoseChildrenHaveMoved,
-                                                 int oldIndex, int newIndex) = 0;
+                                                 int oldIndex, int newIndex);
 
         /** This method is called when a tree has been added or removed from a parent.
 
@@ -511,7 +526,7 @@ public:
             removed from a parent. Unlike the other callbacks, it applies only to the tree to which
             the listener is registered, and not to any of its children.
         */
-        virtual void valueTreeParentChanged (ValueTree& treeWhoseParentHasChanged) = 0;
+        virtual void valueTreeParentChanged (ValueTree& treeWhoseParentHasChanged);
 
         /** This method is called when a tree is made to point to a different internal shared object.
             When operator= is used to make a ValueTree refer to a different object, this callback
@@ -591,12 +606,10 @@ public:
     */
     int getReferenceCount() const noexcept;
 
-   #if JUCE_ALLOW_STATIC_NULL_VARIABLES
-    /** An invalid ValueTree that can be used if you need to return one as an error condition, etc.
+    /* An invalid ValueTree that can be used if you need to return one as an error condition, etc.
         @deprecated If you need an empty ValueTree object, just use ValueTree() or {}.
     */
-    static const ValueTree invalid;
-   #endif
+    JUCE_DEPRECATED_STATIC (static const ValueTree invalid;)
 
 private:
     //==============================================================================
@@ -624,7 +637,8 @@ private:
     void createListOfChildren (OwnedArray<ValueTree>&) const;
     void reorderChildren (const OwnedArray<ValueTree>&, UndoManager*);
 
-    explicit ValueTree (SharedObject*) noexcept;
+    explicit ValueTree (ReferenceCountedObjectPtr<SharedObject>) noexcept;
+    explicit ValueTree (SharedObject&) noexcept;
 };
 
 } // namespace juce

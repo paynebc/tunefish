@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,55 +22,76 @@
 
   ==============================================================================
 */
-
 namespace juce
 {
 
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
- FIELD (providers, "providers", "[Landroid/content/pm/ProviderInfo;")
+//==============================================================================
+// This byte-code is generated from native/java/app/com/rmsl/juce/JuceContentProviderCursor.java with min sdk version 16
+// See juce_core/native/java/README.txt on how to generate this byte-code.
+static const uint8 javaJuceContentProviderCursor[] =
+{31,139,8,8,191,114,161,94,0,3,106,97,118,97,74,117,99,101,67,111,110,116,101,110,116,80,114,111,118,105,100,101,114,67,117,
+114,115,111,114,46,100,101,120,0,117,147,177,111,211,64,20,198,223,157,157,148,150,54,164,192,208,14,64,144,16,18,67,235,138,2,
+75,40,162,10,44,150,65,149,2,25,218,233,176,173,198,37,241,69,182,19,121,96,160,21,136,37,19,98,234,80,85,149,152,88,24,248,
+3,24,146,63,130,141,137,129,13,169,99,7,190,203,157,33,18,194,210,207,247,222,229,189,239,157,206,95,130,48,159,91,91,191,75,227,
+60,200,143,134,239,247,151,62,189,43,175,127,249,246,235,241,215,241,112,231,231,193,237,135,22,81,143,136,242,214,157,139,
+100,158,99,78,84,37,189,95,2,159,129,13,70,128,129,83,179,127,102,242,27,120,157,129,71,224,16,156,128,143,96,12,126,128,69,232,
+93,6,75,224,10,184,14,238,129,13,224,130,16,188,4,3,174,245,44,51,79,205,152,53,171,101,206,86,54,241,27,20,206,152,120,136,
+248,156,137,63,32,134,12,45,76,206,166,187,148,230,28,169,125,62,201,249,159,156,209,188,201,23,77,93,241,187,122,134,38,40,225,
+52,42,124,197,245,252,94,141,104,147,182,113,95,21,76,208,83,222,114,125,86,89,101,168,109,162,162,183,134,46,86,249,71,215,
+158,228,54,149,239,71,113,148,61,32,230,210,85,183,239,135,13,25,103,97,156,109,37,114,16,5,97,210,232,39,169,76,86,247,196,64,
+208,53,79,196,65,34,163,192,9,68,38,94,136,52,116,158,136,44,137,114,93,84,167,91,158,47,187,78,210,77,59,206,30,164,156,255,
+234,213,137,181,136,183,92,178,90,174,135,192,163,75,59,158,154,225,116,68,188,235,52,33,26,239,214,169,228,119,100,26,210,121,
+95,118,250,221,248,169,232,134,41,45,251,90,176,217,22,73,33,215,80,101,1,217,109,153,102,52,171,222,207,228,115,52,218,89,
+59,74,233,38,191,48,63,83,217,88,161,85,194,178,141,139,224,184,28,190,255,218,30,113,126,192,201,98,223,249,130,185,27,54,181,
+22,222,227,83,254,43,60,49,50,235,180,15,11,47,150,167,252,200,106,186,95,121,146,85,255,122,134,215,180,190,242,169,101,106,
+212,119,165,154,238,157,124,243,170,142,213,255,224,55,143,234,50,200,64,3,0,0,0,0};
 
-DECLARE_JNI_CLASS (AndroidPackageInfo, "android/content/pm/PackageInfo");
-#undef JNI_CLASS_MEMBERS
+// This byte-code is generated from native/java/app/com/rmsl/juce/JuceContentProviderFileObserver.java with min sdk version 16
+// See juce_core/native/java/README.txt on how to generate this byte-code.
+static const uint8 javaJuceContentProviderFileObserver[] =
+{31,139,8,8,194,122,161,94,0,3,106,97,118,97,74,117,99,101,67,111,110,116,101,110,116,80,114,111,118,105,100,101,114,70,105,
+108,101,79,98,115,101,114,118,101,114,46,100,101,120,0,133,147,205,107,19,65,24,198,223,249,72,98,171,46,105,235,69,16,201,65,81,
+68,221,136,10,66,84,144,250,65,194,130,197,212,32,5,15,155,100,104,182,38,187,97,119,141,241,32,126,30,196,147,23,79,246,216,
+131,120,202,77,169,80,212,191,64,193,66,143,30,60,138,255,130,62,179,51,165,219,147,129,223,188,239,188,239,204,179,179,179,79,
+186,106,60,93,61,123,158,54,159,255,248,112,97,210,120,124,98,237,251,177,7,109,245,115,253,225,198,159,47,243,171,135,198,130,
+104,72,68,227,214,185,89,178,191,45,78,116,128,76,189,8,62,3,169,235,128,129,61,204,204,203,204,204,171,24,142,99,207,2,226,
+4,124,4,159,192,6,248,5,254,130,42,250,87,193,13,224,129,91,224,14,184,11,30,129,23,224,21,120,3,222,130,53,240,158,27,125,110,
+159,95,176,231,41,233,51,216,249,75,44,152,178,249,107,228,211,54,95,69,190,215,230,239,144,11,40,57,153,150,200,222,81,100,
+170,166,190,47,139,68,51,185,200,237,93,8,27,191,218,66,17,138,186,54,225,230,44,195,42,209,149,194,18,238,206,201,58,250,121,
+235,182,215,172,160,191,200,137,159,113,172,158,204,246,50,251,62,38,151,89,103,251,29,139,23,131,48,72,47,19,171,19,107,208,
+145,198,253,142,154,143,194,84,133,233,66,28,141,130,174,138,175,7,125,117,179,157,168,120,164,226,211,43,254,200,167,131,158,
+31,118,227,40,232,186,81,226,230,219,53,114,189,78,52,112,227,65,210,119,87,32,229,254,71,175,70,179,158,150,116,251,126,184,
+236,54,211,56,8,151,107,196,90,36,90,117,143,100,171,97,70,175,142,2,134,195,29,35,213,236,249,241,110,161,107,35,148,169,160,
+178,32,123,81,146,210,148,30,23,163,219,137,34,57,240,147,123,84,138,66,179,76,14,253,180,71,50,237,5,9,29,21,229,185,153,146,
+115,233,20,157,228,206,92,201,89,194,21,113,70,156,61,125,34,191,113,246,12,223,143,253,198,101,237,183,223,133,229,226,182,103,
+121,206,183,34,231,93,153,243,111,129,118,60,92,164,29,31,179,138,217,175,189,204,202,102,141,246,24,175,24,125,237,111,97,
+215,104,15,80,197,236,205,252,81,54,185,254,255,252,3,243,31,208,130,120,3,0,0,0,0};
 
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
+//==============================================================================
+#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
  FIELD (authority, "authority", "Ljava/lang/String;")
 
-DECLARE_JNI_CLASS (AndroidProviderInfo, "android/content/pm/ProviderInfo");
+DECLARE_JNI_CLASS (AndroidProviderInfo, "android/content/pm/ProviderInfo")
 #undef JNI_CLASS_MEMBERS
 
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
+#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
  METHOD (constructor,       "<init>",            "(Landroid/os/ParcelFileDescriptor;JJ)V") \
  METHOD (createInputStream, "createInputStream", "()Ljava/io/FileInputStream;") \
  METHOD (getLength,         "getLength",         "()J")
 
-DECLARE_JNI_CLASS (AssetFileDescriptor, "android/content/res/AssetFileDescriptor");
+DECLARE_JNI_CLASS (AssetFileDescriptor, "android/content/res/AssetFileDescriptor")
 #undef JNI_CLASS_MEMBERS
 
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
+#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
  METHOD (close, "close", "()V")
 
-DECLARE_JNI_CLASS (JavaCloseable, "java/io/Closeable");
+DECLARE_JNI_CLASS (JavaCloseable, "java/io/Closeable")
 #undef JNI_CLASS_MEMBERS
 
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
- METHOD (constructor,   "<init>",        "(L" JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSPATH ";JLjava/lang/String;I)V") \
- METHOD (startWatching, "startWatching", "()V") \
- METHOD (stopWatching,  "stopWatching",  "()V")
-
-DECLARE_JNI_CLASS (JuceContentProviderFileObserver, JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSPATH "$ProviderFileObserver");
-#undef JNI_CLASS_MEMBERS
-
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
- METHOD (addRow,      "addRow", "([Ljava/lang/Object;)V") \
- METHOD (constructor, "<init>", "(L" JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSPATH ";J[Ljava/lang/String;)V")
-
-DECLARE_JNI_CLASS (JuceContentProviderFileObserverCursor, JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSPATH "$ProviderCursor");
-#undef JNI_CLASS_MEMBERS
-
-#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
+#define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
  STATICMETHOD (open, "open", "(Ljava/io/File;I)Landroid/os/ParcelFileDescriptor;")
 
-DECLARE_JNI_CLASS (ParcelFileDescriptor, "android/os/ParcelFileDescriptor");
+DECLARE_JNI_CLASS (ParcelFileDescriptor, "android/os/ParcelFileDescriptor")
 #undef JNI_CLASS_MEMBERS
 
 //==============================================================================
@@ -90,14 +110,13 @@ public:
                                 const LocalRef<jobject>& contentProvider,
                                 const LocalRef<jobjectArray>& resultColumns)
         : owner (ownerToUse),
-          cursor (GlobalRef (LocalRef<jobject> (env->NewObject (JuceContentProviderFileObserverCursor,
-                                                                JuceContentProviderFileObserverCursor.constructor,
-                                                                contentProvider.get(),
+          cursor (GlobalRef (LocalRef<jobject> (env->NewObject (JuceContentProviderCursor,
+                                                                JuceContentProviderCursor.constructor,
                                                                 reinterpret_cast<jlong> (this),
                                                                 resultColumns.get()))))
     {
         // the content provider must be created first
-        jassert (contentProvider.get() != 0);
+        jassert (contentProvider.get() != nullptr);
     }
 
     jobject getNativeCursor() { return cursor.get(); }
@@ -107,10 +126,34 @@ public:
         MessageManager::callAsync ([this] { owner.cursorClosed (*this); });
     }
 
+    void addRow (LocalRef<jobjectArray>& values)
+    {
+        auto* env = getEnv();
+
+        env->CallVoidMethod (cursor.get(), JuceContentProviderCursor.addRow, values.get());
+    }
+
 private:
     Owner& owner;
     GlobalRef cursor;
+
+    //==============================================================================
+    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
+     METHOD (addRow,      "addRow", "([Ljava/lang/Object;)V") \
+     METHOD (constructor, "<init>", "(J[Ljava/lang/String;)V") \
+     CALLBACK (contentSharerCursorClosed, "contentSharerCursorClosed", "(J)V") \
+
+    DECLARE_JNI_CLASS_WITH_BYTECODE (JuceContentProviderCursor, "com/rmsl/juce/JuceContentProviderCursor", 16, javaJuceContentProviderCursor, sizeof (javaJuceContentProviderCursor))
+    #undef JNI_CLASS_MEMBERS
+
+    static void JNICALL contentSharerCursorClosed (JNIEnv*, jobject, jlong host)
+    {
+        if (auto* myself = reinterpret_cast<AndroidContentSharerCursor*> (host))
+            myself->cursorClosed();
+    }
 };
+
+AndroidContentSharerCursor::JuceContentProviderCursor_Class AndroidContentSharerCursor::JuceContentProviderCursor;
 
 //==============================================================================
 class AndroidContentSharerFileObserver
@@ -131,13 +174,12 @@ public:
           filepath (filepathToUse),
           fileObserver (GlobalRef (LocalRef<jobject> (env->NewObject (JuceContentProviderFileObserver,
                                                                       JuceContentProviderFileObserver.constructor,
-                                                                      contentProvider.get(),
                                                                       reinterpret_cast<jlong> (this),
                                                                       javaString (filepath).get(),
                                                                       open | access | closeWrite | closeNoWrite))))
     {
         // the content provider must be created first
-        jassert (contentProvider.get() != 0);
+        jassert (contentProvider.get() != nullptr);
 
         env->CallVoidMethod (fileObserver, JuceContentProviderFileObserver.startWatching);
     }
@@ -182,7 +224,25 @@ private:
     Owner& owner;
     String filepath;
     GlobalRef fileObserver;
+
+    //==============================================================================
+    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
+     METHOD (constructor,   "<init>",        "(JLjava/lang/String;I)V") \
+     METHOD (startWatching, "startWatching", "()V") \
+     METHOD (stopWatching,  "stopWatching",  "()V") \
+     CALLBACK (contentSharerFileObserverEvent, "contentSharerFileObserverEvent", "(JILjava/lang/String;)V") \
+
+    DECLARE_JNI_CLASS_WITH_BYTECODE (JuceContentProviderFileObserver, "com/rmsl/juce/JuceContentProviderFileObserver", 16, javaJuceContentProviderFileObserver, sizeof (javaJuceContentProviderFileObserver))
+    #undef JNI_CLASS_MEMBERS
+
+    static void JNICALL contentSharerFileObserverEvent (JNIEnv*, jobject /*fileObserver*/, jlong host, int event, jstring path)
+    {
+        if (auto* myself = reinterpret_cast<AndroidContentSharerFileObserver*> (host))
+            myself->onFileEvent (event, LocalRef<jstring> (path));
+    }
 };
+
+AndroidContentSharerFileObserver::JuceContentProviderFileObserver_Class AndroidContentSharerFileObserver::JuceContentProviderFileObserver;
 
 //==============================================================================
 class AndroidContentSharerPrepareFilesThread    : private Thread
@@ -204,7 +264,7 @@ public:
         startThread();
     }
 
-    ~AndroidContentSharerPrepareFilesThread()
+    ~AndroidContentSharerPrepareFilesThread() override
     {
         signalThreadShouldExit();
         waitForThreadToExit (10000);
@@ -220,14 +280,14 @@ public:
 private:
     struct StreamCloser
     {
-        StreamCloser (jobject streamToUse)
+        StreamCloser (const LocalRef<jobject>& streamToUse)
             : stream (GlobalRef (streamToUse))
         {
         }
 
         ~StreamCloser()
         {
-            if (stream.get() != 0)
+            if (stream.get() != nullptr)
                 getEnv()->CallVoidMethod (stream, JavaCloseable.close);
         }
 
@@ -289,12 +349,12 @@ private:
 
     URL copyAssetFileToTemporaryFile (JNIEnv* env, const String& filename)
     {
-        auto resources = LocalRef<jobject> (env->CallObjectMethod (android.activity, JuceAppActivity.getResources));
+        auto resources = LocalRef<jobject> (env->CallObjectMethod (getAppContext().get(), AndroidContext.getResources));
         int fileId = env->CallIntMethod (resources, AndroidResources.getIdentifier, javaString (filename).get(),
                                          javaString ("raw").get(), javaString (packageName).get());
 
         // Raw resource not found. Please make sure that you include your file as a raw resource
-        // and that you specify just the file name, without an extention.
+        // and that you specify just the file name, without an extension.
         jassert (fileId != 0);
 
         if (fileId == 0)
@@ -307,14 +367,10 @@ private:
         auto inputStream = StreamCloser (LocalRef<jobject> (env->CallObjectMethod (assetFd,
                                                                                    AssetFileDescriptor.createInputStream)));
 
-        auto exception = LocalRef<jobject> (env->ExceptionOccurred());
-
-        if (exception != 0)
+        if (jniCheckHasExceptionOccurredAndClear())
         {
             // Failed to open file stream for resource
             jassertfalse;
-
-            env->ExceptionClear();
             return {};
         }
 
@@ -326,35 +382,27 @@ private:
                                                                              JavaFileOutputStream.constructor,
                                                                              javaString (tempFile.getFullPathName()).get())));
 
-        exception = LocalRef<jobject> (env->ExceptionOccurred());
-
-        if (exception != 0)
+        if (jniCheckHasExceptionOccurredAndClear())
         {
             // Failed to open file stream for temporary file
             jassertfalse;
-
-            env->ExceptionClear();
             return {};
         }
 
         auto buffer = LocalRef<jbyteArray> (env->NewByteArray (1024));
         int bytesRead = 0;
 
-        while (true)
+        for (;;)
         {
             if (threadShouldExit())
                 return {};
 
             bytesRead = env->CallIntMethod (inputStream.stream, JavaFileInputStream.read, buffer.get());
 
-            exception = LocalRef<jobject> (env->ExceptionOccurred());
-
-            if (exception != 0)
+            if (jniCheckHasExceptionOccurredAndClear())
             {
                 // Failed to read from resource file.
                 jassertfalse;
-
-                env->ExceptionClear();
                 return {};
             }
 
@@ -363,12 +411,10 @@ private:
 
             env->CallVoidMethod (outputStream.stream, JavaFileOutputStream.write, buffer.get(), 0, bytesRead);
 
-            if (exception != 0)
+            if (jniCheckHasExceptionOccurredAndClear())
             {
                 // Failed to write to temporary file.
                 jassertfalse;
-
-                env->ExceptionClear();
                 return {};
             }
         }
@@ -400,13 +446,12 @@ class ContentSharer::ContentSharerNativeImpl  : public ContentSharer::Pimpl,
 public:
     ContentSharerNativeImpl (ContentSharer& cs)
         : owner (cs),
-          packageName (juceString (LocalRef<jstring> ((jstring) getEnv()->CallObjectMethod (android.activity,
-                                                                                            JuceAppActivity.getPackageName)))),
+          packageName (juceString (LocalRef<jstring> ((jstring) getEnv()->CallObjectMethod (getAppContext().get(), AndroidContext.getPackageName)))),
           uriBase ("content://" + packageName + ".sharingcontentprovider/")
     {
     }
 
-    ~ContentSharerNativeImpl()
+    ~ContentSharerNativeImpl() override
     {
         masterReference.clear();
     }
@@ -420,7 +465,7 @@ public:
             owner.sharingFinished (false, {});
         }
 
-        prepareFilesThread = new AndroidContentSharerPrepareFilesThread (*this, files, packageName, uriBase);
+        prepareFilesThread.reset (new AndroidContentSharerPrepareFilesThread (*this, files, packageName, uriBase));
     }
 
     void shareText (const String& text) override
@@ -445,7 +490,14 @@ public:
         auto chooserIntent = LocalRef<jobject> (env->CallStaticObjectMethod (AndroidIntent, AndroidIntent.createChooser,
                                                                              intent.get(), javaString ("Choose share target").get()));
 
-        env->CallVoidMethod (android.activity, JuceAppActivity.startActivityForResult, chooserIntent.get(), 1003);
+        WeakReference<ContentSharerNativeImpl> weakRef (this);
+
+        startAndroidActivityForResult (chooserIntent, 1003,
+                                       [weakRef] (int /*requestCode*/, int resultCode, LocalRef<jobject> /*intentData*/) mutable
+                                       {
+                                           if (weakRef != nullptr)
+                                               weakRef->sharingFinished (resultCode);
+                                       });
     }
 
     //==============================================================================
@@ -460,8 +512,8 @@ public:
     }
 
     //==============================================================================
-    void* openFile (const LocalRef<jobject>& contentProvider,
-                    const LocalRef<jobject>& uri, const LocalRef<jstring>& mode)
+    jobject openFile (const LocalRef<jobject>& contentProvider,
+                      const LocalRef<jobject>& uri, const LocalRef<jstring>& mode)
     {
         ignoreUnused (mode);
 
@@ -480,13 +532,10 @@ public:
         return getAssetFileDescriptor (env, contentProvider, uriElements.filepath);
     }
 
-    void* query (const LocalRef<jobject>& contentProvider, const LocalRef<jobject>& uri,
-                 const LocalRef<jobjectArray>& projection, const LocalRef<jobject>& selection,
-                 const LocalRef<jobjectArray>& selectionArgs, const LocalRef<jobject>& sortOrder)
+    jobject query (const LocalRef<jobject>& contentProvider, const LocalRef<jobject>& uri,
+                   const LocalRef<jobjectArray>& projection)
     {
-        ignoreUnused (selection, selectionArgs, sortOrder);
-
-        StringArray requestedColumns = javaStringArrayToJuceStringArray (projection);
+        StringArray requestedColumns = javaStringArrayToJuce (projection);
         StringArray supportedColumns = getSupportedColumns();
 
         StringArray resultColumns;
@@ -501,7 +550,7 @@ public:
         if (resultColumns.isEmpty())
             return nullptr;
 
-        auto resultJavaColumns = juceStringArrayToJavaStringArray (resultColumns);
+        auto resultJavaColumns = juceStringArrayToJava (resultColumns);
 
         auto* env = getEnv();
 
@@ -514,7 +563,7 @@ public:
             return cursor->getNativeCursor();
 
         auto values = LocalRef<jobjectArray> (env->NewObjectArray ((jsize) resultColumns.size(),
-                                                                   JavaObject, 0));
+                                                                   JavaObject, nullptr));
 
         for (int i = 0; i < resultColumns.size(); ++i)
         {
@@ -535,13 +584,11 @@ public:
             }
         }
 
-        auto nativeCursor = cursor->getNativeCursor();
-        env->CallVoidMethod (nativeCursor, JuceContentProviderFileObserverCursor.addRow, values.get());
-
-        return nativeCursor;
+        cursor->addRow (values);
+        return cursor->getNativeCursor();
     }
 
-    void* getStreamTypes (const LocalRef<jobject>& uri, const LocalRef<jstring>& mimeTypeFilter)
+    jobjectArray getStreamTypes (const LocalRef<jobject>& uri, const LocalRef<jstring>& mimeTypeFilter)
     {
         auto* env = getEnv();
 
@@ -550,7 +597,7 @@ public:
         if (extension.isEmpty())
             return nullptr;
 
-        return juceStringArrayToJavaStringArray (filterMimeTypes (getMimeTypesForFileExtension (extension),
+        return juceStringArrayToJava (filterMimeTypes (getMimeTypesForFileExtension (extension),
                                                                   juceString (mimeTypeFilter.get())));
     }
 
@@ -572,8 +619,7 @@ private:
     {
         auto* env = getEnv();
 
-        auto packageManager = LocalRef<jobject> (env->CallObjectMethod (android.activity,
-                                                                        JuceAppActivity.getPackageManager));
+        LocalRef<jobject> packageManager (env->CallObjectMethod (getAppContext().get(), AndroidContext.getPackageManager));
 
         constexpr int getProviders = 8;
         auto packageInfo = LocalRef<jobject> (env->CallObjectMethod (packageManager,
@@ -634,8 +680,14 @@ private:
                                                                              AndroidIntent.createChooser,
                                                                              intent.get(),
                                                                              javaString ("Choose share target").get()));
+        WeakReference<ContentSharerNativeImpl> weakRef (this);
 
-        env->CallVoidMethod (android.activity, JuceAppActivity.startActivityForResult, chooserIntent.get(), 1003);
+        startAndroidActivityForResult (chooserIntent, 1003,
+                                       [weakRef] (int /*requestCode*/, int resultCode, LocalRef<jobject> /*intentData*/) mutable
+                                       {
+                                           if (weakRef != nullptr)
+                                               weakRef->sharingFinished (resultCode);
+                                       });
     }
 
     void decrementPendingFileCountAndNotifyOwnerIfReady()
@@ -683,46 +735,12 @@ private:
         return { index, filename, prepareFilesThread->getFilePaths()[index.getIntValue()] };
     }
 
-    static LocalRef<jobjectArray> juceStringArrayToJavaStringArray (const StringArray& juceArray)
-    {
-        auto* env = getEnv();
-
-        auto javaArray = LocalRef<jobjectArray> (env->NewObjectArray ((jsize) juceArray.size(),
-                                                                      JavaString,
-                                                                      javaString ("").get()));
-
-        for (int i = 0; i < juceArray.size(); ++i)
-            env->SetObjectArrayElement (javaArray, i, javaString (juceArray [i]).get());
-
-        return javaArray;
-    }
-
-    static StringArray javaStringArrayToJuceStringArray (const LocalRef<jobjectArray>& javaArray)
-    {
-        if (javaArray.get() == 0)
-            return {};
-
-        auto* env = getEnv();
-
-        const int size = env->GetArrayLength (javaArray.get());
-
-        StringArray juceArray;
-
-        for (int i = 0; i < size; ++i)
-        {
-            auto javaString = LocalRef<jstring> ((jstring) env->GetObjectArrayElement (javaArray.get(), i));
-            juceArray.add (juceString (javaString.get()));
-        }
-
-        return juceArray;
-    }
-
     static StringArray getSupportedColumns()
     {
         return StringArray ("_display_name", "_size");
     }
 
-    void* getAssetFileDescriptor (JNIEnv* env, const LocalRef<jobject>& contentProvider,
+    jobject getAssetFileDescriptor (JNIEnv* env, const LocalRef<jobject>& contentProvider,
                                   const String& filepath)
     {
         // This function can be called from multiple threads.
@@ -748,14 +766,10 @@ private:
                                                                                     ParcelFileDescriptor.open,
                                                                                     javaFile.get(), modeReadOnly));
 
-        auto exception = LocalRef<jobject> (env->ExceptionOccurred());
-
-        if (exception != 0)
+        if (jniCheckHasExceptionOccurredAndClear())
         {
             // Failed to create file descriptor. Have you provided a valid file path/resource name?
             jassertfalse;
-
-            env->ExceptionClear();
             return nullptr;
         }
 
@@ -770,11 +784,53 @@ private:
         return assetFileDescriptors.getReference (assetFileDescriptors.size() - 1).get();
     }
 
+    StringArray filterMimeTypes (const StringArray& mimeTypes, const String& filter)
+    {
+        String filterToUse (filter.removeCharacters ("*"));
+
+        if (filterToUse.isEmpty() || filterToUse == "/")
+            return mimeTypes;
+
+        StringArray result;
+
+        for (const auto& type : mimeTypes)
+            if (String (type).contains (filterToUse))
+                result.add (type);
+
+        return result;
+    }
+
+    String getCommonMimeType (const StringArray& mimeTypes)
+    {
+        if (mimeTypes.isEmpty())
+            return "*/*";
+
+        auto commonMime = mimeTypes[0];
+        bool lookForCommonGroup = false;
+
+        for (int i = 1; i < mimeTypes.size(); ++i)
+        {
+            if (mimeTypes[i] == commonMime)
+                continue;
+
+            if (! lookForCommonGroup)
+            {
+                lookForCommonGroup = true;
+                commonMime = commonMime.upToFirstOccurrenceOf ("/", true, false);
+            }
+
+            if (! mimeTypes[i].startsWith (commonMime))
+                return "*/*";
+        }
+
+        return lookForCommonGroup ? commonMime + "*" : commonMime;
+    }
+
     ContentSharer& owner;
     String packageName;
     String uriBase;
 
-    ScopedPointer<AndroidContentSharerPrepareFilesThread> prepareFilesThread;
+    std::unique_ptr<AndroidContentSharerPrepareFilesThread> prepareFilesThread;
 
     bool succeeded = false;
     String errorDescription;
@@ -792,6 +848,44 @@ private:
 
     WeakReference<ContentSharerNativeImpl>::Master masterReference;
     friend class WeakReference<ContentSharerNativeImpl>;
+
+    //==============================================================================
+    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
+     CALLBACK (contentSharerQuery,          "contentSharerQuery",          "(Landroid/net/Uri;[Ljava/lang/String;)Landroid/database/Cursor;") \
+     CALLBACK (contentSharerOpenFile,       "contentSharerOpenFile",       "(Landroid/net/Uri;Ljava/lang/String;)Landroid/content/res/AssetFileDescriptor;") \
+     CALLBACK (contentSharerGetStreamTypes, "contentSharerGetStreamTypes", "(Landroid/net/Uri;Ljava/lang/String;)[Ljava/lang/String;") \
+
+    DECLARE_JNI_CLASS_WITH_MIN_SDK (JuceSharingContentProvider, "com/rmsl/juce/JuceSharingContentProvider", 16)
+    #undef JNI_CLASS_MEMBERS
+
+    static jobject JNICALL contentSharerQuery (JNIEnv*, jobject contentProvider, jobject uri, jobjectArray projection)
+    {
+        if (auto *pimpl = (ContentSharer::ContentSharerNativeImpl *) ContentSharer::getInstance ()->pimpl.get ())
+            return pimpl->query (LocalRef<jobject> (static_cast<jobject> (contentProvider)),
+                                 LocalRef<jobject> (static_cast<jobject> (uri)),
+                                 LocalRef<jobjectArray> (static_cast<jobjectArray> (projection)));
+
+        return nullptr;
+    }
+
+    static jobject JNICALL contentSharerOpenFile (JNIEnv*, jobject contentProvider, jobject uri, jstring mode)
+    {
+        if (auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get())
+            return pimpl->openFile (LocalRef<jobject> (static_cast<jobject> (contentProvider)),
+                                    LocalRef<jobject> (static_cast<jobject> (uri)),
+                                    LocalRef<jstring> (static_cast<jstring> (mode)));
+
+        return nullptr;
+    }
+
+    static jobjectArray JNICALL contentSharerGetStreamTypes (JNIEnv*, jobject /*contentProvider*/, jobject uri, jstring mimeTypeFilter)
+    {
+        if (auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get())
+            return pimpl->getStreamTypes (LocalRef<jobject> (static_cast<jobject> (uri)),
+                                          LocalRef<jstring> (static_cast<jstring> (mimeTypeFilter)));
+
+        return nullptr;
+    }
 };
 
 //==============================================================================
@@ -800,81 +894,6 @@ ContentSharer::Pimpl* ContentSharer::createPimpl()
     return new ContentSharerNativeImpl (*this);
 }
 
-//==============================================================================
-void* juce_contentSharerQuery (void* contentProvider, void* uri, void* projection,
-                               void* selection, void* selectionArgs, void* sortOrder)
-{
-    auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get();
-    return pimpl->query (LocalRef<jobject>      (static_cast<jobject> (contentProvider)),
-                         LocalRef<jobject>      (static_cast<jobject> (uri)),
-                         LocalRef<jobjectArray> (static_cast<jobjectArray> (projection)),
-                         LocalRef<jobject>      (static_cast<jobject> (selection)),
-                         LocalRef<jobjectArray> (static_cast<jobjectArray> (selectionArgs)),
-                         LocalRef<jobject>      (static_cast<jobject> (sortOrder)));
-}
-
-void* juce_contentSharerOpenFile (void* contentProvider, void* uri, void* mode)
-{
-    auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get();
-    return pimpl->openFile (LocalRef<jobject> (static_cast<jobject> (contentProvider)),
-                            LocalRef<jobject> (static_cast<jobject> (uri)),
-                            LocalRef<jstring> (static_cast<jstring> (mode)));
-}
-
-void juce_contentSharingCompleted (int resultCode)
-{
-    auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get();
-    return pimpl->sharingFinished (resultCode);
-}
-
-void* juce_contentSharerGetStreamTypes (void* uri, void* mimeTypeFilter)
-{
-    auto* pimpl = (ContentSharer::ContentSharerNativeImpl*) ContentSharer::getInstance()->pimpl.get();
-    return pimpl->getStreamTypes (LocalRef<jobject> (static_cast<jobject> (uri)),
-                                  LocalRef<jstring> (static_cast<jstring> (mimeTypeFilter)));
-}
-
-//==============================================================================
-JUCE_JNI_CALLBACK (JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSNAME, contentSharerFileObserverEvent, void,
-                   (JNIEnv* env, jobject /*fileObserver*/, jlong host, int event, jstring path))
-{
-    setEnv (env);
-
-    reinterpret_cast<AndroidContentSharerFileObserver*> (host)->onFileEvent (event, LocalRef<jstring> (path));
-}
-
-//==============================================================================
-JUCE_JNI_CALLBACK (JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSNAME, contentSharerQuery, jobject,
-                   (JNIEnv* env, jobject contentProvider, jobject uri, jobjectArray projection,
-                    jobject selection, jobjectArray selectionArgs, jobject sortOrder))
-{
-    setEnv (env);
-
-    return (jobject) juce_contentSharerQuery (contentProvider, uri, projection, selection, selectionArgs, sortOrder);
-}
-
-JUCE_JNI_CALLBACK (JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSNAME, contentSharerCursorClosed, void,
-                   (JNIEnv* env, jobject /*cursor*/, jlong host))
-{
-    setEnv (env);
-
-    reinterpret_cast<AndroidContentSharerCursor*> (host)->cursorClosed();
-}
-
-JUCE_JNI_CALLBACK (JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSNAME, contentSharerOpenFile, jobject,
-                   (JNIEnv* env, jobject contentProvider, jobject uri, jstring mode))
-{
-    setEnv (env);
-
-    return (jobject) juce_contentSharerOpenFile ((void*) contentProvider, (void*) uri, (void*) mode);
-}
-
-JUCE_JNI_CALLBACK (JUCE_ANDROID_SHARING_CONTENT_PROVIDER_CLASSNAME, contentSharerGetStreamTypes, jobject,
-                   (JNIEnv* env, jobject /*contentProvider*/, jobject uri, jstring mimeTypeFilter))
-{
-    setEnv (env);
-
-    return (jobject) juce_contentSharerGetStreamTypes ((void*) uri, (void*) mimeTypeFilter);
-}
+ContentSharer::ContentSharerNativeImpl::JuceSharingContentProvider_Class ContentSharer::ContentSharerNativeImpl::JuceSharingContentProvider;
 
 } // namespace juce

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -97,7 +96,7 @@ public:
         mat[12] = vector.x; mat[13] = vector.y; mat[14] = vector.z;  mat[15] = Type (1);
     }
 
-    /** Returns a new matrix from the given frustrum values. */
+    /** Returns a new matrix from the given frustum values. */
     static Matrix3D fromFrustum (Type left, Type right, Type bottom, Type top, Type nearDistance, Type farDistance) noexcept
     {
         return { (Type (2) * nearDistance) / (right - left), 0, 0, 0,

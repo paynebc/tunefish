@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -34,12 +33,12 @@ namespace juce
 // the dialog box. This means that the actual native FileChooser HWND may
 // not have been created yet when the user deletes JUCE's FileChooser class. If this
 // occurs the Win32NativeFileChooser will still have a reference count of 1 and will
-// simply delete itself immedietely once the HWND will have been created a while later.
+// simply delete itself immediately once the HWND will have been created a while later.
 class Win32NativeFileChooser  : public ReferenceCountedObject,
                                 private Thread
 {
 public:
-    typedef ReferenceCountedObjectPtr<Win32NativeFileChooser> Ptr;
+    using Ptr = ReferenceCountedObjectPtr<Win32NativeFileChooser>;
 
     enum { charsAvailableForResult = 32768 };
 
@@ -49,7 +48,6 @@ public:
         : Thread ("Native Win32 FileChooser"),
           owner (parent), title (titleToUse), filtersString (filtersToUse),
           selectsDirectories ((flags & FileBrowserComponent::canSelectDirectories)   != 0),
-          selectsFiles       ((flags & FileBrowserComponent::canSelectFiles)         != 0),
           isSave             ((flags & FileBrowserComponent::saveMode)               != 0),
           warnAboutOverwrite ((flags & FileBrowserComponent::warnAboutOverwriting)   != 0),
           selectMultiple     ((flags & FileBrowserComponent::canSelectMultipleItems) != 0),
@@ -60,7 +58,7 @@ public:
         // Handle nonexistent root directories in the same way as existing ones
         files.calloc (static_cast<size_t> (charsAvailableForResult) + 1);
 
-        if (startingFile.isDirectory() ||startingFile.isRoot())
+        if (startingFile.isDirectory() || startingFile.isRoot())
         {
             initialPath = startingFile.getFullPathName();
         }
@@ -74,7 +72,7 @@ public:
         if (! selectsDirectories)
         {
             if (previewComp != nullptr)
-                customComponent = new CustomComponentHolder (previewComp);
+                customComponent.reset (new CustomComponentHolder (previewComp));
 
             setupFilters();
         }
@@ -120,6 +118,8 @@ public:
             EndDialog (hwnd, 0);
     }
 
+    Component* getCustomComponent()    { return customComponent.get(); }
+
     Array<URL> results;
 
 private:
@@ -153,13 +153,13 @@ private:
     //==============================================================================
     Component::SafePointer<Component> owner;
     String title, filtersString;
-    ScopedPointer<CustomComponentHolder> customComponent;
-    String initialPath, returnedString, defaultExtension;
+    std::unique_ptr<CustomComponentHolder> customComponent;
+    String initialPath, returnedString;
 
     WaitableEvent threadHasReference;
     CriticalSection deletingDialog;
 
-    bool selectsDirectories, selectsFiles, isSave, warnAboutOverwrite, selectMultiple;
+    bool selectsDirectories, isSave, warnAboutOverwrite, selectMultiple;
 
     HeapBlock<WCHAR> files;
     HeapBlock<WCHAR> filters;
@@ -167,14 +167,150 @@ private:
     Atomic<HWND> nativeDialogRef;
     Atomic<int>  shouldCancel;
 
+    bool showDialog (IFileDialog& dialog, bool async) const
+    {
+        FILEOPENDIALOGOPTIONS flags = {};
+
+        if (FAILED (dialog.GetOptions (&flags)))
+            return false;
+
+        const auto setBit = [] (FILEOPENDIALOGOPTIONS& field, bool value, FILEOPENDIALOGOPTIONS option)
+        {
+            if (value)
+                field |= option;
+            else
+                field &= ~option;
+        };
+
+        setBit (flags, selectsDirectories,         FOS_PICKFOLDERS);
+        setBit (flags, warnAboutOverwrite,         FOS_OVERWRITEPROMPT);
+        setBit (flags, selectMultiple,             FOS_ALLOWMULTISELECT);
+        setBit (flags, customComponent != nullptr, FOS_FORCEPREVIEWPANEON);
+
+        if (FAILED (dialog.SetOptions (flags)) || FAILED (dialog.SetTitle (title.toUTF16())))
+            return false;
+
+        PIDLIST_ABSOLUTE pidl = {};
+
+        if (FAILED (SHParseDisplayName (initialPath.toWideCharPointer(), nullptr, &pidl, SFGAO_FOLDER, nullptr)))
+            return false;
+
+        const auto item = [&]
+        {
+            ComSmartPtr<IShellItem> ptr;
+            SHCreateShellItem (nullptr, nullptr, pidl, ptr.resetAndGetPointerAddress());
+            return ptr;
+        }();
+
+        if (item == nullptr || FAILED (dialog.SetFolder (item)))
+            return false;
+
+        String filename (files.getData());
+
+        if (FAILED (dialog.SetFileName (filename.toWideCharPointer())))
+            return false;
+
+        auto extension = getDefaultFileExtension (filename);
+
+        if (extension.isNotEmpty() && FAILED (dialog.SetDefaultExtension (extension.toWideCharPointer())))
+            return false;
+
+        const COMDLG_FILTERSPEC spec[] { { filtersString.toWideCharPointer(), filtersString.toWideCharPointer() } };
+
+        if (! selectsDirectories && FAILED (dialog.SetFileTypes (numElementsInArray (spec), spec)))
+            return false;
+
+        return dialog.Show (static_cast<HWND> (async ? nullptr : owner->getWindowHandle())) == S_OK;
+    }
+
     //==============================================================================
-    Array<URL> openDialog (bool async)
+    Array<URL> openDialogVistaAndUp (bool async)
+    {
+        const auto getUrl = [] (IShellItem& item)
+        {
+            struct Free
+            {
+                void operator() (LPWSTR ptr) const noexcept { CoTaskMemFree (ptr); }
+            };
+
+            LPWSTR ptr = nullptr;
+            item.GetDisplayName (SIGDN_URL, &ptr);
+            return std::unique_ptr<WCHAR, Free> { ptr };
+        };
+
+        if (isSave)
+        {
+            const auto dialog = [&]
+            {
+                ComSmartPtr<IFileDialog> ptr;
+                ptr.CoCreateInstance (CLSID_FileSaveDialog, CLSCTX_INPROC_SERVER);
+                return ptr;
+            }();
+
+            if (dialog == nullptr)
+                return {};
+
+            showDialog (*dialog, async);
+
+            const auto item = [&]
+            {
+                ComSmartPtr<IShellItem> ptr;
+                dialog->GetResult (ptr.resetAndGetPointerAddress());
+                return ptr;
+            }();
+
+            if (item == nullptr)
+                return {};
+
+            return { URL (String (getUrl (*item).get())) };
+        }
+
+        const auto dialog = [&]
+        {
+            ComSmartPtr<IFileOpenDialog> ptr;
+            ptr.CoCreateInstance (CLSID_FileOpenDialog, CLSCTX_INPROC_SERVER);
+            return ptr;
+        }();
+
+        if (dialog == nullptr)
+            return {};
+
+        showDialog (*dialog, async);
+
+        const auto items = [&]
+        {
+            ComSmartPtr<IShellItemArray> ptr;
+            dialog->GetResults (ptr.resetAndGetPointerAddress());
+            return ptr;
+        }();
+
+        if (items == nullptr)
+            return {};
+
+        Array<URL> result;
+
+        DWORD numItems = 0;
+        items->GetCount (&numItems);
+
+        for (DWORD i = 0; i < numItems; ++i)
+        {
+            ComSmartPtr<IShellItem> scope;
+            items->GetItemAt (i, scope.resetAndGetPointerAddress());
+
+            if (scope != nullptr)
+                result.add (String (getUrl (*scope).get()));
+        }
+
+        return result;
+    }
+
+    Array<URL> openDialogPreVista (bool async)
     {
         Array<URL> selections;
 
         if (selectsDirectories)
         {
-            BROWSEINFO bi = { 0 };
+            BROWSEINFO bi = {};
             bi.hwndOwner = (HWND) (async ? nullptr : owner->getWindowHandle());
             bi.pszDisplayName = files;
             bi.lpszTitle = title.toWideCharPointer();
@@ -211,9 +347,9 @@ private:
         }
         else
         {
-            OPENFILENAMEW of = { 0 };
+            OPENFILENAMEW of = {};
 
-            #ifdef OPENFILENAME_SIZE_VERSION_400W
+           #ifdef OPENFILENAME_SIZE_VERSION_400W
             of.lStructSize = OPENFILENAME_SIZE_VERSION_400W;
            #else
             of.lStructSize = sizeof (of);
@@ -231,16 +367,10 @@ private:
 
             if (isSave)
             {
-                StringArray tokens;
-                tokens.addTokens (filtersString, ";,", "\"'");
-                tokens.trim();
-                tokens.removeEmptyStrings();
+                auto extension = getDefaultFileExtension (files.getData());
 
-                if (tokens.size() == 1 && tokens[0].removeCharacters ("*.").isNotEmpty())
-                {
-                    defaultExtension = tokens[0].fromFirstOccurrenceOf (".", false, false);
-                    of.lpstrDefExt = defaultExtension.toWideCharPointer();
-                }
+                if (extension.isNotEmpty())
+                    of.lpstrDefExt = extension.toWideCharPointer();
 
                 if (! GetSaveFileName (&of))
                     return {};
@@ -251,7 +381,7 @@ private:
                     return {};
             }
 
-            if (selectMultiple && of.nFileOffset > 0 && files [of.nFileOffset - 1] == 0)
+            if (selectMultiple && of.nFileOffset > 0 && files[of.nFileOffset - 1] == 0)
             {
                 const WCHAR* filename = files + of.nFileOffset;
 
@@ -267,9 +397,25 @@ private:
             }
         }
 
-        getNativeDialogList().removeValue (this);
-
         return selections;
+    }
+
+    Array<URL> openDialog (bool async)
+    {
+        struct Remover
+        {
+            explicit Remover (Win32NativeFileChooser& chooser) : item (chooser) {}
+            ~Remover() { getNativeDialogList().removeValue (&item); }
+
+            Win32NativeFileChooser& item;
+        };
+
+        const Remover remover (*this);
+
+        if (SystemStats::getOperatingSystemType() >= SystemStats::WinVista)
+            return openDialogVistaAndUp (async);
+
+        return openDialogPreVista (async);
     }
 
     void run() override
@@ -278,7 +424,7 @@ private:
         Ptr safeThis (this);
         threadHasReference.signal();
 
-        Array<URL> r = openDialog (true);
+        auto r = openDialog (true);
         MessageManager::callAsync ([safeThis, r]
         {
             safeThis->results = r;
@@ -330,6 +476,23 @@ private:
         return ofFlags;
     }
 
+    String getDefaultFileExtension (const String& filename) const
+    {
+        auto extension = filename.fromLastOccurrenceOf (".", false, false);
+
+        if (extension.isEmpty())
+        {
+            auto tokens = StringArray::fromTokens (filtersString, ";,", "\"'");
+            tokens.trim();
+            tokens.removeEmptyStrings();
+
+            if (tokens.size() == 1 && tokens[0].removeCharacters ("*.").isNotEmpty())
+                extension = tokens[0].fromFirstOccurrenceOf (".", false, false);
+        }
+
+        return extension;
+    }
+
     //==============================================================================
     void initialised (HWND hWnd)
     {
@@ -355,38 +518,42 @@ private:
         {
             nativeDialogRef.set (hdlg);
 
-            if (customComponent)
+            if (customComponent != nullptr)
             {
-                Component::SafePointer<Component> custom (customComponent);
+                Component::SafePointer<Component> safeCustomComponent (customComponent.get());
 
-                RECT r, cr;
-                GetWindowRect (hdlg, &r);
-                GetClientRect (hdlg, &cr);
+                RECT dialogScreenRect, dialogClientRect;
+                GetWindowRect (hdlg, &dialogScreenRect);
+                GetClientRect (hdlg, &dialogClientRect);
 
-                auto componentWidth = custom->getWidth();
+                auto screenRectangle = Rectangle<int>::leftTopRightBottom (dialogScreenRect.left,  dialogScreenRect.top,
+                                                                           dialogScreenRect.right, dialogScreenRect.bottom);
 
-                SetWindowPos (hdlg, 0,
-                                r.left, r.top,
-                                componentWidth + jmax (150, (int) (r.right - r.left)),
-                                jmax (150, (int) (r.bottom - r.top)),
-                                SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+                auto scale = Desktop::getInstance().getDisplays().findDisplayForRect (screenRectangle, true).scale;
+                auto physicalComponentWidth = roundToInt (safeCustomComponent->getWidth() * scale);
+
+                SetWindowPos (hdlg, nullptr, screenRectangle.getX(), screenRectangle.getY(),
+                              physicalComponentWidth + jmax (150, screenRectangle.getWidth()),
+                              jmax (150, screenRectangle.getHeight()),
+                              SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+
+                auto appendCustomComponent = [safeCustomComponent, dialogClientRect, scale, hdlg]() mutable
+                {
+                    if (safeCustomComponent != nullptr)
+                    {
+                        auto scaledClientRectangle = Rectangle<int>::leftTopRightBottom (dialogClientRect.left, dialogClientRect.top,
+                                                                                         dialogClientRect.right, dialogClientRect.bottom) / scale;
+
+                        safeCustomComponent->setBounds (scaledClientRectangle.getRight(), scaledClientRectangle.getY(),
+                                                        safeCustomComponent->getWidth(), scaledClientRectangle.getHeight());
+                        safeCustomComponent->addToDesktop (0, hdlg);
+                    }
+                };
 
                 if (MessageManager::getInstance()->isThisTheMessageThread())
-                {
-                    custom->setBounds (cr.right, cr.top, componentWidth, cr.bottom - cr.top);
-                    custom->addToDesktop (0, hdlg);
-                }
+                    appendCustomComponent();
                 else
-                {
-                    MessageManager::callAsync ([custom, cr, componentWidth, hdlg]() mutable
-                    {
-                        if (custom != nullptr)
-                        {
-                            custom->setBounds (cr.right, cr.top, componentWidth, cr.bottom - cr.top);
-                            custom->addToDesktop (0, hdlg);
-                        }
-                    });
-                }
+                    MessageManager::callAsync (appendCustomComponent);
             }
         }
     }
@@ -397,6 +564,11 @@ private:
 
         getNativeDialogList().remove (hdlg);
         nativeDialogRef.set (nullptr);
+
+        if (MessageManager::getInstance()->isThisTheMessageThread())
+            customComponent = nullptr;
+        else
+            MessageManager::callAsync ([this] { customComponent = nullptr; });
     }
 
     void selectionChanged (HWND hdlg)
@@ -405,7 +577,7 @@ private:
 
         if (customComponent != nullptr && shouldCancel.get() == 0)
         {
-            if (FilePreviewComponent* comp = dynamic_cast<FilePreviewComponent*> (customComponent->getChildComponent(0)))
+            if (FilePreviewComponent* comp = dynamic_cast<FilePreviewComponent*> (customComponent->getChildComponent (0)))
             {
                 WCHAR path [MAX_PATH * 2] = { 0 };
                 CommDlg_OpenSave_GetFilePath (hdlg, (LPARAM) &path, MAX_PATH);
@@ -491,7 +663,7 @@ private:
 
         HWND dialogH = GetParent (hwnd);
 
-        if (dialogH == 0)
+        if (dialogH == nullptr)
             dialogH = hwnd;
 
         return dialogH;
@@ -505,7 +677,6 @@ class FileChooser::Native     : public Component,
                                 public FileChooser::Pimpl
 {
 public:
-
     Native (FileChooser& fileChooser, int flags, FilePreviewComponent* previewComp)
         : owner (fileChooser),
           nativeFileChooser (new Win32NativeFileChooser (this, flags, previewComp, fileChooser.startingFile,
@@ -522,7 +693,7 @@ public:
         addToDesktop (0);
     }
 
-    ~Native()
+    ~Native() override
     {
         exitModalState (0);
         nativeFileChooser->cancel();
@@ -551,6 +722,17 @@ public:
         nativeFileChooser->cancel();
 
         owner.finished (nativeFileChooser->results);
+    }
+
+    bool canModalEventBeSentToComponent (const Component* targetComponent) override
+    {
+        if (targetComponent == nullptr)
+            return false;
+
+        if (targetComponent == nativeFileChooser->getCustomComponent())
+            return true;
+
+        return targetComponent->findParentComponentOfClass<FilePreviewComponent>() != nullptr;
     }
 
 private:

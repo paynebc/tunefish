@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -46,9 +46,9 @@ public:
     //==============================================================================
     /** Creates an uninitialised message. */
     Message() noexcept;
-    ~Message();
+    ~Message() override;
 
-    typedef ReferenceCountedObjectPtr<Message> Ptr;
+    using Ptr = ReferenceCountedObjectPtr<Message>;
 
     //==============================================================================
 private:

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -113,12 +112,7 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
 
             case CopyingCursor:
             {
-               #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6
-                if (void* m = MouseCursorHelpers::fromHIServices ("copy"))
-                    return m;
-               #endif
-
-                c = [NSCursor dragCopyCursor]; // added in 10.6
+                c = [NSCursor dragCopyCursor];
                 break;
             }
 
@@ -149,6 +143,7 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
             case UpDownLeftRightResizeCursor:
                 return MouseCursorHelpers::fromHIServices ("move");
 
+            case NumStandardCursorTypes:
             default:
                 jassertfalse;
                 break;
@@ -162,11 +157,6 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
 void MouseCursor::deleteMouseCursor (void* const cursorHandle, const bool /*isStandard*/)
 {
     [((NSCursor*) cursorHandle) release];
-}
-
-void MouseCursor::showInAllWindows() const
-{
-    showInWindow (nullptr);
 }
 
 void MouseCursor::showInWindow (ComponentPeer*) const
@@ -184,7 +174,6 @@ void MouseCursor::showInWindow (ComponentPeer*) const
 void* CustomMouseCursorInfo::create() const                                              { return nullptr; }
 void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType)           { return nullptr; }
 void MouseCursor::deleteMouseCursor (void*, bool)                                        {}
-void MouseCursor::showInAllWindows() const                                               {}
 void MouseCursor::showInWindow (ComponentPeer*) const                                    {}
 
 #endif

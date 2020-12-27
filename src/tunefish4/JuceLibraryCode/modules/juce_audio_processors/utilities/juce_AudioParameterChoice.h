@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -35,16 +34,16 @@ namespace juce
 
     @tags{Audio}
 */
-class JUCE_API  AudioParameterChoice  : public AudioProcessorParameterWithID
+class JUCE_API  AudioParameterChoice  : public RangedAudioParameter
 {
 public:
     /** Creates a AudioParameterChoice with the specified parameters.
 
         @param parameterID         The parameter ID to use
-        @param name                The parameter name to use
+        @param parameterName       The parameter name to use
         @param choices             The set of choices to use
         @param defaultItemIndex    The index of the default choice
-        @param label               An optional label for the parameter's value
+        @param parameterLabel      An optional label for the parameter's value
         @param stringFromIndex     An optional lambda function that converts a choice
                                    index to a string with a maximum length. This may
                                    be used by hosts to display the parameter's value.
@@ -52,28 +51,33 @@ public:
                                    converts it into a choice index. Some hosts use this
                                    to allow users to type in parameter values.
     */
-    AudioParameterChoice (const String& parameterID, const String& name,
+    AudioParameterChoice (const String& parameterID, const String& parameterName,
                           const StringArray& choices,
                           int defaultItemIndex,
-                          const String& label = String(),
+                          const String& parameterLabel = String(),
                           std::function<String (int index, int maximumStringLength)> stringFromIndex = nullptr,
                           std::function<int (const String& text)> indexFromString = nullptr);
 
     /** Destructor. */
-    ~AudioParameterChoice();
+    ~AudioParameterChoice() override;
 
     /** Returns the current index of the selected item. */
-    int getIndex() const noexcept                   { return roundToInt (value); }
+    int getIndex() const noexcept                   { return roundToInt (value.load()); }
+
     /** Returns the current index of the selected item. */
     operator int() const noexcept                   { return getIndex(); }
 
     /** Returns the name of the currently selected item. */
     String getCurrentChoiceName() const noexcept    { return choices[getIndex()]; }
+
     /** Returns the name of the currently selected item. */
     operator String() const noexcept                { return getCurrentChoiceName(); }
 
     /** Changes the selected item to a new index. */
     AudioParameterChoice& operator= (int newValue);
+
+    /** Returns the range of values that the parameter can take. */
+    const NormalisableRange<float>& getNormalisableRange() const override   { return range; }
 
     /** Provides access to the list of choices that this parameter is working with. */
     const StringArray choices;
@@ -94,12 +98,8 @@ private:
     String getText (float, int) const override;
     float getValueForText (const String&) const override;
 
-    int limitRange (int) const noexcept;
-    float convertTo0to1 (int) const noexcept;
-    int convertFrom0to1 (float) const noexcept;
-
-    float value;
-    const int maxIndex;
+    const NormalisableRange<float> range;
+    std::atomic<float> value;
     const float defaultValue;
     std::function<String (int, int)> stringFromIndexFunction;
     std::function<int (const String&)> indexFromStringFunction;

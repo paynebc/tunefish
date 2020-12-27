@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -72,7 +72,7 @@ public:
                                 int windowBits = 0);
 
     /** Destructor. */
-    ~GZIPCompressorOutputStream();
+    ~GZIPCompressorOutputStream() override;
 
     //==============================================================================
     /** Flushes and closes the stream.
@@ -100,8 +100,7 @@ private:
     OptionalScopedPointer<OutputStream> destStream;
 
     class GZIPCompressorHelper;
-    friend struct ContainerDeletePolicy<GZIPCompressorHelper>;
-    ScopedPointer<GZIPCompressorHelper> helper;
+    std::unique_ptr<GZIPCompressorHelper> helper;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GZIPCompressorOutputStream)
 };

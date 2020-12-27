@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -56,7 +55,7 @@ public:
     explicit Viewport (const String& componentName = String());
 
     /** Destructor. */
-    ~Viewport();
+    ~Viewport() override;
 
     //==============================================================================
     /** Sets the component that this viewport will contain and scroll around.
@@ -81,7 +80,7 @@ public:
 
         @see setViewedComponent
     */
-    Component* getViewedComponent() const noexcept                  { return contentComp; }
+    Component* getViewedComponent() const noexcept                  { return contentComp.get(); }
 
     //==============================================================================
     /** Changes the position of the viewed component.
@@ -204,6 +203,25 @@ public:
                              bool allowVerticalScrollingWithoutScrollbar = false,
                              bool allowHorizontalScrollingWithoutScrollbar = false);
 
+    /** Changes where the scroll bars are positioned
+
+        If verticalScrollbarOnRight is set to true, then the vertical scrollbar will
+        appear on the right side of the view port's content (this is the default),
+        otherwise it will be on the left side of the content.
+
+        If horizontalScrollbarAtBottom is set to true, then the horizontal scrollbar
+        will appear at the bottom of the view port's content (this is the default),
+        otherwise it will be at the top.
+    */
+    void setScrollBarPosition (bool verticalScrollbarOnRight,
+                               bool horizontalScrollbarAtBottom);
+
+    /** True if the vertical scrollbar will appear on the right side of the content */
+    bool isVerticalScrollbarOnTheRight() const noexcept         { return vScrollbarRight; }
+
+    /** True if the horizontal scrollbar will appear at the bottom of the content */
+    bool isHorizontalScrollbarAtBottom() const noexcept         { return hScrollbarBottom; }
+
     /** True if the vertical scrollbar is enabled.
         @see setScrollBarsShown
     */
@@ -253,7 +271,12 @@ public:
     */
     bool canScrollHorizontally() const noexcept;
 
-    /** Enables or disables drag-to-scroll functionality in the viewport. */
+    /** Enables or disables drag-to-scroll functionality in the viewport.
+
+        If your viewport contains a Component that you don't want to receive mouse events when the
+        user is drag-scrolling, you can disable this with the Component::setViewportIgnoreDragFlag()
+        method.
+    */
     void setScrollOnDragEnabled (bool shouldScrollOnDrag);
 
     /** Returns true if drag-to-scroll functionality is enabled. */
@@ -291,7 +314,7 @@ protected:
 
 private:
     //==============================================================================
-    ScopedPointer<ScrollBar> verticalScrollBar, horizontalScrollBar;
+    std::unique_ptr<ScrollBar> verticalScrollBar, horizontalScrollBar;
     Component contentHolder;
     WeakReference<Component> contentComp;
     Rectangle<int> lastVisibleArea;
@@ -300,21 +323,15 @@ private:
     bool showHScrollbar = true, showVScrollbar = true, deleteContent = true;
     bool customScrollBarThickness = false;
     bool allowScrollingWithoutScrollbarV = false, allowScrollingWithoutScrollbarH = false;
+    bool vScrollbarRight = true, hScrollbarBottom = true;
 
     struct DragToScrollListener;
-    friend struct DragToScrollListener;
-    friend struct ContainerDeletePolicy<DragToScrollListener>;
-    ScopedPointer<DragToScrollListener> dragToScrollListener;
+    std::unique_ptr<DragToScrollListener> dragToScrollListener;
 
     Point<int> viewportPosToCompPos (Point<int>) const;
 
     void updateVisibleArea();
     void deleteOrRemoveContentComp();
-
-   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // If you get an error here, it's because this method's parameters have changed! See the new definition above..
-    virtual int visibleAreaChanged (int, int, int, int) { return 0; }
-   #endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Viewport)
 };

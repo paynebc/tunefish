@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,26 +26,26 @@
 namespace juce
 {
 
-#if JUCE_MSVC
- #pragma warning (push)
- #pragma warning (disable: 4365)
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4365)
 
 namespace jpeglibNamespace
 {
 #if JUCE_INCLUDE_JPEGLIB_CODE || ! defined (JUCE_INCLUDE_JPEGLIB_CODE)
-   #if JUCE_MINGW
-    typedef unsigned char boolean;
-   #endif
-
-   #if JUCE_CLANG
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wconversion"
-    #pragma clang diagnostic ignored "-Wdeprecated-register"
-    #if __has_warning("-Wcomma")
-     #pragma clang diagnostic ignored "-Wcomma"
+    #if JUCE_MINGW
+     typedef unsigned char boolean;
     #endif
-   #endif
+
+     JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wconversion",
+                                          "-Wdeprecated-register",
+                                          "-Wdeprecated-declarations",
+                                          "-Wsign-conversion",
+                                          "-Wcast-align",
+                                          "-Wswitch-enum",
+                                          "-Wswitch-default",
+                                          "-Wimplicit-fallthrough",
+                                          "-Wzero-as-null-pointer-constant",
+                                          "-Wshift-negative-value",
+                                          "-Wcomma")
 
     #define JPEG_INTERNALS
     #undef FAR
@@ -121,9 +120,7 @@ namespace jpeglibNamespace
     #include "jpglib/jutils.c"
     #include "jpglib/transupp.c"
 
-   #if JUCE_CLANG
-    #pragma clang diagnostic pop
-   #endif
+    JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 #else
     #define JPEG_INTERNALS
     #undef FAR
@@ -134,9 +131,7 @@ namespace jpeglibNamespace
 #undef max
 #undef min
 
-#if JUCE_MSVC
- #pragma warning (pop)
-#endif
+JUCE_END_IGNORE_WARNINGS_MSVC
 
 //==============================================================================
 namespace JPEGHelpers

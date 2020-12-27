@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -28,6 +28,8 @@ namespace juce
     A type of InputSource that represents a URL.
 
     @see InputSource
+
+    @tags{Core}
 */
 class JUCE_API  URLInputSource     : public InputSource
 {
@@ -43,11 +45,11 @@ public:
     URLInputSource (URL&& url);
 
     /** Destructor. */
-    ~URLInputSource();
+    ~URLInputSource() override;
 
-    InputStream* createInputStream();
-    InputStream* createInputStreamFor (const String& relatedItemPath);
-    int64 hashCode() const;
+    InputStream* createInputStream() override;
+    InputStream* createInputStreamFor (const String& relatedItemPath) override;
+    int64 hashCode() const override;
 
 private:
     //==============================================================================

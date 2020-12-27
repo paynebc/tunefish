@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -25,7 +25,7 @@ namespace juce
 
 String String::fromCFString (CFStringRef cfString)
 {
-    if (cfString == 0)
+    if (cfString == nullptr)
         return {};
 
     CFRange range = { 0, CFStringGetLength (cfString) };
@@ -72,7 +72,7 @@ String String::convertToPrecomposedUnicode() const
 
     map.mappingVersion = kUnicodeUseLatestMapping;
 
-    UnicodeToTextInfo conversionInfo = 0;
+    UnicodeToTextInfo conversionInfo = {};
     String result;
 
     if (CreateUnicodeToTextInfo (&map, &conversionInfo) == noErr)
@@ -88,11 +88,11 @@ String String::convertToPrecomposedUnicode() const
         if (ConvertFromUnicodeToText (conversionInfo,
                                       bytesNeeded, (ConstUniCharArrayPtr) toUTF16().getAddress(),
                                       kUnicodeDefaultDirectionMask,
-                                      0, 0, 0, 0,
+                                      0, {}, {}, {},
                                       bytesNeeded, &bytesRead,
                                       &outputBufferSize, tempOut) == noErr)
         {
-            result = String (CharPointer_UTF16 ((CharPointer_UTF16::CharType*) tempOut.get()));
+            result = String (CharPointer_UTF16 (reinterpret_cast<CharPointer_UTF16::CharType*> (tempOut.get())));
         }
 
         DisposeUnicodeToTextInfo (&conversionInfo);

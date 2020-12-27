@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -28,7 +28,7 @@ class Timer::TimerThread  : private Thread,
                             private AsyncUpdater
 {
 public:
-    typedef CriticalSection LockType; // (mysteriously, using a SpinLock here causes problems on some XP machines..)
+    using LockType = CriticalSection; // (mysteriously, using a SpinLock here causes problems on some XP machines..)
 
     TimerThread()  : Thread ("JUCE Timer")
     {
@@ -36,7 +36,7 @@ public:
         triggerAsyncUpdate();
     }
 
-    ~TimerThread() noexcept
+    ~TimerThread() override
     {
         signalThreadShouldExit();
         callbackArrived.signal();
@@ -136,7 +136,7 @@ public:
         callTimers();
     }
 
-    static inline void add (Timer* tim) noexcept
+    static void add (Timer* tim) noexcept
     {
         if (instance == nullptr)
             instance = new TimerThread();
@@ -144,13 +144,13 @@ public:
         instance->addTimer (tim);
     }
 
-    static inline void remove (Timer* tim) noexcept
+    static void remove (Timer* tim) noexcept
     {
         if (instance != nullptr)
             instance->removeTimer (tim);
     }
 
-    static inline void resetCounter (Timer* tim) noexcept
+    static void resetCounter (Timer* tim) noexcept
     {
         if (instance != nullptr)
             instance->resetTimerCounter (tim);
@@ -187,7 +187,7 @@ private:
         // Trying to add a timer that's already here - shouldn't get to this point,
         // so if you get this assertion, let me know!
         jassert (std::find_if (timers.begin(), timers.end(),
-                               [t](TimerCountdown i) { return i.timer == t; }) == timers.end());
+                               [t] (TimerCountdown i) { return i.timer == t; }) == timers.end());
 
         auto pos = timers.size();
 
@@ -324,7 +324,7 @@ void Timer::startTimer (int interval) noexcept
 {
     // If you're calling this before (or after) the MessageManager is
     // running, then you're not going to get any timer callbacks!
-    jassert (MessageManager::getInstanceWithoutCreating() != nullptr);
+    JUCE_ASSERT_MESSAGE_MANAGER_EXISTS
 
     const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -116,7 +116,7 @@ public:
  #elif JUCE_ANDROID
 
   #define JUCE_CREATE_APPLICATION_DEFINE(AppClass) \
-    juce::JUCEApplicationBase* juce_CreateApplication() { return new AppClass(); }
+    extern "C" juce::JUCEApplicationBase* juce_CreateApplication() { return new AppClass(); }
 
   #define JUCE_MAIN_FUNCTION_DEFINITION
 
@@ -155,7 +155,7 @@ public:
 
   #if JUCE_IOS
     /**
-       You can instruct JUCE to use a custom iOS app delegate class instaed of JUCE's default
+       You can instruct JUCE to use a custom iOS app delegate class instead of JUCE's default
        app delegate. For JUCE to work you must pass all messages to JUCE's internal app delegate.
        Below is an example of minimal forwarding custom delegate. Note that you are at your own
        risk if you decide to use your own delegate and subtle, hard to debug bugs may occur.

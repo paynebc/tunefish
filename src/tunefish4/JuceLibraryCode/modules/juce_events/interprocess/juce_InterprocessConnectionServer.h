@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -45,7 +45,7 @@ public:
     InterprocessConnectionServer();
 
     /** Destructor. */
-    ~InterprocessConnectionServer();
+    ~InterprocessConnectionServer() override;
 
     //==============================================================================
     /** Starts an internal thread which listens on the given port number.
@@ -96,7 +96,7 @@ protected:
 
 private:
     //==============================================================================
-    ScopedPointer<StreamingSocket> socket;
+    std::unique_ptr<StreamingSocket> socket;
 
     void run() override;
 

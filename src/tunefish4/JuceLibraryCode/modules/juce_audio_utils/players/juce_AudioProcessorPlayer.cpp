@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -88,6 +87,15 @@ void AudioProcessorPlayer::setDoublePrecisionProcessing (bool doublePrecision)
     }
 }
 
+void AudioProcessorPlayer::setMidiOutput (MidiOutput* midiOutputToUse)
+{
+    if (midiOutput != midiOutputToUse)
+    {
+        const ScopedLock sl (lock);
+        midiOutput = midiOutputToUse;
+    }
+}
+
 //==============================================================================
 void AudioProcessorPlayer::audioDeviceIOCallback (const float** const inputChannelData,
                                                   const int numInputChannels,
@@ -113,14 +121,14 @@ void AudioProcessorPlayer::audioDeviceIOCallback (const float** const inputChann
         for (int i = 0; i < numOutputChannels; ++i)
         {
             channels[totalNumChans] = outputChannelData[i];
-            memcpy (channels[totalNumChans], inputChannelData[i], sizeof (float) * (size_t) numSamples);
+            memcpy (channels[totalNumChans], inputChannelData[i], (size_t) numSamples * sizeof (float));
             ++totalNumChans;
         }
 
         for (int i = numOutputChannels; i < numInputChannels; ++i)
         {
             channels[totalNumChans] = tempBuffer.getWritePointer (i - numOutputChannels);
-            memcpy (channels[totalNumChans], inputChannelData[i], sizeof (float) * (size_t) numSamples);
+            memcpy (channels[totalNumChans], inputChannelData[i], (size_t) numSamples * sizeof (float));
             ++totalNumChans;
         }
     }
@@ -129,14 +137,14 @@ void AudioProcessorPlayer::audioDeviceIOCallback (const float** const inputChann
         for (int i = 0; i < numInputChannels; ++i)
         {
             channels[totalNumChans] = outputChannelData[i];
-            memcpy (channels[totalNumChans], inputChannelData[i], sizeof (float) * (size_t) numSamples);
+            memcpy (channels[totalNumChans], inputChannelData[i], (size_t) numSamples * sizeof (float));
             ++totalNumChans;
         }
 
         for (int i = numInputChannels; i < numOutputChannels; ++i)
         {
             channels[totalNumChans] = outputChannelData[i];
-            zeromem (channels[totalNumChans], sizeof (float) * (size_t) numSamples);
+            zeromem (channels[totalNumChans], (size_t) numSamples * sizeof (float));
             ++totalNumChans;
         }
     }
@@ -161,6 +169,20 @@ void AudioProcessorPlayer::audioDeviceIOCallback (const float** const inputChann
                 else
                 {
                     processor->processBlock (buffer, incomingMidi);
+                }
+
+                if (midiOutput != nullptr)
+                {
+                    if (midiOutput->isBackgroundThreadRunning())
+                    {
+                        midiOutput->sendBlockOfMessages (incomingMidi,
+                                                         Time::getMillisecondCounterHiRes(),
+                                                         sampleRate);
+                    }
+                    else
+                    {
+                        midiOutput->sendBlockOfMessagesNow (incomingMidi);
+                    }
                 }
 
                 return;

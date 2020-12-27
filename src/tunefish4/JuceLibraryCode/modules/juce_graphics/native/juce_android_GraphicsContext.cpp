@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -29,7 +28,7 @@ namespace juce
 
 namespace GraphicsHelpers
 {
-    jobject createPaint (Graphics::ResamplingQuality quality)
+    LocalRef<jobject> createPaint (Graphics::ResamplingQuality quality)
     {
         jint constructorFlags = 1 /*ANTI_ALIAS_FLAG*/
                                 | 4 /*DITHER_FLAG*/
@@ -38,12 +37,12 @@ namespace GraphicsHelpers
         if (quality > Graphics::lowResamplingQuality)
             constructorFlags |= 2; /*FILTER_BITMAP_FLAG*/
 
-        return getEnv()->NewObject (AndroidPaint, AndroidPaint.constructor, constructorFlags);
+        return LocalRef<jobject>(getEnv()->NewObject (AndroidPaint, AndroidPaint.constructor, constructorFlags));
     }
 
-    const jobject createMatrix (JNIEnv* env, const AffineTransform& t)
+    const LocalRef<jobject> createMatrix (JNIEnv* env, const AffineTransform& t)
     {
-        jobject m = env->NewObject (AndroidMatrix, AndroidMatrix.constructor);
+        auto m = LocalRef<jobject>(env->NewObject (AndroidMatrix, AndroidMatrix.constructor));
 
         jfloat values[9] = { t.mat00, t.mat01, t.mat02,
                              t.mat10, t.mat11, t.mat12,

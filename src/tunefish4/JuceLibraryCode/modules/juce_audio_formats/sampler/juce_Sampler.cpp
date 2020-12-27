@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -48,8 +47,8 @@ SamplerSound::SamplerSound (const String& soundName,
 
         source.read (data.get(), 0, length + 4, 0, true, true);
 
-        attackSamples  = roundToInt (attackTimeSecs  * sourceSampleRate);
-        releaseSamples = roundToInt (releaseTimeSecs * sourceSampleRate);
+        params.attack  = static_cast<float> (attackTimeSecs);
+        params.release = static_cast<float> (releaseTimeSecs);
     }
 }
 
@@ -87,24 +86,10 @@ void SamplerVoice::startNote (int midiNoteNumber, float velocity, SynthesiserSou
         lgain = velocity;
         rgain = velocity;
 
-        isInAttack = (sound->attackSamples > 0);
-        isInRelease = false;
+        adsr.setSampleRate (sound->sourceSampleRate);
+        adsr.setParameters (sound->params);
 
-        if (isInAttack)
-        {
-            attackReleaseLevel = 0.0f;
-            attackDelta = (float) (pitchRatio / sound->attackSamples);
-        }
-        else
-        {
-            attackReleaseLevel = 1.0f;
-            attackDelta = 0.0f;
-        }
-
-        if (sound->releaseSamples > 0)
-            releaseDelta = (float) (-pitchRatio / sound->releaseSamples);
-        else
-            releaseDelta = -1.0f;
+        adsr.noteOn();
     }
     else
     {
@@ -116,12 +101,12 @@ void SamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
-        isInAttack = false;
-        isInRelease = true;
+        adsr.noteOff();
     }
     else
     {
         clearCurrentNote();
+        adsr.reset();
     }
 }
 
@@ -151,35 +136,10 @@ void SamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startS
             float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
                                        : l;
 
-            l *= lgain;
-            r *= rgain;
+            auto envelopeValue = adsr.getNextSample();
 
-            if (isInAttack)
-            {
-                l *= attackReleaseLevel;
-                r *= attackReleaseLevel;
-
-                attackReleaseLevel += attackDelta;
-
-                if (attackReleaseLevel >= 1.0f)
-                {
-                    attackReleaseLevel = 1.0f;
-                    isInAttack = false;
-                }
-            }
-            else if (isInRelease)
-            {
-                l *= attackReleaseLevel;
-                r *= attackReleaseLevel;
-
-                attackReleaseLevel += releaseDelta;
-
-                if (attackReleaseLevel <= 0.0f)
-                {
-                    stopNote (0.0f, false);
-                    break;
-                }
-            }
+            l *= lgain * envelopeValue;
+            r *= rgain * envelopeValue;
 
             if (outR != nullptr)
             {

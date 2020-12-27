@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -50,7 +49,7 @@ public:
     JUCE_DECLARE_SINGLETON (PushNotifications, false)
    #endif
 
-    //==========================================================================
+    //==============================================================================
     /** Represents a notification that can be sent or received. */
     struct Notification
     {
@@ -107,7 +106,7 @@ public:
             /**@}*/
         };
 
-        //==========================================================================
+        //==============================================================================
         /** @name Common fields */
         /**@{*/
 
@@ -142,14 +141,14 @@ public:
                                   file, then the URL should be "sounds/my_sound.caf".
 
                                   For a custom sound on Android, set URL to the name of a raw resource file
-                                  (without an extention) that was included when exporting an Android project in
+                                  (without an extension) that was included when exporting an Android project in
                                   Projucer (see "Extra Android Raw Resources" setting). */
 
         var properties;      /**< Optional: collection of additional properties that may be passed as a dictionary. */
 
         /**@}*/
 
-        //==========================================================================
+        //==============================================================================
         /** @name iOS only fields */
         /**@{*/
 
@@ -161,7 +160,7 @@ public:
 
         /**@}*/
 
-        //==========================================================================
+        //==============================================================================
         /** @name Android only fields */
         /**@{*/
 
@@ -241,10 +240,10 @@ public:
 
         LockScreenAppearance lockScreenAppearance = showPartially;  /**< Optional. */
 
-        ScopedPointer<Notification> publicVersion; /**< Optional: if you set lockScreenAppearance to showPartially,
-                                                        then you can provide "public version" of your notification
-                                                        that will be displayed on the lock screen. This way you can
-                                                        control what information is visible when the screen is locked. */
+        std::unique_ptr<Notification> publicVersion; /**< Optional: if you set lockScreenAppearance to showPartially,
+                                                          then you can provide "public version" of your notification
+                                                          that will be displayed on the lock screen. This way you can
+                                                          control what information is visible when the screen is locked. */
 
         String groupSortKey;         /**< Optional: Used to order notifications within the same group. Available from Android API 20 or above. */
         bool groupSummary = false;   /**< Optional: if true, then this notification will be a group summary of the group set with groupId.
@@ -276,7 +275,7 @@ public:
         bool localOnly = true;  /**< Optional: whether or not the notification should bridge to other devices.
                                                Available from Android API 20 or above. */
 
-        bool ongoing = false;   /**< Optional: If true, then it cannot be dismissed by the user and it must be dimissed manually.
+        bool ongoing = false;   /**< Optional: If true, then it cannot be dismissed by the user and it must be dismissed manually.
                                      Typically used for ongoing background tasks that the user is actively engaged with. To
                                      dismiss such notification, you need to call removeDeliveredNotification() or
                                      removeAllDeliveredNotifications(). */
@@ -323,7 +322,7 @@ public:
     };
 
 
-    //==========================================================================
+    //==============================================================================
     /** Describes settings we want to use for current device. Note that at the
         moment this is only used on iOS and partially on OSX.
 
@@ -389,14 +388,14 @@ public:
     {
         using Action = Notification::Action;
 
-        /** Describes a category of a notification. Each category has a unique idenfifier
+        /** Describes a category of a notification. Each category has a unique identifier
             and a list of associated actions.
             Note that the OS may allow only a limited number of actions to be presented, so
             always present most important actions first.
         */
         struct Category
         {
-            juce::String identifier;         /**< unique indentifier */
+            juce::String identifier;         /**< unique identifier */
             juce::Array<Action> actions;     /**< optional list of actions within this category */
             bool sendDismissAction = false;  /**< whether dismiss action will be sent to the app (from iOS 10 only) */
         };
@@ -438,7 +437,7 @@ public:
     */
     void requestSettingsUsed();
 
-    //==========================================================================
+    //==============================================================================
     /** Android API level 26 or higher only: Represents notification channel through which
         notifications will be sent. Starting from Android API level 26, you should call setupChannels()
         at the start of your application, before posting any notifications. Then, when sending notifications,
@@ -491,7 +490,7 @@ public:
     */
     void setupChannels (const Array<ChannelGroup>& groups, const Array<Channel>& channels);
 
-    //==========================================================================
+    //==============================================================================
     /** iOS only: sends an asynchronous request to retrieve a list of notifications that were
         scheduled and not yet delivered.
 
@@ -505,7 +504,7 @@ public:
     /** Unschedules all pending local notifications. iOS only. */
     void removeAllPendingLocalNotifications();
 
-    //==========================================================================
+    //==============================================================================
     /** Checks whether notifications are enabled for given application.
         On iOS and OSX this will always return true, use requestSettingsUsed() instead.
     */
@@ -535,7 +534,7 @@ public:
     /** Removes all notifications that were delivered. */
     void removeAllDeliveredNotifications();
 
-    //==========================================================================
+    //==============================================================================
     /** Retrieves current device token. Note, it is not a good idea to cache this token
         because it may change in the meantime. Always call this method to get the current
         token value.
@@ -587,13 +586,13 @@ public:
                               int timeToLive,
                               const StringPairArray& additionalData);
 
-    //==========================================================================
+    //==============================================================================
     /** Register a listener (ideally on application startup) to receive information about
         notifications received and any callbacks to async functions called.
     */
     struct Listener
     {
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** This callback will be called after you call requestSettingsUsed() or
             requestPermissionsWithSettings().
@@ -615,7 +614,7 @@ public:
             notification was received when the app was in the foreground already. On iOS 10 it will be
             called when a user presses on a notification
 
-            Note: on Android, if remote notification was received while the app was in the background and
+            Note: On Android, if remote notification was received while the app was in the background and
             then user pressed on it, the notification object received in this callback will contain only
             "properties" member set. Hence, if you want to know what was the notification title, content
             etc, you need to set them as additional properties, so that you will be able to restore them
@@ -634,7 +633,7 @@ public:
 
             @param isLocalNotification If the notification is local
             @param notification        The notification
-            @param actionIdentifier    A String identifiing the action
+            @param actionIdentifier    A String identifying the action
             @param optionalResponse    Text response a user inputs for notifications with a text input.
                                        Empty for notifications without a text input option.
 
@@ -694,24 +693,22 @@ public:
 
 private:
     PushNotifications();
-    ~PushNotifications();
+    ~PushNotifications() override;
 
     ListenerList<PushNotifications::Listener> listeners;
 
    #if JUCE_ANDROID
     friend bool juce_handleNotificationIntent (void*);
-    friend void juce_firebaseDeviceNotificationsTokenRefreshed (void*);
-    friend void juce_firebaseRemoteNotificationReceived (void*);
-    friend void juce_firebaseRemoteMessagesDeleted();
-    friend void juce_firebaseRemoteMessageSent (void*);
-    friend void juce_firebaseRemoteMessageSendError (void*, void*);
+
+    friend struct JuceFirebaseInstanceIdService;
+    friend struct JuceFirebaseMessagingService;
    #endif
 
   #if JUCE_PUSH_NOTIFICATIONS
     struct Pimpl;
     friend struct Pimpl;
 
-    ScopedPointer<Pimpl> pimpl;
+    std::unique_ptr<Pimpl> pimpl;
   #endif
 };
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -132,7 +132,7 @@ struct JUCE_API  MPENote
     */
     MPEValue pressure        { MPEValue::centreValue() };
 
-    /** Inital value of timbre when the note was triggered.
+    /** Initial value of timbre when the note was triggered.
         This should never change during the lifetime of an MPENote object.
     */
     MPEValue initialTimbre   { MPEValue::centreValue() };

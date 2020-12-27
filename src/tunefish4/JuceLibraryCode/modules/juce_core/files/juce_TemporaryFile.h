@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -41,12 +41,10 @@ namespace juce
         TemporaryFile temp (myTargetFile);
 
         // create a stream to the temporary file, and write some data to it...
-        ScopedPointer<FileOutputStream> out (temp.getFile().createOutputStream());
-
-        if (out != nullptr)
+        if (auto out = std::unique_ptr<FileOutputStream> (temp.getFile().createOutputStream()))
         {
             out->write ( ...etc )
-            out = nullptr; // (deletes the stream)
+            out.reset(); // (deletes the stream)
 
             // ..now we've finished writing, this will rename the temp file to
             // make it replace the target file we specified above.

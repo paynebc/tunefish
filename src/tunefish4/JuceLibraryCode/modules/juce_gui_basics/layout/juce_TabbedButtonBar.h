@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -49,7 +48,7 @@ public:
     TabBarButton (const String& name, TabbedButtonBar& ownerBar);
 
     /** Destructor. */
-    ~TabBarButton();
+    ~TabBarButton() override;
 
     /** Returns the bar that contains this button. */
     TabbedButtonBar& getTabbedButtonBar() const   { return owner; }
@@ -109,7 +108,7 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
+    void paintButton (Graphics&, bool, bool) override;
     /** @internal */
     void clicked (const ModifierKeys&) override;
     /** @internal */
@@ -124,10 +123,11 @@ protected:
     TabbedButtonBar& owner;
     int overlapPixels = 0;
 
-    ScopedPointer<Component> extraComponent;
+    std::unique_ptr<Component> extraComponent;
     ExtraComponentPlacement extraCompPlacement = afterText;
 
 private:
+    using Button::clicked;
     void calcAreas (Rectangle<int>&, Rectangle<int>&) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabBarButton)
@@ -173,7 +173,7 @@ public:
     TabbedButtonBar (Orientation orientation);
 
     /** Destructor. */
-    ~TabbedButtonBar();
+    ~TabbedButtonBar() override;
 
     //==============================================================================
     /** Changes the bar's orientation.
@@ -308,7 +308,7 @@ public:
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual int getTabButtonSpaceAroundImage() = 0;
         virtual int getTabButtonOverlap (int tabDepth) = 0;
@@ -347,7 +347,7 @@ protected:
 private:
     struct TabInfo
     {
-        ScopedPointer<TabBarButton> button;
+        std::unique_ptr<TabBarButton> button;
         String name;
         Colour colour;
     };
@@ -359,13 +359,10 @@ private:
     int currentTabIndex = -1;
 
     class BehindFrontTabComp;
-    friend class BehindFrontTabComp;
-    friend struct ContainerDeletePolicy<BehindFrontTabComp>;
-    ScopedPointer<BehindFrontTabComp> behindFrontTab;
-    ScopedPointer<Button> extraTabsButton;
+    std::unique_ptr<BehindFrontTabComp> behindFrontTab;
+    std::unique_ptr<Button> extraTabsButton;
 
     void showExtraItemsMenu();
-    static void extraItemsMenuCallback (int, TabbedButtonBar*);
     void updateTabPositions (bool animate);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TabbedButtonBar)

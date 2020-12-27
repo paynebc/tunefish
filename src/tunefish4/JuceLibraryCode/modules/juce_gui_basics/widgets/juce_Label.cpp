@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -131,16 +130,17 @@ void Label::setBorderSize (BorderSize<int> newBorder)
 //==============================================================================
 Component* Label::getAttachedComponent() const
 {
-    return static_cast<Component*> (ownerComponent);
+    return ownerComponent.get();
 }
 
 void Label::attachToComponent (Component* owner, bool onLeft)
 {
+    jassert (owner != this); // Not a great idea to try to attach it to itself!
+
     if (ownerComponent != nullptr)
         ownerComponent->removeComponentListener (this);
 
     ownerComponent = owner;
-
     leftOfOwnerComp = onLeft;
 
     if (ownerComponent != nullptr)
@@ -154,19 +154,21 @@ void Label::attachToComponent (Component* owner, bool onLeft)
 
 void Label::componentMovedOrResized (Component& component, bool /*wasMoved*/, bool /*wasResized*/)
 {
-    auto f = getLookAndFeel().getLabelFont (*this);
+    auto& lf = getLookAndFeel();
+    auto f = lf.getLabelFont (*this);
+    auto borderSize = lf.getLabelBorderSize (*this);
 
     if (leftOfOwnerComp)
     {
         auto width = jmin (roundToInt (f.getStringWidthFloat (textValue.toString()) + 0.5f)
-                             + getBorderSize().getLeftAndRight(),
+                             + borderSize.getLeftAndRight(),
                            component.getX());
 
         setBounds (component.getX() - width, component.getY(), width, component.getHeight());
     }
     else
     {
-        auto height = getBorderSize().getTopAndBottom() + 6 + roundToInt (f.getHeight() + 0.5f);
+        auto height = borderSize.getTopAndBottom() + 6 + roundToInt (f.getHeight() + 0.5f);
 
         setBounds (component.getX(), component.getY() - height, component.getWidth(), height);
     }
@@ -266,7 +268,7 @@ void Label::hideEditor (bool discardCurrentEditorContents)
     if (editor != nullptr)
     {
         WeakReference<Component> deletionChecker (this);
-        ScopedPointer<TextEditor> outgoingEditor;
+        std::unique_ptr<TextEditor> outgoingEditor;
         std::swap (outgoingEditor, editor);
 
         editorAboutToBeHidden (outgoingEditor.get());

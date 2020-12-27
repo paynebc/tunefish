@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,14 @@
 
   ==============================================================================
 */
+
+#if ! DOXYGEN && (JUCE_MAC || JUCE_IOS)
+ #if __LP64__
+  using OSType = unsigned int;
+ #else
+  using OSType = unsigned long;
+ #endif
+#endif
 
 namespace juce
 {
@@ -48,7 +56,7 @@ public:
 
         You can use its operator= method to point it at a proper file.
     */
-    File() noexcept  {}
+    File() = default;
 
     /** Creates a file from an absolute path.
 
@@ -66,7 +74,7 @@ public:
     File (const File&);
 
     /** Destructor. */
-    ~File() noexcept  {}
+    ~File() = default;
 
     /** Sets the file based on an absolute pathname.
 
@@ -114,7 +122,7 @@ public:
     bool isDirectory() const;
 
     /** Checks whether the path of this file represents the root of a file system,
-        irrespective of its existance.
+        irrespective of its existence.
 
         This will return true for "C:", "D:", etc on Windows and "/" on other
         platforms.
@@ -457,6 +465,9 @@ public:
         If this file is actually a directory, it may not be deleted correctly if it
         contains files. See deleteRecursively() as a better way of deleting directories.
 
+        If this file is a symlink, then the symlink will be deleted and not the target
+        of the symlink.
+
         @returns    true if the file has been successfully deleted (or if it didn't exist to
                     begin with).
         @see deleteRecursively
@@ -468,11 +479,14 @@ public:
         If this file is a directory, this will try to delete it and all its subfolders. If
         it's just a file, it will just try to delete the file.
 
-        @returns    true if the file and all its subfolders have been successfully deleted
-                    (or if it didn't exist to begin with).
+
+        @param followSymlinks If true, then any symlink pointing to a directory will also
+                              recursively delete the contents of that directory
+        @returns              true if the file and all its subfolders have been successfully
+                              deleted (or if it didn't exist to begin with).
         @see deleteFile
     */
-    bool deleteRecursively() const;
+    bool deleteRecursively (bool followSymlinks = false) const;
 
     /** Moves this file or folder to the trash.
 
@@ -560,7 +574,7 @@ public:
         @param wildCardPattern          the filename pattern to search for, e.g. "*.txt"
         @returns                        the set of files that were found
 
-        @see getNumberOfChildFiles, DirectoryIterator
+        @see getNumberOfChildFiles, RangedDirectoryIterator
     */
     Array<File> findChildFiles (int whatToLookFor,
                                 bool searchRecursively,
@@ -588,7 +602,8 @@ public:
                                 is also added to this value, hidden files won't be counted
         @param wildCardPattern  the filename pattern to search for, e.g. "*.txt"
         @returns                the number of matches found
-        @see findChildFiles, DirectoryIterator
+
+        @see findChildFiles, RangedDirectoryIterator
     */
     int getNumberOfChildFiles (int whatToLookFor,
                                const String& wildCardPattern = "*") const;
@@ -601,23 +616,55 @@ public:
     //==============================================================================
     /** Creates a stream to read from this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileInputStream directly, e.g.
+        @code
+        FileInputStream input (fileToOpen);
+
+        if (input.openedOk())
+        {
+            input.read (etc...
+        }
+        @endcode
+
         @returns    a stream that will read from this file (initially positioned at the
                     start of the file), or nullptr if the file can't be opened for some reason
         @see createOutputStream, loadFileAsData
     */
-    FileInputStream* createInputStream() const;
+    std::unique_ptr<FileInputStream> createInputStream() const;
 
     /** Creates a stream to write to this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileOutputStream directly, e.g.
+        @code
+        FileOutputStream output (fileToOpen);
+
+        if (output.openedOk())
+        {
+            output.read etc...
+        }
+        @endcode
+
         If the file exists, the stream that is returned will be positioned ready for
-        writing at the end of the file, so you might want to use deleteFile() first
-        to write to an empty file.
+        writing at the end of the file. If you want to write to the start of the file,
+        replacing the existing content, then you can do the following:
+        @code
+        FileOutputStream output (fileToOverwrite);
+
+        if (output.openedOk())
+        {
+            output.setPosition (0);
+            output.truncate();
+            ...
+        }
+        @endcode
 
         @returns    a stream that will write to this file (initially positioned at the
                     end of the file), or nullptr if the file can't be opened for some reason
         @see createInputStream, appendData, appendText
     */
-    FileOutputStream* createOutputStream (size_t bufferSize = 0x8000) const;
+    std::unique_ptr<FileOutputStream> createOutputStream (size_t bufferSize = 0x8000) const;
 
     //==============================================================================
     /** Loads a file's contents into memory as a block of binary data.
@@ -681,13 +728,15 @@ public:
         It can also write the 'ff fe' unicode header bytes before the text to indicate
         the endianness of the file.
 
-        Any single \\n characters in the string are replaced with \\r\\n before it is written.
+        If lineEndings is nullptr, then line endings in the text won't be modified. If you
+        pass "\\n" or "\\r\\n" then this function will replace any existing line feeds.
 
         @see replaceWithText
     */
     bool appendText (const String& textToAppend,
                      bool asUnicode = false,
-                     bool writeUnicodeHeaderBytes = false) const;
+                     bool writeUnicodeHeaderBytes = false,
+                     const char* lineEndings = "\r\n") const;
 
     /** Replaces this file's contents with a given text string.
 
@@ -707,7 +756,8 @@ public:
     */
     bool replaceWithText (const String& textToWrite,
                           bool asUnicode = false,
-                          bool writeUnicodeHeaderBytes = false) const;
+                          bool writeUnicodeHeaderBytes = false,
+                          const char* lineEndings = "\r\n") const;
 
     /** Attempts to scan the contents of this file and compare it to another file, returning
         true if this is possible and they match byte-for-byte.
@@ -987,12 +1037,27 @@ public:
     */
     File getLinkedTarget() const;
 
+    /** Create a symbolic link to a native path and return a boolean to indicate success.
+
+        Use this method if you want to create a link to a relative path or a special native
+        file path (such as a device file on Windows).
+    */
+    static bool createSymbolicLink (const File& linkFileToCreate,
+                                    const String& nativePathOfTarget,
+                                    bool overwriteExisting);
+
+    /** This returns the native path that the symbolic link points to. The returned path
+        is a native path of the current OS and can be a relative, absolute or special path. */
+    String getNativeLinkedTarget() const;
+
    #if JUCE_WINDOWS || DOXYGEN
     /** Windows ONLY - Creates a win32 .LNK shortcut file that links to this file. */
     bool createShortcut (const String& description, const File& linkFileToCreate) const;
 
     /** Windows ONLY - Returns true if this is a win32 .LNK file. */
     bool isShortcut() const;
+   #else
+
    #endif
 
     //==============================================================================
@@ -1030,21 +1095,14 @@ public:
         bool foldersFirst;
     };
 
-   #if (! defined(DOXYGEN)) && (! defined (JUCE_GCC))
-    // Deprecated: use File::getSeparatorChar() and File::getSeparatorString() instead!
-    JUCE_DEPRECATED (static const juce_wchar separator);
-    JUCE_DEPRECATED (static const StringRef separatorString);
-   #endif
-
-    //==============================================================================
-   #if JUCE_ALLOW_STATIC_NULL_VARIABLES
-    /** This was a static empty File object, but is now deprecated as it's too easy to accidentally
-        use it indirectly during a static constructor, leading to hard-to-find order-of-initialisation
-        problems.
-        @deprecated If you need a default-constructed File object, just use File() or {}.
+    /* These static objects are deprecated because it's too easy to accidentally use them indirectly
+       during a static constructor, which leads to very obscure order-of-initialisation bugs.
+       Use File::getSeparatorChar() and File::getSeparatorString(), and instead of File::nonexistent,
+       just use File() or {}.
     */
-    static const File nonexistent;
-   #endif
+    JUCE_DEPRECATED_STATIC (static const juce_wchar separator;)
+    JUCE_DEPRECATED_STATIC (static const StringRef separatorString;)
+    JUCE_DEPRECATED_STATIC (static const File nonexistent;)
 
 private:
     //==============================================================================

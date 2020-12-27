@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -52,15 +52,16 @@ public:
         Android         = 0x0800,
         iOS             = 0x1000,
 
-        MacOSX_10_4     = MacOSX | 4,
-        MacOSX_10_5     = MacOSX | 5,
-        MacOSX_10_6     = MacOSX | 6,
         MacOSX_10_7     = MacOSX | 7,
         MacOSX_10_8     = MacOSX | 8,
         MacOSX_10_9     = MacOSX | 9,
         MacOSX_10_10    = MacOSX | 10,
         MacOSX_10_11    = MacOSX | 11,
         MacOSX_10_12    = MacOSX | 12,
+        MacOSX_10_13    = MacOSX | 13,
+        MacOSX_10_14    = MacOSX | 14,
+        MacOSX_10_15    = MacOSX | 15,
+        MacOSX_11_0     = MacOSX | 16,
 
         Win2000         = Windows | 1,
         WinXP           = Windows | 2,
@@ -156,7 +157,7 @@ public:
         @returns    the speed in megahertz, e.g. 1500, 2500, 32000 (depending on
                     what year you're reading this...)
     */
-    static int getCpuSpeedInMegaherz();
+    static int getCpuSpeedInMegahertz();
 
     /** Returns a string to indicate the CPU vendor.
         Might not be known on some systems.
@@ -168,17 +169,29 @@ public:
     */
     static String getCpuModel();
 
-    static bool hasMMX() noexcept;    /**< Returns true if Intel MMX instructions are available. */
-    static bool has3DNow() noexcept;  /**< Returns true if AMD 3DNOW instructions are available. */
-    static bool hasSSE() noexcept;    /**< Returns true if Intel SSE instructions are available. */
-    static bool hasSSE2() noexcept;   /**< Returns true if Intel SSE2 instructions are available. */
-    static bool hasSSE3() noexcept;   /**< Returns true if Intel SSE3 instructions are available. */
-    static bool hasSSSE3() noexcept;  /**< Returns true if Intel SSSE3 instructions are available. */
-    static bool hasSSE41() noexcept;  /**< Returns true if Intel SSE4.1 instructions are available. */
-    static bool hasSSE42() noexcept;  /**< Returns true if Intel SSE4.2 instructions are available. */
-    static bool hasAVX() noexcept;    /**< Returns true if Intel AVX instructions are available. */
-    static bool hasAVX2() noexcept;   /**< Returns true if Intel AVX2 instructions are available. */
-    static bool hasNeon() noexcept;   /**< Returns true if ARM NEON instructions are available. */
+    static bool hasMMX() noexcept;             /**< Returns true if Intel MMX instructions are available. */
+    static bool has3DNow() noexcept;           /**< Returns true if AMD 3DNOW instructions are available. */
+    static bool hasFMA3() noexcept;            /**< Returns true if AMD FMA3 instructions are available. */
+    static bool hasFMA4() noexcept;            /**< Returns true if AMD FMA4 instructions are available. */
+    static bool hasSSE() noexcept;             /**< Returns true if Intel SSE instructions are available. */
+    static bool hasSSE2() noexcept;            /**< Returns true if Intel SSE2 instructions are available. */
+    static bool hasSSE3() noexcept;            /**< Returns true if Intel SSE3 instructions are available. */
+    static bool hasSSSE3() noexcept;           /**< Returns true if Intel SSSE3 instructions are available. */
+    static bool hasSSE41() noexcept;           /**< Returns true if Intel SSE4.1 instructions are available. */
+    static bool hasSSE42() noexcept;           /**< Returns true if Intel SSE4.2 instructions are available. */
+    static bool hasAVX() noexcept;             /**< Returns true if Intel AVX instructions are available. */
+    static bool hasAVX2() noexcept;            /**< Returns true if Intel AVX2 instructions are available. */
+    static bool hasAVX512F() noexcept;         /**< Returns true if Intel AVX-512 Foundation instructions are available. */
+    static bool hasAVX512BW() noexcept;        /**< Returns true if Intel AVX-512 Byte and Word instructions are available. */
+    static bool hasAVX512CD() noexcept;        /**< Returns true if Intel AVX-512 Conflict Detection instructions are available. */
+    static bool hasAVX512DQ() noexcept;        /**< Returns true if Intel AVX-512 Doubleword and Quadword instructions are available. */
+    static bool hasAVX512ER() noexcept;        /**< Returns true if Intel AVX-512 Exponential and Reciprocal instructions are available. */
+    static bool hasAVX512IFMA() noexcept;      /**< Returns true if Intel AVX-512 Integer Fused Multiply-Add instructions are available. */
+    static bool hasAVX512PF() noexcept;        /**< Returns true if Intel AVX-512 Prefetch instructions are available. */
+    static bool hasAVX512VBMI() noexcept;      /**< Returns true if Intel AVX-512 Vector Bit Manipulation instructions are available. */
+    static bool hasAVX512VL() noexcept;        /**< Returns true if Intel AVX-512 Vector Length instructions are available. */
+    static bool hasAVX512VPOPCNTDQ() noexcept; /**< Returns true if Intel AVX-512 Vector Population Count Double and Quad-word instructions are available. */
+    static bool hasNeon() noexcept;            /**< Returns true if ARM NEON instructions are available. */
 
     //==============================================================================
     /** Finds out how much RAM is in the machine.
@@ -199,10 +212,10 @@ public:
     */
     static String getStackBacktrace();
 
-    /** A function type for use in setApplicationCrashHandler(). The parameter will contain
-        platform-specific data about the crash.
+    /** A function type for use in setApplicationCrashHandler().
+        When called, its void* argument will contain platform-specific data about the crash.
     */
-    typedef void (*CrashHandlerFunction) (void*);
+    using CrashHandlerFunction = void(*)(void*);
 
     /** Sets up a global callback function that will be called if the application
         executes some kind of illegal instruction.
@@ -213,15 +226,17 @@ public:
     static void setApplicationCrashHandler (CrashHandlerFunction);
 
     /** Returns true if this code is running inside an app extension sandbox.
-
         This function will always return false on windows, linux and android.
     */
     static bool isRunningInAppExtensionSandbox() noexcept;
 
-private:
-    //==============================================================================
-    SystemStats();
 
+    //==============================================================================
+    // This method was spelt wrong! Please change your code to use getCpuSpeedInMegahertz() instead
+    JUCE_DEPRECATED_WITH_BODY (static int getCpuSpeedInMegaherz(), { return getCpuSpeedInMegahertz(); })
+
+private:
+    SystemStats() = delete; // uses only static methods
     JUCE_DECLARE_NON_COPYABLE (SystemStats)
 };
 

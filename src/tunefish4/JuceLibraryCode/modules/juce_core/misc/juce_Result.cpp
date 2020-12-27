@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -42,13 +42,13 @@ Result& Result::operator= (const Result& other)
 }
 
 Result::Result (Result&& other) noexcept
-    : errorMessage (static_cast<String&&> (other.errorMessage))
+    : errorMessage (std::move (other.errorMessage))
 {
 }
 
 Result& Result::operator= (Result&& other) noexcept
 {
-    errorMessage = static_cast<String&&> (other.errorMessage);
+    errorMessage = std::move (other.errorMessage);
     return *this;
 }
 

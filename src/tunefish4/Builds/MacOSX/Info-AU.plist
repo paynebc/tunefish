@@ -18,9 +18,9 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleShortVersionString</key>
-    <string>4.2.0</string>
+    <string>4.3.0</string>
     <key>CFBundleVersion</key>
-    <string>4.2.0</string>
+    <string>4.3.0</string>
     <key>NSHumanReadableCopyright</key>
     <string>Brain Control</string>
     <key>NSHighResolutionCapable</key>
@@ -41,7 +41,14 @@
         <key>subtype</key>
         <string>Tfs4</string>
         <key>version</key>
-        <integer>262656</integer>
+        <integer>262912</integer>
+        <key>resourceUsage</key>
+        <dict>
+          <key>network.client</key>
+          <true/>
+          <key>temporary-exception.files.all.read-write</key>
+          <true/>
+        </dict>
       </dict>
     </array>
   </dict>
