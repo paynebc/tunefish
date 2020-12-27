@@ -119,7 +119,6 @@ private:
     void _configSetWaveformsMoving(bool value);
 
     bool m_wasWindowHidden;
-    OpenGLContext m_openGlContext;
     ApplicationProperties m_appProperties;
     TextButton m_btnAnimationsOn;
     TextButton m_btnFastAnimations;

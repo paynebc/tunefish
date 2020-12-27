@@ -72,8 +72,6 @@
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -110,8 +108,6 @@
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -140,8 +136,6 @@
                        enablePluginBinaryCopyStep="0" linkTimeOptimisation="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_graphics" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -173,8 +167,6 @@
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_video" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
@@ -198,11 +190,9 @@
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <LIVE_SETTINGS>
     <OSX enableCxx11="1"/>
   </LIVE_SETTINGS>
-  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled" JUCE_WEB_BROWSER="0" JUCE_USE_WIN_WEBVIEW2="0"/>
 </JUCERPROJECT>

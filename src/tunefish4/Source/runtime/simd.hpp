@@ -36,8 +36,8 @@ typedef simd::float2 eF32x2;
 #define eSimdAdd(v0, v1)                            (v0 + v1)
 #define eSimdMax(v0, v1)                            simd::fmax(v0, v1)
 #define eSimdMin(v0, v1)                            simd::fmin(v0, v1)
-#define eSimdFma(add, mul0, mul1)                   simd::fma(add, mul1, mul1)
-#define eSimdNfma(sub, mul0, mul1)                  (sub - mul0 * mul1)
+#define eSimdFma(add, mul0, mul1)                   simd::fma(mul0, mul1, add)
+#define eSimdNfma(sub, mul0, mul1)                  (sub - (mul0 * mul1))
 #define eSimdStore2(v, v0, v1)                      v0 = v.x; v1 = v.y;
 
 enum eSimdArithmeticFlags

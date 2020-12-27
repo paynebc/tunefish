@@ -231,8 +231,8 @@ Tunefish4AudioProcessorEditor::Tunefish4AudioProcessorEditor (Tunefish4AudioProc
     m_imgShapeSawDown(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeSquare(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
     m_imgShapeNoise(Image::ARGB, PIXWIDTH, PIXHEIGHT, true),
-    m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
-    m_meter(*ownerFilter, 2, 0)
+    m_meter(*ownerFilter, 2, 0),
+    m_midiKeyboard(ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
 	setLookAndFeel(TfLookAndFeel::getInstance());
     setSize(1080, 800);
