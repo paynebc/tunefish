@@ -81,7 +81,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="c:/dev/3rdparty/vst"
-            vst3Folder="C:\SDKs\VST_SDK\VST3_SDK">
+            vst3Folder="C:\SDKs\VST_SDK\VST3_SDK" vstLegacyFolder="c:\SDKs\VST_SDK\VST2_SDK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
@@ -116,7 +116,8 @@
         <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
-    <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="C:\SDKs\VST_SDK\VST3_SDK">
+    <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="C:\SDKs\VST_SDK\VST3_SDK"
+            vstLegacyFolder="c:\SDKs\VST_SDK\VST2_SDK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="Tunefish4" binaryPath="..\..\binary\x86\"
@@ -152,7 +153,7 @@
       </MODULEPATHS>
     </VS2017>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst"
-                extraCompilerFlags="-fpermissive">
+                extraCompilerFlags="-fpermissive" vstLegacyFolder="~/SDKs/VST_SDK/VST2_SDK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="Tunefish4"/>
