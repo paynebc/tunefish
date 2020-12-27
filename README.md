@@ -10,8 +10,8 @@ Check our website at https://tunefish-synth.com
 
 ### Compiling on Windows
 
-Compile using Visual Studio 2015. Solution can be found in
-/src/tunefish4/Builds/VisualStudio2015
+Compile using Visual Studio 2017. Solution can be found in
+/src/tunefish4/Builds/VisualStudio2017
 
 VST SDK has to be put in directory c:/SDKs
 
@@ -24,7 +24,9 @@ VST SDK has to be put in directory ~/SDKs
 
 ### Compiling on Linux
 
-The following additional packages are needed on Ubuntu 14.04 to compile:
+VST SDK has to be put in directory ~/SDKs
+
+The following additional packages are needed on Ubuntu 20.04 to compile:
 
 * libgl1-mesa-dev 
 * libfreetype6-dev 
@@ -33,13 +35,11 @@ The following additional packages are needed on Ubuntu 14.04 to compile:
 * libxinerama-dev 
 * libxcursor-dev 
 * libcurl4-openssl-dev 
-* libgtk-3-dev
-* webkit2gtk-4.0
 
 Install them using:
 
 ```
-sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev libgtk-3-dev webkit2gtk-4.0
+sudo apt-get install libgl1-mesa-dev libfreetype6-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libcurl4-openssl-dev 
 ```
 
 run make in directory
