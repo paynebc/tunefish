@@ -10,5 +10,6 @@ xcopy ..\README.txt . /v /y
 xcopy ..\COPYING . /v /y
 xcopy ..\CHANGES.txt . /v /y 
 
+"C:\Program Files (x86)\Inno Setup 6\iscc" /dAppVersion="%VER%-x64" ..\installers\tf4_win\Tunefish4.iss
 zip ..\artifacts\tunefish4-%VER%-x64.zip . -r
 cd ..\scripts
