@@ -62,14 +62,26 @@
 													<key>CHILDREN</key>
 													<array>
 														<dict>
+															<key>BUNDLE_CAN_DOWNGRADE</key>
+															<false/>
+															<key>BUNDLE_POSTINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
+															<key>BUNDLE_PREINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
 															<key>CHILDREN</key>
 															<array/>
 															<key>GID</key>
 															<integer>0</integer>
 															<key>PATH</key>
-															<string>/Users/chris/src/bc/tunefish/src/tunefish4/Builds/MacOSX/build/Debug/Tunefish4.component</string>
+															<string>../../build/Tunefish4.component</string>
 															<key>PATH_TYPE</key>
-															<integer>0</integer>
+															<integer>1</integer>
 															<key>PERMISSIONS</key>
 															<integer>493</integer>
 															<key>TYPE</key>
@@ -587,14 +599,26 @@
 													<key>CHILDREN</key>
 													<array>
 														<dict>
+															<key>BUNDLE_CAN_DOWNGRADE</key>
+															<false/>
+															<key>BUNDLE_POSTINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
+															<key>BUNDLE_PREINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
 															<key>CHILDREN</key>
 															<array/>
 															<key>GID</key>
 															<integer>0</integer>
 															<key>PATH</key>
-															<string>/Users/chris/src/bc/tunefish/src/tunefish4/Builds/MacOSX/build/Debug/Tunefish4.vst</string>
+															<string>../../build/Tunefish4.vst</string>
 															<key>PATH_TYPE</key>
-															<integer>0</integer>
+															<integer>1</integer>
 															<key>PERMISSIONS</key>
 															<integer>493</integer>
 															<key>TYPE</key>
@@ -1112,14 +1136,26 @@
 													<key>CHILDREN</key>
 													<array>
 														<dict>
+															<key>BUNDLE_CAN_DOWNGRADE</key>
+															<false/>
+															<key>BUNDLE_POSTINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
+															<key>BUNDLE_PREINSTALL_PATH</key>
+															<dict>
+																<key>PATH_TYPE</key>
+																<integer>0</integer>
+															</dict>
 															<key>CHILDREN</key>
 															<array/>
 															<key>GID</key>
 															<integer>0</integer>
 															<key>PATH</key>
-															<string>/Users/chris/src/bc/tunefish/src/tunefish4/Builds/MacOSX/build/Debug/Tunefish4.vst3</string>
+															<string>../../build/Tunefish4.vst3</string>
 															<key>PATH_TYPE</key>
-															<integer>0</integer>
+															<integer>1</integer>
 															<key>PERMISSIONS</key>
 															<integer>493</integer>
 															<key>TYPE</key>
@@ -1770,6 +1806,15 @@
 				</array>
 			</dict>
 		</dict>
+		<key>PROJECT_REQUIREMENTS</key>
+		<dict>
+			<key>LIST</key>
+			<array/>
+			<key>RESOURCES</key>
+			<array/>
+			<key>ROOT_VOLUME_ONLY</key>
+			<false/>
+		</dict>
 		<key>PROJECT_SETTINGS</key>
 		<dict>
 			<key>BUILD_FORMAT</key>
@@ -1950,9 +1995,11 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>Tunefish 4</string>
+			<string>Tunefish4</string>
 			<key>PAYLOAD_ONLY</key>
 			<false/>
+			<key>REFERENCE_FOLDER_PATH</key>
+			<string>/Users/chris/src/bc/tunefish</string>
 			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>
 			<false/>
 		</dict>

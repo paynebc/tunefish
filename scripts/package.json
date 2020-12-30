@@ -1,9 +1,9 @@
 {
-  "name": "kiwi-tools",
+  "name": "tf-tools",
   "version": "1.0.0",
   "main": "app.js",
   "dependencies": {
-    "simple-git": "*",
-    "moment": "*"
+    "moment": "*",
+    "simple-git": "*"
   }
 }

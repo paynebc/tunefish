@@ -10,6 +10,9 @@ cp ../README.txt .
 cp ../CHANGES.txt .
 cp ../COPYING .
 
-zip -9 -r ../artifacts/tunefish4-$(cat ../FULLVERSION_TF4)-x64.zip *
+zip -9 -r ../artifacts/tunefish4-$(cat ../FULLVERSION_TF4).zip *
+
+packagesbuild ../installers/tf4_mac/Tunefish\ 4.pkgproj
+cp ../installers/tf4_mac/build/Tunefish4.pkg ../artifacts/tunefish4-$(cat ../FULLVERSION_TF4).pkg
 
 cd ../scripts
