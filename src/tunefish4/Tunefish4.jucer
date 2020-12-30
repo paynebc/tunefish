@@ -11,8 +11,8 @@
               pluginAAXCategory="2" companyName="Brain Control" companyWebsite="http://www.tunefish-synth.com"
               companyEmail="payne@braincontrol.org" pluginIsMidiEffectPlugin="0"
               displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
-              buildAUv3="0" buildStandalone="0" enableIAA="0" cppLanguageStandard="11"
-              companyCopyright="Brain Control" pluginFormats="buildVST,buildVST3,buildAU"
+              buildAUv3="1" buildStandalone="0" enableIAA="0" cppLanguageStandard="11"
+              companyCopyright="Brain Control" pluginFormats="buildAU,buildAUv3,buildVST,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               jucerFormatVersion="1">
   <MAINGROUP id="pOTaV2" name="Tunefish4">
@@ -71,13 +71,12 @@
         <MODULEPATH id="juce_data_structures" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="c:/dev/3rdparty/vst"
@@ -107,13 +106,12 @@
         <MODULEPATH id="juce_data_structures" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
     <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="C:\SDKs\VST_SDK\VST3_SDK"
@@ -142,14 +140,13 @@
         <MODULEPATH id="juce_graphics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_events" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_data_structures" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_core" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </VS2017>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vstFolder="~/src/3rdparty/vst"
@@ -167,25 +164,23 @@
         <MODULEPATH id="juce_data_structures" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\3rdparty\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\3rdparty\JUCE\modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../3rdparty/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../3rdparty/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
     <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>

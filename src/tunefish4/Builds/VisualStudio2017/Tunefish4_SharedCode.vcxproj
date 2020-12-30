@@ -1268,27 +1268,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\juce_core.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_BlowFish.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_Primes.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_RSAKey.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_MD5.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_SHA256.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_Whirlpool.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_cryptography\juce_cryptography.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_ApplicationProperties.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2175,7 +2154,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_processors.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_utils.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_core.cpp"/>
-    <ClCompile Include="..\..\JuceLibraryCode\include_juce_cryptography.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_data_structures.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_events.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_graphics.cpp"/>
@@ -2665,13 +2643,6 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\zip\juce_GZIPDecompressorInputStream.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\zip\juce_ZipFile.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\juce_core.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_BlowFish.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_Primes.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\encryption\juce_RSAKey.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_MD5.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_SHA256.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\hashing\juce_Whirlpool.h"/>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\juce_cryptography.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_PropertiesFile.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\undomanager\juce_UndoableAction.h"/>
