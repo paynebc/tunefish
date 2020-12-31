@@ -24,3 +24,5 @@ src/tunefish4player/release/
 FULLVERSION_TF4
 scripts/node_modules/
 build/
+artifacts/
+
