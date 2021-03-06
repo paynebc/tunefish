@@ -373,6 +373,14 @@ void Tunefish4AudioProcessor::processEvents(MidiBuffer &midiMessages, eU32 messa
 
             eTfInstrumentPitchBend(*tf, semitones, cents);
         }
+        else if (midiMessage.isController())
+        {
+            const auto controllerNumber = midiMessage.getControllerNumber();
+            const auto controllerValue = midiMessage.getControllerValue();
+
+            if (controllerNumber == 1)
+                eTfInstrumentModWheel(*tf, controllerValue / 127.0f);
+        }
     }
 }
 

@@ -409,8 +409,8 @@ struct eTfModMatrix
         INPUT_LFO2,
         INPUT_ADSR1,
         INPUT_ADSR2,
-
-        INPUT_RESERVED1,
+        INPUT_MODWHEEL,
+        
         INPUT_RESERVED2,
         INPUT_RESERVED3,
         INPUT_RESERVED4,
@@ -600,6 +600,7 @@ struct eTfInstrument
     eS16            output[TF_MAXFRAMESIZE*2];
     eF32            lfo1Phase;
     eF32            lfo2Phase;
+    eF32            modWheel;
     eTfVoice        voice[TF_MAXVOICES];
     eTfVoice *      latestTriggeredVoice;
     eF32            tempBuffers[2][TF_MAXFRAMESIZE];
@@ -707,6 +708,7 @@ void    eTfInstrumentNoteOn(eTfInstrument &instr, eS32 note, eS32 velocity);
 eBool   eTfInstrumentNoteOff(eTfInstrument &instr, eS32 note);
 void    eTfInstrumentAllNotesOff(eTfInstrument &instr);
 void    eTfInstrumentPitchBend(eTfInstrument &instr, eF32 semitones, eF32 cents);
+void    eTfInstrumentModWheel(eTfInstrument &instr, eF32 amount);
 void    eTfInstrumentPanic(eTfInstrument &instr);
 eU32    eTfInstrumentGetPolyphony(eTfInstrument &instr);
 eU32    eTfInstrumentAllocateVoice(eTfInstrument &instr);

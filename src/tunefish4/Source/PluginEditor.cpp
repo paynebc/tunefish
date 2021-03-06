@@ -32,7 +32,7 @@
 // this is used for reading patches from a .txt file
 #define HAVE_PATCH_LOADER
 
-const char* MOD_SOURCES = "none|LFO1|LFO2|ADSR1|ADSR2";
+const char* MOD_SOURCES = "none|LFO1|LFO2|ADSR1|ADSR2|ModWheel";
 const char* MOD_TARGETS = "none|Bandwidth|Damp|Harmonics|Scale|Volume|Frequency|Panning|Detune|Spread|Drive|Noise|LP Cutoff|LP Resonance|HP Cutoff|HP Resonance|BP Cutoff|BP Q|NT Cutoff|NT Q|ADSR1 Decay|ADSR2 Decay|Mod1|Mod2|Mod3|Mod4|Mod5|Mod6|Mod7|Mod8";
 const char* FX_SECTIONS = "none|Distortion|Delay|Chorus|Flanger|Reverb|Formant|EQ";
 

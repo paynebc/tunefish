@@ -457,6 +457,11 @@ eBool eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &s
 
             state.entries[i].result = state.entries[i].mod * state.values[eTfModMatrix::INPUT_ADSR2] * state.modulation[i];
             break;
+                
+        case eTfModMatrix::INPUT_MODWHEEL:
+            state.values[eTfModMatrix::INPUT_MODWHEEL] = instr.modWheel;
+            state.entries[i].result = state.entries[i].mod * state.values[eTfModMatrix::INPUT_MODWHEEL] * state.modulation[i];
+            break;
         default:
             break;
         }
@@ -1213,6 +1218,7 @@ void eTfInstrumentInit(eTfInstrument &instr)
 #endif
 
     instr.lfo1Phase = instr.lfo2Phase = 0.0f;
+    instr.modWheel = 0.0f;
 
     for(eU32 i=0; i<TF_MAXEFFECTS; i++)
     {
@@ -1520,6 +1526,11 @@ void eTfInstrumentPitchBend(eTfInstrument &instr, eF32 semitones, eF32 cents)
     {
         eTfVoicePitchBend(instr.voice[i], semitones, cents);
     }
+}
+
+void eTfInstrumentModWheel(eTfInstrument &instr, eF32 amount)
+{
+    instr.modWheel = amount;
 }
 
 void eTfInstrumentPanic(eTfInstrument &instr)
