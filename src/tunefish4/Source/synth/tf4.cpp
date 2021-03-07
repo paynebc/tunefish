@@ -346,10 +346,10 @@ void eTfLfoReset(eTfLfo &state, eF32 phase)
     state.phase = phase;
 }
 
-eF32 eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eU32 paramOffset, eU32 frameSize)
+eF32 eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eF32 depthMod, eU32 paramOffset, eU32 frameSize)
 {
     eF32 freq = instr.params[paramOffset];
-    eF32 depth = instr.params[paramOffset+1];
+    eF32 depth = instr.params[paramOffset+1] * depthMod;
     eU32 shape = eFtoL(eRoundNearest(instr.params[paramOffset + 2] * (TF_LFOSHAPECOUNT - 1)));
 
     eF32 result = 1.0f;
@@ -423,14 +423,23 @@ eBool eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &s
         switch(state.entries[i].src)
         {
         case eTfModMatrix::INPUT_LFO1:
-            if (!lfo1_done)    state.values[eTfModMatrix::INPUT_LFO1] = eTfLfoProcess(synth, instr, state.lfoState[0], TF_LFO1_RATE, frameSize);
-            lfo1_done = eTRUE;
+            if (!lfo1_done)
+            {
+                eF32 depthMod = eTfModMatrixGet(state, eTfModMatrix::OUTPUT_LFO1_DEPTH);
+                state.values[eTfModMatrix::INPUT_LFO1] = eTfLfoProcess(synth, instr, state.lfoState[0], depthMod, TF_LFO1_RATE, frameSize);
+                lfo1_done = eTRUE;
+            }
             state.entries[i].result = state.entries[i].mod * state.values[eTfModMatrix::INPUT_LFO1] * state.modulation[i];
             break;
 
         case eTfModMatrix::INPUT_LFO2:
-            if (!lfo2_done) state.values[eTfModMatrix::INPUT_LFO2] = eTfLfoProcess(synth, instr, state.lfoState[1], TF_LFO2_RATE, frameSize);
-            lfo2_done = eTRUE;
+            if (!lfo2_done)
+            {
+                eF32 depthMod = eTfModMatrixGet(state, eTfModMatrix::OUTPUT_LFO2_DEPTH);
+                state.values[eTfModMatrix::INPUT_LFO2] = eTfLfoProcess(synth, instr, state.lfoState[1], depthMod, TF_LFO2_RATE, frameSize);
+                lfo2_done = eTRUE;
+            }
+                
             state.entries[i].result = state.entries[i].mod * state.values[eTfModMatrix::INPUT_LFO2] * state.modulation[i];
             break;
 
@@ -790,6 +799,8 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
         detune  *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_DETUNE);
         drive   *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_DRIVE);
         spread  *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_SPREAD);
+        panning *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_PAN);
+        panning = eClamp(0.0f, panning, 1.0f);
         eF32 freqMod = eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_FREQ);
 
         maxFrameVolume = eMax(maxCurrentVolume, vol);

@@ -457,9 +457,9 @@ struct eTfModMatrix
         OUTPUT_MOD6,
         OUTPUT_MOD7,
         OUTPUT_MOD8,
-
-        OUTPUT_RESERVED1,
-        OUTPUT_RESERVED2,
+        OUTPUT_LFO1_DEPTH,
+        OUTPUT_LFO2_DEPTH,
+        
         OUTPUT_RESERVED3,
         OUTPUT_RESERVED4,
         OUTPUT_RESERVED5,
@@ -671,7 +671,7 @@ void    eTfEnvelopeNoteOff(eTfEnvelope &state);
 eF32    eTfEnvelopeProcess(eTfSynth &synth, eTfInstrument &instr, eTfEnvelope &envState, eF32 decayMod, eU32 paramOffset, eU32 frameSize);
 
 void    eTfLfoReset(eTfLfo &state, eF32 phase);
-eF32    eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eU32 paramOffset, eU32 frameSize);
+eF32    eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eF32 depthMod, eU32 paramOffset, eU32 frameSize);
 
 void    eTfModMatrixReset(eTfModMatrix &state);
 void    eTfModMatrixNoteOn(eTfModMatrix &state, eF32 lfoPhase1, eF32 lfoPhase2);
