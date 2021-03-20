@@ -401,6 +401,13 @@ struct eTfGenerator
 
 struct eTfModMatrix
 {
+    enum Range
+    {
+        MMR_ONE_TO_ZERO,
+        MMR_ZERO_TO_ONE,
+        MMR_MINUS_ONE_TO_ONE,
+    };
+    
     enum Input
     {
         INPUT_NONE = 0,
@@ -476,6 +483,7 @@ struct eTfModMatrix
     {
         Input       src;
         Output      dst;
+        eF32        srcDepth;
         eF32        mod;
         eF32        result;
     };
@@ -671,7 +679,7 @@ void    eTfEnvelopeNoteOff(eTfEnvelope &state);
 eF32    eTfEnvelopeProcess(eTfSynth &synth, eTfInstrument &instr, eTfEnvelope &envState, eF32 decayMod, eU32 paramOffset, eU32 frameSize);
 
 void    eTfLfoReset(eTfLfo &state, eF32 phase);
-eF32    eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eF32 depthMod, eU32 paramOffset, eU32 frameSize);
+eF32    eTfLfoProcess(eTfSynth &synth, eTfInstrument &instr, eTfLfo &lfoState, eF32 depthMod, eU32 paramOffset, eU32 frameSize, eF32 *depthOut = nullptr);
 
 void    eTfModMatrixReset(eTfModMatrix &state);
 void    eTfModMatrixNoteOn(eTfModMatrix &state, eF32 lfoPhase1, eF32 lfoPhase2);
@@ -679,7 +687,7 @@ void    eTfModMatrixNoteOff(eTfModMatrix &state);
 void    eTfModMatrixPanic(eTfModMatrix &state);
 eBool   eTfModMatrixIsActive(eTfModMatrix &state);
 eBool   eTfModMatrixProcess(eTfSynth &synth, eTfInstrument &instr, eTfModMatrix &state, eU32 frameSize);
-eF32    eTfModMatrixGet(eTfModMatrix &state, eTfModMatrix::Output output);
+eF32    eTfModMatrixGet(eTfModMatrix &state, eTfModMatrix::Output output, eTfModMatrix::Range range = eTfModMatrix::MMR_ONE_TO_ZERO);
 
 void    eTfGeneratorReset(eTfGenerator &state);
 void    eTfGeneratorFft(eTfFftType type, eU32 frameSize, eF32 *buffer);
