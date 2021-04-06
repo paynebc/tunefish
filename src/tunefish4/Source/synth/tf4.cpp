@@ -821,8 +821,9 @@ eBool eTfGeneratorProcess(eTfSynth &synth, eTfInstrument &instr, eTfVoice &voice
         spread  *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_SPREAD);
         panning *= eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_PAN);
         panning = eClamp(0.0f, panning, 1.0f);
-        eF32 freqMod = eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_FREQ, eTfModMatrix::MMR_MINUS_ONE_TO_ONE);
-        freqMod = freqMod * 0.1f + 1.0f;  // we need it in the range 0.9 - 1.1
+		eF32 freqMod = eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_FREQ);
+        //eF32 freqMod = eTfModMatrixGet(voice.modMatrix, eTfModMatrix::OUTPUT_FREQ, eTfModMatrix::MMR_MINUS_ONE_TO_ONE);
+        //freqMod = freqMod * 0.1f + 1.0f;  // we need it in the range 0.9 - 1.1
 
         maxFrameVolume = eMax(maxCurrentVolume, vol);
         if (maxFrameVolume < 0.001f)
